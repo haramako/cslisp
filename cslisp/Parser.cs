@@ -4,11 +4,20 @@ using System.Text;
 
 namespace Lisp
 {
-    public static class Cons
+    public class Cons
     {
-        public static Value ConsWithSource(Port src, Value car, Value cdr)
+        Value Car;
+        Value Cdr;
+
+        public Cons(Value car, Value cdr)
         {
-            return new Value();
+            Car = car;
+            Cdr = cdr;
+        }
+
+        public static Value WithLocation(Port src, Value car, Value cdr)
+        {
+            return new Value(new Cons(car, cdr));
         }
     }
 
@@ -84,7 +93,7 @@ namespace Lisp
                     else
                     {
                         var cdr = parseList(s);
-                        return Cons.ConsWithSource(s, val, cdr);
+                        return Cons.WithLocation(s, val, cdr);
                     }
             }
         }
@@ -281,13 +290,13 @@ namespace Lisp
                 case '\'':
                     {
                         var result = Parse(s);
-                        result = Cons.ConsWithSource(s, C.Quote, Cons.ConsWithSource(s, result, Value.Nil));
+                        result = Cons.WithLocation(s, C.Quote, Cons.WithLocation(s, result, Value.Nil));
                         return result;
                     }
                 case '`':
                     {
                         var result = Parse(s);
-                        result = Cons.ConsWithSource(s, C.QuasiQuote, Cons.ConsWithSource(s, result, Value.Nil));
+                        result = Cons.WithLocation(s, C.QuasiQuote, Cons.WithLocation(s, result, Value.Nil));
                         return result;
                     }
                 case ',':
@@ -303,7 +312,7 @@ namespace Lisp
                         }
 
                         var result = Parse(s);
-                        result = Cons.ConsWithSource(s, sym, Cons.ConsWithSource(s, result, Value.Nil));
+                        result = Cons.WithLocation(s, sym, Cons.WithLocation(s, result, Value.Nil));
                         return result;
                     }
                 default:

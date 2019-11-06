@@ -10,8 +10,10 @@ namespace Lisp
 		Integer,
 		Float,
 		Bool,
-		String,
-		Table,
+
+		Cons,
+        String,
+        Table,
 		Object,
 		UserData,
 
@@ -32,7 +34,8 @@ namespace Lisp
 		const ulong NilMark = (((ulong)ValueType.Nil) << 48) | NonFloatBits;
 		const ulong IntegerMark = (((ulong)ValueType.Integer) << 48) | NonFloatBits;
 		const ulong StringMark = (((ulong)ValueType.String) << 48) | NonFloatBits;
-		const ulong BoolMark = (((ulong)ValueType.Bool) << 48) | NonFloatBits;
+        const ulong ConsMark = (((ulong)ValueType.Cons) << 48) | NonFloatBits;
+        const ulong BoolMark = (((ulong)ValueType.Bool) << 48) | NonFloatBits;
 		const ulong TableMark = (((ulong)ValueType.Table) << 48) | NonFloatBits;
 		const ulong UserDataMark = (((ulong)ValueType.UserData) << 48) | NonFloatBits;
 		const ulong ObjectMark = (((ulong)ValueType.Object) << 48) | NonFloatBits;
@@ -73,6 +76,21 @@ namespace Lisp
 			obj_ = null;
 			AsFloat = v;
 		}
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Value(Cons v)
+        {
+            if (v == null)
+            {
+                val_ = NilMark;
+                obj_ = null;
+            }
+            else
+            {
+                val_ = ConsMark;
+                obj_ = v;
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Value(string v)
@@ -223,6 +241,15 @@ namespace Lisp
 			}
 		}
 
+        public bool IsCons
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return ValueType == ValueType.Cons;
+            }
+        }
+
         public bool IsTable {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -284,7 +311,23 @@ namespace Lisp
 			}
 		}
 
-		public string AsString {
+        public Cons AsCons
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                checkType(ValueType.Cons);
+                return (Cons)obj_;
+            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set
+            {
+                val_ = ConsMark;
+                obj_ = value;
+            }
+        }
+
+        public string AsString {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
@@ -372,6 +415,12 @@ namespace Lisp
 				}
 			}
 		}
+
+        public T As<T>() where T: class
+        {
+            checkType(ValueType.UserData);
+            return (T)obj_;
+        }
 
         //====================================================
         // Lua operators
@@ -499,7 +548,7 @@ namespace Lisp
 		}
 #endif
 
-		public int Len()
+        public int Len()
 		{
 			switch (ValueType) {
 			case ValueType.String:
