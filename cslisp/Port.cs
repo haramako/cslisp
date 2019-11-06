@@ -11,10 +11,14 @@ namespace Lisp
         StreamReader r_;
         char unreadBuf_;
 
-        public Port(Stream s)
+        public string Filename { get; private set; }
+        public int Line { get; private set; } = 1;
+
+        public Port(Stream s, string filename = null)
         {
             s_ = s;
             r_ = new StreamReader(s_);
+            Filename = filename;
         }
 
         public char ReadChar()
@@ -27,7 +31,12 @@ namespace Lisp
             }
             else
             {
-                return (char)r_.Read();
+                var c = (char)r_.Read();
+                if( c == '\n')
+                {
+                    Line += 1;
+                }
+                return c;
             }
         }
 

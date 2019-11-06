@@ -4,42 +4,6 @@ using System.Text;
 
 namespace Lisp
 {
-    public class Cons
-    {
-        Value Car;
-        Value Cdr;
-
-        public Cons(Value car, Value cdr)
-        {
-            Car = car;
-            Cdr = cdr;
-        }
-
-        public static Value WithLocation(Port src, Value car, Value cdr)
-        {
-            return new Value(new Cons(car, cdr));
-        }
-    }
-
-    public static class C
-    {
-        public static Value Nil = Value.Nil;
-        public static Value QuasiQuote = new Value("quasiquote");
-        public static Value Quote = new Value("quote");
-        public static Value Unquote = new Value("unquote");
-        public static Value UnquoteSplicing = new Value("quote-splicing");
-    }
-
-    public class Symbol
-    {
-        public static Value Dot = new Value(".");
-
-        public Symbol(string ident)
-        {
-
-        }
-    }
-
     public class Parser
     {
         void skipSpace(Port s)
