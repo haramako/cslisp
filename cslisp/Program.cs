@@ -1,13 +1,19 @@
 ﻿using System;
 using Lisp;
+using System.IO;
+using System.Text;
 
-namespace cslisp
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
+        var src = "(hoge 1 (2 3))";
+        var buf = Encoding.UTF8.GetBytes(src);
+        var s = new MemoryStream(buf);
+        var port = new Port(s);
+
+        var parser = new Parser();
+        parser.Parse(port);
+        Console.ReadKey();
     }
 }

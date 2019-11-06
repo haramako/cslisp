@@ -14,16 +14,16 @@ namespace Lisp
 
     public static class C
     {
-        public static Value Nil;
-        public static Value QuasiQuote;
-        public static Value Quote;
-        public static Value Unquote;
-        public static Value UnquoteSplicing;
+        public static Value Nil = Value.Nil;
+        public static Value QuasiQuote = new Value("quasiquote");
+        public static Value Quote = new Value("quote");
+        public static Value Unquote = new Value("unquote");
+        public static Value UnquoteSplicing = new Value("quote-splicing");
     }
 
     public class Symbol
     {
-        public static Value Dot;
+        public static Value Dot = new Value(".");
 
         public Symbol(string ident)
         {
@@ -73,11 +73,11 @@ namespace Lisp
                     return C.Nil;
                 default:
                     s.UnreadChar(c);
-                    var val = parse(s);
+                    var val = Parse(s);
 
                     if (val == Symbol.Dot)
                     {
-                        var cdr = parse(s);
+                        var cdr = Parse(s);
                         skipSpace(s);
                         return cdr;
                     }
@@ -122,6 +122,7 @@ namespace Lisp
                 sb.Append(c);
             }
             s.UnreadChar(c);
+            Console.WriteLine(sb.ToString());
             return sb.ToString();
         }
 
@@ -241,7 +242,7 @@ namespace Lisp
             }
         }
 
-        Value parse(Port s)
+        public Value Parse(Port s)
         {
             skipSpace(s);
             char c;
@@ -270,8 +271,8 @@ namespace Lisp
                             return new Value(false);
                         case ';':
                             // s-exp comment
-                            parse(s); // skip
-                            return parse(s);
+                            Parse(s); // skip
+                            return Parse(s);
                         default:
                             throw new LuaException($"invalid #char {c}\n");
                     }
@@ -279,13 +280,13 @@ namespace Lisp
                     return readString(s);
                 case '\'':
                     {
-                        var result = parse(s);
+                        var result = Parse(s);
                         result = Cons.ConsWithSource(s, C.Quote, Cons.ConsWithSource(s, result, Value.Nil));
                         return result;
                     }
                 case '`':
                     {
-                        var result = parse(s);
+                        var result = Parse(s);
                         result = Cons.ConsWithSource(s, C.QuasiQuote, Cons.ConsWithSource(s, result, Value.Nil));
                         return result;
                     }
@@ -301,7 +302,7 @@ namespace Lisp
                             s.UnreadChar(c);
                         }
 
-                        var result = parse(s);
+                        var result = Parse(s);
                         result = Cons.ConsWithSource(s, sym, Cons.ConsWithSource(s, result, Value.Nil));
                         return result;
                     }
