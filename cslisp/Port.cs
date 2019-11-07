@@ -9,7 +9,7 @@ namespace Lisp
     {
         Stream s_;
         StreamReader r_;
-        char unreadBuf_;
+        int unreadBuf_;
 
         public string Filename { get; private set; }
         public int Line { get; private set; } = 1;
@@ -21,7 +21,7 @@ namespace Lisp
             Filename = filename;
         }
 
-        public char ReadChar()
+        public int ReadChar()
         {
             if (unreadBuf_ != '\0')
             {
@@ -31,7 +31,7 @@ namespace Lisp
             }
             else
             {
-                var c = (char)r_.Read();
+                var c = r_.Read();
                 if( c == '\n')
                 {
                     Line += 1;
@@ -40,7 +40,7 @@ namespace Lisp
             }
         }
 
-        public void UnreadChar(char c)
+        public void UnreadChar(int c)
         {
             if (unreadBuf_ != '\0')
             {

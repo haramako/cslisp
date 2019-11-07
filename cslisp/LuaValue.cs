@@ -10,8 +10,9 @@ namespace Lisp
 		Integer,
 		Float,
 		Bool,
+        Symbol,
 
-		Cons,
+        Cons,
         String,
         Table,
 		Object,
@@ -32,10 +33,11 @@ namespace Lisp
 
 		const ulong NilMark = (((ulong)ValueType.Nil) << 48) | NonFloatBits;
 		const ulong IntegerMark = (((ulong)ValueType.Integer) << 48) | NonFloatBits;
-		const ulong StringMark = (((ulong)ValueType.String) << 48) | NonFloatBits;
-        const ulong ConsMark = (((ulong)ValueType.Cons) << 48) | NonFloatBits;
         const ulong BoolMark = (((ulong)ValueType.Bool) << 48) | NonFloatBits;
-		const ulong TableMark = (((ulong)ValueType.Table) << 48) | NonFloatBits;
+        const ulong SymbolMark = (((ulong)ValueType.Symbol) << 48) | NonFloatBits;
+        const ulong ConsMark = (((ulong)ValueType.Cons) << 48) | NonFloatBits;
+        const ulong StringMark = (((ulong)ValueType.String) << 48) | NonFloatBits;
+        const ulong TableMark = (((ulong)ValueType.Table) << 48) | NonFloatBits;
 		const ulong ObjectMark = (((ulong)ValueType.Object) << 48) | NonFloatBits;
 		const ulong ClosureMark = ObjectMark | (ulong)ValueType.Closure;
 		const ulong LuaApiMark = ObjectMark | (ulong)ValueType.LuaApi;
@@ -74,6 +76,14 @@ namespace Lisp
 			obj_ = null;
 			AsFloat = v;
 		}
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Value(Symbol v)
+        {
+            val_ = 0;
+            obj_ = null;
+            AsSymbol = v;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Value(Cons v)
@@ -231,6 +241,15 @@ namespace Lisp
 			}
 		}
 
+        public bool IsSymbol
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return ValueType == ValueType.Symbol;
+            }
+        }
+
         public bool IsString {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -321,6 +340,22 @@ namespace Lisp
             set
             {
                 val_ = ConsMark;
+                obj_ = value;
+            }
+        }
+
+        public Symbol AsSymbol
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                checkType(ValueType.Symbol);
+                return (Symbol)obj_;
+            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set
+            {
+                val_ = SymbolMark;
                 obj_ = value;
             }
         }
@@ -644,7 +679,8 @@ namespace Lisp
 				case ValueType.Table:
 				case ValueType.LuaApi:
 				case ValueType.Object:
-					return this.obj_ == x.obj_;
+				case ValueType.Symbol:
+                        return this.obj_ == x.obj_;
 				default:
 					return true;
 				}

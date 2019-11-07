@@ -37,9 +37,14 @@ namespace Lisp
                 case ValueType.Integer:
                     sb_.Append(v.AsInt);
                     break;
+                case ValueType.Symbol:
+                    sb_.Append(v.AsSymbol.ToString());
+                    break;
                 case ValueType.String:
                     // TODO: escape をしていない
+                    sb_.Append("\"");
                     sb_.Append(v.AsString);
+                    sb_.Append("\"");
                     break;
                 case ValueType.Closure:
                     // TODO: 未実装
@@ -55,9 +60,9 @@ namespace Lisp
                     sb_.Append("(");
                     checkLimit();
                     bool finished = false;
-                    var cons = v.AsCons;
                     while (!finished)
                     {
+                        var cons = v.AsCons;
                         switch (cons.Cdr.ValueType)
                         {
                             case ValueType.Nil:
@@ -66,6 +71,7 @@ namespace Lisp
                                 break;
                             case ValueType.Cons:
                                 generate(cons.Car);
+                                sb_.Append(" ");
                                 break;
                             default:
                                 generate(cons.Car);

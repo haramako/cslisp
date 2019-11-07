@@ -35,11 +35,21 @@ namespace Tests
 
         // ƒeƒXƒg
 
-        [Test]
-        public void Test1()
+        [TestCase("1", "1")]
+        [TestCase(@"""hoge""", @"""hoge""")]
+        [TestCase(@"symbol", @"symbol")]
+        [TestCase(@"symbol-with-line", @"symbol-with-line")]
+        [TestCase("#t", "#t")]
+        [TestCase("#f", "#f")]
+        [TestCase("()", "()")]
+        [TestCase("(1)", "(1)")]
+        [TestCase("(1 . 2)", "(1 . 2)")]
+        [TestCase("(1 . (2 3))", "(1 2 3)")]
+        [TestCase("(1 2 ( 3 4 ) )", "(1 2 (3 4))")]
+        public void Test1(string src, string result)
         {
-            var value = parse("(1)");
-            pp(value);
+            var value = parse(src);
+            Assert.AreEqual(result, pp_.Print(value));
         }
     }
 }

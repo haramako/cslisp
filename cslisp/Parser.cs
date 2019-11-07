@@ -10,7 +10,7 @@ namespace Lisp
         {
             for (; ; )
             {
-                char c = s.ReadChar();
+                int c = s.ReadChar();
                 switch (c)
                 {
                     case '\n':
@@ -36,19 +36,20 @@ namespace Lisp
         Value parseList(Port s)
         {
             skipSpace(s);
-            char c;
+            int c;
             switch (c = s.ReadChar())
             {
                 case ')':
                 case ']':
                 case '\0':
+                case -1:
                     s.UnreadChar(c);
                     return C.Nil;
                 default:
                     s.UnreadChar(c);
                     var val = Parse(s);
 
-                    if (val == Symbol.Dot)
+                    if (val == C.Dot)
                     {
                         var cdr = Parse(s);
                         skipSpace(s);
@@ -86,12 +87,12 @@ namespace Lisp
         static string readToken(Port s)
         {
             var sb = new StringBuilder();
-            char c;
+            int c;
             for (; ; )
             {
                 c = s.ReadChar();
                 if (!_is_val_char(c)) break;
-                sb.Append(c);
+                sb.Append((char)c);
             }
             s.UnreadChar(c);
             Console.WriteLine(sb.ToString());
@@ -111,20 +112,20 @@ namespace Lisp
                 {
                     if (!isnumber(str[i]))
                     {
-                        return new Value(new Symbol(str));
+                        return new Value(Symbol.Intern(str));
                     }
                 }
                 return new Value(int.Parse(str));
             }
             else
             {
-                return new Value(new Symbol(str));
+                return new Value(Symbol.Intern(str));
             }
         }
 
         char unescapeChar(Port s)
         {
-            char c = s.ReadChar();
+            int c = s.ReadChar();
             //char buf[9];
             switch (c)
             {
@@ -193,10 +194,9 @@ namespace Lisp
         Value readString(Port s)
         {
             var sb = new StringBuilder();
-            int i = 0;
             for (; ; )
             {
-                char c = s.ReadChar();
+                int c = s.ReadChar();
                 switch (c)
                 {
                     case '"':
@@ -208,19 +208,21 @@ namespace Lisp
                     case '\r':
                         throw new Exception();
                     case '\0':
+                    case -1:
                         throw new Exception();
                 }
-                sb.Append(c);
+                sb.Append((char)c);
             }
         }
 
         public Value Parse(Port s)
         {
             skipSpace(s);
-            char c;
+            int c;
             switch (c = s.ReadChar())
             {
                 case '\0':
+                case -1:
                     return C.Nil;
                 case '(':
                 case '[':
