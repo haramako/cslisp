@@ -10,11 +10,11 @@ namespace Lisp
 		Integer,
 		Float,
 		Bool,
-        Symbol,
+		Symbol,
 
-        Cons,
-        String,
-        Table,
+		Cons,
+		String,
+		Table,
 		Object,
 
 		Closure,
@@ -33,11 +33,11 @@ namespace Lisp
 
 		const ulong NilMark = (((ulong)ValueType.Nil) << 48) | NonFloatBits;
 		const ulong IntegerMark = (((ulong)ValueType.Integer) << 48) | NonFloatBits;
-        const ulong BoolMark = (((ulong)ValueType.Bool) << 48) | NonFloatBits;
-        const ulong SymbolMark = (((ulong)ValueType.Symbol) << 48) | NonFloatBits;
-        const ulong ConsMark = (((ulong)ValueType.Cons) << 48) | NonFloatBits;
-        const ulong StringMark = (((ulong)ValueType.String) << 48) | NonFloatBits;
-        const ulong TableMark = (((ulong)ValueType.Table) << 48) | NonFloatBits;
+		const ulong BoolMark = (((ulong)ValueType.Bool) << 48) | NonFloatBits;
+		const ulong SymbolMark = (((ulong)ValueType.Symbol) << 48) | NonFloatBits;
+		const ulong ConsMark = (((ulong)ValueType.Cons) << 48) | NonFloatBits;
+		const ulong StringMark = (((ulong)ValueType.String) << 48) | NonFloatBits;
+		const ulong TableMark = (((ulong)ValueType.Table) << 48) | NonFloatBits;
 		const ulong ObjectMark = (((ulong)ValueType.Object) << 48) | NonFloatBits;
 		const ulong ClosureMark = ObjectMark | (ulong)ValueType.Closure;
 		const ulong LuaApiMark = ObjectMark | (ulong)ValueType.LuaApi;
@@ -52,24 +52,27 @@ namespace Lisp
 		ulong val_;
 		object obj_;
 
-		public static readonly Value Nil = new Value() { val_ = NilMark, obj_ = null };
+		public static readonly Value Nil = new Value()
+		{
+			val_ = NilMark, obj_ = null
+		};
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Value(Value v)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(Value v)
 		{
 			val_ = v.val_;
 			obj_ = v.obj_;
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Value(int v)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(int v)
 		{
 			val_ = 0;
 			obj_ = null;
 			AsInt = v;
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Value(double v)
 		{
 			val_ = 0;
@@ -77,85 +80,97 @@ namespace Lisp
 			AsFloat = v;
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Value(Symbol v)
-        {
-            val_ = 0;
-            obj_ = null;
-            AsSymbol = v;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Value(Cons v)
-        {
-            if (v == null)
-            {
-                val_ = NilMark;
-                obj_ = null;
-            }
-            else
-            {
-                val_ = ConsMark;
-                obj_ = v;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Value(string v)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(Symbol v)
 		{
-			if (v == null) {
+			val_ = 0;
+			obj_ = null;
+			AsSymbol = v;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(Cons v)
+		{
+			if (v == null)
+			{
 				val_ = NilMark;
 				obj_ = null;
-			}else{
+			}
+			else
+			{
+				val_ = ConsMark;
+				obj_ = v;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(string v)
+		{
+			if (v == null)
+			{
+				val_ = NilMark;
+				obj_ = null;
+			}
+			else
+			{
 				val_ = StringMark;
 				obj_ = v;
 			}
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Value(bool v)
 		{
 			val_ = (v ? (ulong)1 : (ulong)0) | BoolMark;
 			obj_ = null;
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Value(Table v)
 		{
-			if (v == null) {
+			if (v == null)
+			{
 				val_ = NilMark;
 				obj_ = null;
-			} else {
+			}
+			else
+			{
 				val_ = TableMark;
 				obj_ = v;
 			}
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Value(Closure v)
 		{
-			if (v == null) {
+			if (v == null)
+			{
 				val_ = NilMark;
 				obj_ = null;
-			} else {
+			}
+			else
+			{
 				val_ = ClosureMark;
 				obj_ = v;
 			}
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Value(LuaApi v)
 		{
-			if (v == null) {
+			if (v == null)
+			{
 				val_ = NilMark;
 				obj_ = null;
-			} else {
+			}
+			else
+			{
 				val_ = LuaApiMark;
 				obj_ = v;
 			}
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Value(object v)
 		{
 			val_ = 0;
@@ -166,7 +181,8 @@ namespace Lisp
 		[Conditional("DEBUG")]
 		public void check(bool cond)
 		{
-			if (!cond) {
+			if (!cond)
+			{
 				throw new Exception("assert failed!");
 			}
 		}
@@ -177,229 +193,261 @@ namespace Lisp
 			check(ValueType == t);
 		}
 
-		public ValueType ValueType {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-				if (val_ < NonFloatBits) {
+		public ValueType ValueType
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				if (val_ < NonFloatBits)
+				{
 					return ValueType.Float;
-				} else {
+				}
+				else
+				{
 					var type16 = (int)((val_ & NanBoxingMask) >> 48);
 					var type = (ValueType)(type16 & Type16Mask);
-					if (type == ValueType.Object) {
+					if (type == ValueType.Object)
+					{
 						return (ValueType)(val_ & SubValueTypeMask);
-					} else {
+					}
+					else
+					{
 						return type;
 					}
 				}
 			}
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear() {
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void Clear()
+		{
 			val_ = NilMark;
 			obj_ = null;
 		}
 
-        public bool IsNil {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public bool IsNil
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				return (ValueType == ValueType.Nil);
 			}
 		}
 
-        public bool IsBool {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public bool IsBool
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				return ValueType == ValueType.Bool;
 			}
 		}
 
-        public bool IsInteger {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public bool IsInteger
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				return ValueType == ValueType.Integer;
 			}
 		}
 
-        public bool IsFloat {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public bool IsFloat
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				return ValueType == ValueType.Float;
 			}
 		}
 
-        public bool IsNumber {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public bool IsNumber
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				return ValueType == ValueType.Integer || ValueType == ValueType.Float;
 			}
 		}
 
-        public bool IsSymbol
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return ValueType == ValueType.Symbol;
-            }
-        }
+		public bool IsSymbol
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.Symbol;
+			}
+		}
 
-        public bool IsString {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public bool IsString
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				return ValueType == ValueType.String;
 			}
 		}
 
-        public bool IsCons
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return ValueType == ValueType.Cons;
-            }
-        }
+		public bool IsCons
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.Cons;
+			}
+		}
 
-        public bool IsTable {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public bool IsTable
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				return ValueType == ValueType.Table;
 			}
 		}
 
 		// TODO: 48bit以上の扱い
-		public int AsInt {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public int AsInt
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				checkType(ValueType.Integer);
 				ulong result = val_ & ValueMask;
-				if ((result & SignMask) != 0) {
+				if ((result & SignMask) != 0)
+				{
 					return (int)(result | MinusBits);
-				} else {
+				}
+				else
+				{
 					return (int)result;
 				}
 			}
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
 				val_ = ((ulong)value & ValueMask) | IntegerMark;
 			}
 		}
 
-		public double AsFloat {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public double AsFloat
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				checkType(ValueType.Float);
 				return BitConverter.Int64BitsToDouble((long)val_);
 			}
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
-				if (double.IsNaN(value)) {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
+				if (double.IsNaN(value))
+				{
 					val_ = NanBits;
-				} else {
+				}
+				else
+				{
 					val_ = (ulong)BitConverter.DoubleToInt64Bits(value);
 				}
 			}
 		}
 
-		public bool AsBool {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public bool AsBool
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				checkType(ValueType.Bool);
 				ulong result = val_ & ValueMask;
 				return result != 0;
 			}
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
 				val_ = (value ? (ulong)1 : (ulong)0) | BoolMark;
 			}
 		}
 
-        public Cons AsCons
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                checkType(ValueType.Cons);
-                return (Cons)obj_;
-            }
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
-                val_ = ConsMark;
-                obj_ = value;
-            }
-        }
+		public Cons AsCons
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				checkType(ValueType.Cons);
+				return (Cons)obj_;
+			}
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
+				val_ = ConsMark;
+				obj_ = value;
+			}
+		}
 
-        public Symbol AsSymbol
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                checkType(ValueType.Symbol);
-                return (Symbol)obj_;
-            }
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
-                val_ = SymbolMark;
-                obj_ = value;
-            }
-        }
+		public Symbol AsSymbol
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				checkType(ValueType.Symbol);
+				return (Symbol)obj_;
+			}
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
+				val_ = SymbolMark;
+				obj_ = value;
+			}
+		}
 
-        public string AsString {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public string AsString
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				checkType(ValueType.String);
 				return (string)obj_;
 			}
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
 				val_ = StringMark;
 				obj_ = value;
 			}
 		}
 
-		public Table AsTable {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public Table AsTable
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				checkType(ValueType.Table);
 				return (Table)obj_;
 			}
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
 				val_ = TableMark;
 				obj_ = value;
 			}
 		}
 
-		public object AsObject {
-			get {
+		public object AsObject
+		{
+			get
+			{
 				checkType(ValueType.Object);
 				return obj_;
 			}
-			set {
-				if (value == null) {
+			set
+			{
+				if (value == null)
+				{
 					val_ = NilMark;
 					obj_ = null;
-				} else {
+				}
+				else
+				{
 					var type = value.GetType();
 					val_ = ObjectMark;
 					obj_ = value;
@@ -407,124 +455,140 @@ namespace Lisp
 			}
 		}
 
-		public Closure AsClosure {
-			get {
+		public Closure AsClosure
+		{
+			get
+			{
 				checkType(ValueType.Closure);
 				return (Closure)obj_;
 			}
-			set {
-				if (value == null) {
+			set
+			{
+				if (value == null)
+				{
 					val_ = NilMark;
 					obj_ = null;
-				} else {
+				}
+				else
+				{
 					val_ = ClosureMark;
 					obj_ = value;
 				}
 			}
 		}
 
-		public LuaApi AsLuaApi {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+		public LuaApi AsLuaApi
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
 				checkType(ValueType.LuaApi);
 				return (LuaApi)obj_;
 			}
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
-				if (value == null) {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
+				if (value == null)
+				{
 					val_ = NilMark;
 					obj_ = null;
-				} else {
+				}
+				else
+				{
 					val_ = LuaApiMark;
 					obj_ = value;
 				}
 			}
 		}
 
-        public T As<T>() where T: class
-        {
-            checkType(ValueType.Object);
-            return (T)obj_;
-        }
+		public T As<T>() where T: class
+		{
+			checkType(ValueType.Object);
+			return (T)obj_;
+		}
 
-        //====================================================
-        // Lua operators
-        //====================================================
-#if false
-        public static LuaValue BinOp(OpCode opcode, LuaValue a, LuaValue b)
+		//====================================================
+		// Lua operators
+		//====================================================
+		#if false
+		public static LuaValue BinOp(OpCode opcode, LuaValue a, LuaValue b)
 		{
 			bool intOperator; // 0=数値演算, 1=Int演算, 2=Bool演算
-			switch (opcode) {
-			case OpCode.ADD:
-			case OpCode.SUB:
-			case OpCode.MUL:
-			case OpCode.MOD:
-			case OpCode.POW:
-			case OpCode.DIV:
-				intOperator = false;
-				break;
-			case OpCode.IDIV:
-			case OpCode.BAND:
-			case OpCode.BOR:
-			case OpCode.BXOR:
-			case OpCode.SHL:
-			case OpCode.SHR:
-				intOperator = true;
-				break;
-			default:
-				throw new Exception("invalid opcode " + opcode);
+			switch (opcode)
+			{
+				case OpCode.ADD:
+				case OpCode.SUB:
+				case OpCode.MUL:
+				case OpCode.MOD:
+				case OpCode.POW:
+				case OpCode.DIV:
+					intOperator = false;
+					break;
+				case OpCode.IDIV:
+				case OpCode.BAND:
+				case OpCode.BOR:
+				case OpCode.BXOR:
+				case OpCode.SHL:
+				case OpCode.SHR:
+					intOperator = true;
+					break;
+				default:
+					throw new Exception("invalid opcode " + opcode);
 			}
 
-			if (!intOperator) {
+			if (!intOperator)
+			{
 				var fa = a.ConvertToFloat();
 				var fb = b.ConvertToFloat();
 				double r = 0;
-				switch (opcode) {
-				case OpCode.ADD:
-					r = fa + fb;
-					break;
-				case OpCode.SUB:
-					r = fa - fb;
-					break;
-				case OpCode.MUL:
-					r = fa * fb;
-					break;
-				case OpCode.MOD:
-					r = fa % fb;
-					break;
-				case OpCode.POW:
-					r = Math.Pow(fa, fb);
-					break;
-				case OpCode.DIV:
-					r = fa / fb;
-					break;
+				switch (opcode)
+				{
+					case OpCode.ADD:
+						r = fa + fb;
+						break;
+					case OpCode.SUB:
+						r = fa - fb;
+						break;
+					case OpCode.MUL:
+						r = fa * fb;
+						break;
+					case OpCode.MOD:
+						r = fa % fb;
+						break;
+					case OpCode.POW:
+						r = Math.Pow(fa, fb);
+						break;
+					case OpCode.DIV:
+						r = fa / fb;
+						break;
 				}
 				return new LuaValue(r);
-			} else {
+			}
+			else
+			{
 				var ia = a.ConvertToInt();
 				var ib = b.ConvertToInt();
 				int r = 0;
-				switch (opcode) {
-				case OpCode.IDIV:
-					r = ia % ib;
-					break;
-				case OpCode.BAND:
-					r = ia & ib;
-					break;
-				case OpCode.BOR:
-					r = ia | ib;
-					break;
-				case OpCode.BXOR:
-					r = ia ^ ib;
-					break;
-				case OpCode.SHL:
-					r = ia << ib;
-					break;
-				case OpCode.SHR:
-					r = ia >> ib;
-					break;
+				switch (opcode)
+				{
+					case OpCode.IDIV:
+						r = ia % ib;
+						break;
+					case OpCode.BAND:
+						r = ia & ib;
+						break;
+					case OpCode.BOR:
+						r = ia | ib;
+						break;
+					case OpCode.BXOR:
+						r = ia ^ ib;
+						break;
+					case OpCode.SHL:
+						r = ia << ib;
+						break;
+					case OpCode.SHR:
+						r = ia >> ib;
+						break;
 				}
 				return new LuaValue(r);
 			}
@@ -532,84 +596,98 @@ namespace Lisp
 
 		public static LuaValue UnaryOp(OpCode opcode, LuaValue a)
 		{
-			switch (opcode) {
-			case OpCode.UNM:
-				if (a.ValueType == ValueType.Integer) {
-					return new LuaValue(-a.ConvertToInt());
-				} else {
-					return new LuaValue(-a.ConvertToFloat());
-				}
-			case OpCode.BNOT:
-				return new LuaValue(~a.ConvertToInt());
-			case OpCode.NOT:
-				return new LuaValue(!a.ConvertToBool());
-			default:
-				throw new Exception("invalid opcode " + opcode);
+			switch (opcode)
+			{
+				case OpCode.UNM:
+					if (a.ValueType == ValueType.Integer)
+					{
+						return new LuaValue(-a.ConvertToInt());
+					}
+					else
+					{
+						return new LuaValue(-a.ConvertToFloat());
+					}
+				case OpCode.BNOT:
+					return new LuaValue(~a.ConvertToInt());
+				case OpCode.NOT:
+					return new LuaValue(!a.ConvertToBool());
+				default:
+					throw new Exception("invalid opcode " + opcode);
 			}
 		}
 
 		public static bool CompOp(OpCode opcode, LuaValue a, LuaValue b)
 		{
-			switch (opcode) {
-			case OpCode.EQ:
-				return a == b;
-			case OpCode.LT:
-				if (a.ValueType == ValueType.Integer && b.ValueType == ValueType.Integer) {
-					return a.ConvertToInt() < b.ConvertToInt();
-				} else {
-					return a.ConvertToFloat() < b.ConvertToFloat();
-				}
-			case OpCode.LE:
-				if (a.ValueType == ValueType.Integer && b.ValueType == ValueType.Integer) {
-					return a.ConvertToInt() <= b.ConvertToInt();
-				} else {
-					return a.ConvertToFloat() <= b.ConvertToFloat();
-				}
-			default:
-				throw new Exception("invalid opcode " + opcode);
+			switch (opcode)
+			{
+				case OpCode.EQ:
+					return a == b;
+				case OpCode.LT:
+					if (a.ValueType == ValueType.Integer && b.ValueType == ValueType.Integer)
+					{
+						return a.ConvertToInt() < b.ConvertToInt();
+					}
+					else
+					{
+						return a.ConvertToFloat() < b.ConvertToFloat();
+					}
+				case OpCode.LE:
+					if (a.ValueType == ValueType.Integer && b.ValueType == ValueType.Integer)
+					{
+						return a.ConvertToInt() <= b.ConvertToInt();
+					}
+					else
+					{
+						return a.ConvertToFloat() <= b.ConvertToFloat();
+					}
+				default:
+					throw new Exception("invalid opcode " + opcode);
 			}
 		}
 		public static LuaValue Add(LuaValue a, LuaValue b)
 		{
 			return LuaValue.Nil;
 		}
-#endif
+		#endif
 
-        public int Len()
+		public int Len()
 		{
-			switch (ValueType) {
-			case ValueType.String:
-				return AsString.Length;
-			case ValueType.Table:
-				return AsTable.ArraySize;
-			default:
-				throw new LuaException("attempt to get length of " + ToString());
+			switch (ValueType)
+			{
+				case ValueType.String:
+					return AsString.Length;
+				case ValueType.Table:
+					return AsTable.ArraySize;
+				default:
+					throw new LuaException("attempt to get length of " + ToString());
 			}
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int ConvertToInt()
 		{
-			switch (ValueType) {
-			case ValueType.Integer:
-				return AsInt;
-			case ValueType.Float:
-				return (int)Math.Round(AsFloat);
-			default:
-				throw new LuaException(ToString() + " cannot convert to int");
+			switch (ValueType)
+			{
+				case ValueType.Integer:
+					return AsInt;
+				case ValueType.Float:
+					return (int)Math.Round(AsFloat);
+				default:
+					throw new LuaException(ToString() + " cannot convert to int");
 			}
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public double ConvertToFloat()
 		{
-			switch (ValueType) {
-			case ValueType.Integer:
-				return AsInt;
-			case ValueType.Float:
-				return AsFloat;
-			default:
-				throw new LuaException(ToString() + " cannot convert to int");
+			switch (ValueType)
+			{
+				case ValueType.Integer:
+					return AsInt;
+				case ValueType.Float:
+					return AsFloat;
+				default:
+					throw new LuaException(ToString() + " cannot convert to int");
 			}
 		}
 
@@ -617,14 +695,15 @@ namespace Lisp
 		/// boolに変換する
 		/// </summary>
 		/// <returns><c>true</c>, if to bool was converted, <c>false</c> otherwise.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool ConvertToBool()
 		{
-			switch (ValueType) {
-			case ValueType.Bool:
-				return AsBool;
-			default:
-				return !IsNil;
+			switch (ValueType)
+			{
+				case ValueType.Bool:
+					return AsBool;
+				default:
+					return !IsNil;
 			}
 		}
 
@@ -634,75 +713,69 @@ namespace Lisp
 
 		public override string ToString()
 		{
-			switch (ValueType) {
-			case ValueType.Nil:
-				return "nil";
-			case ValueType.Integer:
-				return AsInt.ToString();
-			case ValueType.Float:
-				return AsFloat.ToString();
-            case ValueType.Cons:
-                return "cons()";
-            case ValueType.String:
-				return AsString;
-			case ValueType.Bool:
-				return AsBool ? "true" : "false";
-			case ValueType.Table:
-				return "table(" + AsTable.ArraySize + "," + AsTable.GetRawMap().Count + ")";
-			case ValueType.Object:
-				return "userdata(" + obj_.GetHashCode() + ")";
-			case ValueType.LuaApi:
-				return "function(native:" + obj_.GetHashCode().ToString("X") + ")";
-			case ValueType.Closure:
-				return "function(" + obj_.GetHashCode().ToString("X") + ")";
-			default:
-				return "unknown value type " + ValueType;
-			}
+			return PrettyPrinter.Instance.Print(this);
 		}
 
 		public override bool Equals(object obj)
 		{
-			if( obj is Value){
+			if( obj is Value)
+			{
 				return this.Equals((Value)obj);
-			} else {
+			}
+			else
+			{
 				return false;
 			}
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool Equals(Value x)
 		{
-			if (x.val_ == val_) {
-				switch (this.ValueType) {
-				case ValueType.String:
-					return (string)this.obj_ == (string)x.obj_;
-				case ValueType.Table:
-				case ValueType.LuaApi:
-				case ValueType.Object:
-				case ValueType.Symbol:
-                        return this.obj_ == x.obj_;
-				default:
-					return true;
-				}
-			} else {
-				if (IsNumber) {
-					switch (this.ValueType) {
-					case ValueType.Integer:
-						if (x.IsFloat) {
-							return x.AsFloat == ConvertToFloat();
-						} else {
-							return false;
-						}
-					case ValueType.Float:
-						if (x.IsInteger) {
-							return x.ConvertToFloat() == AsFloat;
-						} else {
-							return false;
-						}
+			if (x.val_ == val_)
+			{
+				switch (this.ValueType)
+				{
+					case ValueType.String:
+						return (string)this.obj_ == (string)x.obj_;
+					case ValueType.Table:
+					case ValueType.LuaApi:
+					case ValueType.Object:
+					case ValueType.Symbol:
+						return this.obj_ == x.obj_;
 					default:
-						return false;
+						return true;
+				}
+			}
+			else
+			{
+				if (IsNumber)
+				{
+					switch (this.ValueType)
+					{
+						case ValueType.Integer:
+							if (x.IsFloat)
+							{
+								return x.AsFloat == ConvertToFloat();
+							}
+							else
+							{
+								return false;
+							}
+						case ValueType.Float:
+							if (x.IsInteger)
+							{
+								return x.ConvertToFloat() == AsFloat;
+							}
+							else
+							{
+								return false;
+							}
+						default:
+							return false;
 					}
-				} else {
+				}
+				else
+				{
 					return false;
 				}
 			}
@@ -713,13 +786,13 @@ namespace Lisp
 			return ((int)val_) ^ (obj_.GetHashCode());
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(Value a, Value b)
 		{
 			return a.Equals(b);
 		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator !=(Value a, Value b)
 		{
 			return !a.Equals(b);

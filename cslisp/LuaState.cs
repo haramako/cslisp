@@ -31,7 +31,8 @@ namespace Lisp
 		public bool IsOpen;
 	}
 
-	public sealed class Closure {
+	public sealed class Closure
+	{
 		public Function Func;
 		public Upval[] Upvals;
 		public Closure(Function func)
