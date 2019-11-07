@@ -36,7 +36,7 @@ namespace Lisp
         Value parseList(Port s)
         {
             skipSpace(s);
-            char c, err;
+            char c;
             switch (c = s.ReadChar())
             {
                 case ')':
@@ -87,7 +87,6 @@ namespace Lisp
         {
             var sb = new StringBuilder();
             char c;
-            int i = 0;
             for (; ; )
             {
                 c = s.ReadChar();
@@ -101,7 +100,7 @@ namespace Lisp
 
         static bool isnumber(char c)
         {
-            return (c >= '0' && c <= 9);
+            return (c >= '0' && c <= '9');
         }
 
         static Value parseToken(string str)
@@ -187,7 +186,7 @@ namespace Lisp
                     }
 #endif
                 default:
-                    throw new LuaException($"unkonwn escaped string {c}\n");
+                    throw new LuaException($"unknown escaped string {c}\n");
             }
         }
 

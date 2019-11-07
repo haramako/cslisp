@@ -8,10 +8,18 @@ namespace Tests
 {
     public class Tests
     {
+        PrettyPrinter pp_ = new PrettyPrinter();
 
         [SetUp]
         public void Setup()
         {
+        }
+
+        // ユーティリティ
+
+        public void pp(Value v)
+        {
+            Console.WriteLine(pp_.Print(v));
         }
 
         Value parse(string src)
@@ -22,16 +30,16 @@ namespace Tests
 
             var result = parser.Parse(port);
 
-            Console.WriteLine(result);
-
             return result;
         }
+
+        // テスト
 
         [Test]
         public void Test1()
         {
             var value = parse("(1)");
-
+            pp(value);
         }
     }
 }

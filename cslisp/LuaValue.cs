@@ -15,7 +15,6 @@ namespace Lisp
         String,
         Table,
 		Object,
-		UserData,
 
 		Closure,
 		LuaApi,
@@ -37,7 +36,6 @@ namespace Lisp
         const ulong ConsMark = (((ulong)ValueType.Cons) << 48) | NonFloatBits;
         const ulong BoolMark = (((ulong)ValueType.Bool) << 48) | NonFloatBits;
 		const ulong TableMark = (((ulong)ValueType.Table) << 48) | NonFloatBits;
-		const ulong UserDataMark = (((ulong)ValueType.UserData) << 48) | NonFloatBits;
 		const ulong ObjectMark = (((ulong)ValueType.Object) << 48) | NonFloatBits;
 		const ulong ClosureMark = ObjectMark | (ulong)ValueType.Closure;
 		const ulong LuaApiMark = ObjectMark | (ulong)ValueType.LuaApi;
@@ -152,7 +150,7 @@ namespace Lisp
 		{
 			val_ = 0;
 			obj_ = null;
-			AsUserData = v;
+			AsObject = v;
 		}
 
 		[Conditional("DEBUG")]
@@ -357,9 +355,9 @@ namespace Lisp
 			}
 		}
 
-		public object AsUserData {
+		public object AsObject {
 			get {
-				checkType(ValueType.UserData);
+				checkType(ValueType.Object);
 				return obj_;
 			}
 			set {
@@ -368,14 +366,8 @@ namespace Lisp
 					obj_ = null;
 				} else {
 					var type = value.GetType();
-					if (type == typeof(string)) {
-						AsString = (string)value;
-					} else if (type == typeof(Table)) {
-						AsTable = (Table)value;
-					} else {
-						val_ = UserDataMark;
-						obj_ = value;
-					}
+					val_ = ObjectMark;
+					obj_ = value;
 				}
 			}
 		}
@@ -418,7 +410,7 @@ namespace Lisp
 
         public T As<T>() where T: class
         {
-            checkType(ValueType.UserData);
+            checkType(ValueType.Object);
             return (T)obj_;
         }
 
@@ -614,20 +606,22 @@ namespace Lisp
 				return AsInt.ToString();
 			case ValueType.Float:
 				return AsFloat.ToString();
-			case ValueType.String:
+            case ValueType.Cons:
+                return "cons()";
+            case ValueType.String:
 				return AsString;
 			case ValueType.Bool:
 				return AsBool ? "true" : "false";
 			case ValueType.Table:
 				return "table(" + AsTable.ArraySize + "," + AsTable.GetRawMap().Count + ")";
-			case ValueType.UserData:
+			case ValueType.Object:
 				return "userdata(" + obj_.GetHashCode() + ")";
 			case ValueType.LuaApi:
 				return "function(native:" + obj_.GetHashCode().ToString("X") + ")";
 			case ValueType.Closure:
 				return "function(" + obj_.GetHashCode().ToString("X") + ")";
 			default:
-				return "unkonwn value type " + ValueType;
+				return "unknown value type " + ValueType;
 			}
 		}
 
@@ -649,7 +643,7 @@ namespace Lisp
 					return (string)this.obj_ == (string)x.obj_;
 				case ValueType.Table:
 				case ValueType.LuaApi:
-				case ValueType.UserData:
+				case ValueType.Object:
 					return this.obj_ == x.obj_;
 				default:
 					return true;

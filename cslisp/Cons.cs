@@ -6,8 +6,8 @@ namespace Lisp
 {
     public class Cons
     {
-        Value Car;
-        Value Cdr;
+        public Value Car;
+        public Value Cdr;
 
         public string SrcFilename { get; private set; }
         public int SrcLine { get; private set; }
