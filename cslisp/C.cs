@@ -13,6 +13,7 @@ namespace Lisp
 		public static readonly Value UnquoteSplicing = new Value("unquote-splicing");
 
 		public static readonly Value Dot = new Value(Symbol.Intern("."));
+        public static readonly Value Eof = new Value(Symbol.Intern("<eof>"));
 	}
 
 }

@@ -11,6 +11,8 @@ namespace Lisp
 		StreamReader r_;
 		int unreadBuf_;
 
+        Parser parser_;
+
 		public string Filename
 		{
 			get;
@@ -59,6 +61,16 @@ namespace Lisp
 				unreadBuf_ = c;
 			}
 		}
+
+        public Value ReadValue()
+        {
+            if( parser_ == null)
+            {
+                parser_ = new Parser();
+            }
+
+            return parser_.Parse(this);
+        }
 
 	}
 }
