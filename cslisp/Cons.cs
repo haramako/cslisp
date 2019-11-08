@@ -44,4 +44,24 @@ namespace Lisp
 		}
 	}
 
+    public static class List
+    {
+        public static void Bind2(Value src, out Value a, out Value b)
+        {
+            var cur = src.AsCons;
+            a = cur.Car;
+            cur = cur.Cdr.AsCons;
+            b = cur.Car;
+        }
+
+        public static void Bind2Rest(Value src, out Value a, out Value b, out Value rest)
+        {
+            var cur = src.AsCons;
+            a = cur.Car;
+            cur = cur.Cdr.AsCons;
+            b = cur.Car;
+            rest = cur.Cdr;
+        }
+    }
+
 }

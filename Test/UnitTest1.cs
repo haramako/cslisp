@@ -51,5 +51,18 @@ namespace Tests
 			var value = parse(src);
 			Assert.AreEqual(result, pp_.Print(value));
 		}
+
+        [TestCase("(display 1)")]
+        [TestCase("(if #t 1 2)")]
+        [TestCase("(define x (lambda (a) (+ 1 a)))")]
+        public void TestCompile(string src)
+        {
+            var compiler = new Compiler();
+            var code = compiler.Compile(parse(src));
+            for( int i=0; i<code.Length; i++)
+            {
+                Console.WriteLine("{0:0000}: {1}", i, code[i]);
+            }
+        }
 	}
 }

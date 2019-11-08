@@ -95,7 +95,6 @@ namespace Lisp
 				sb.Append((char)c);
 			}
 			s.UnreadChar(c);
-			Console.WriteLine(sb.ToString());
 			return sb.ToString();
 		}
 

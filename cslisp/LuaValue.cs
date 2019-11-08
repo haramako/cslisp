@@ -11,13 +11,14 @@ namespace Lisp
 		Float,
 		Bool,
 		Symbol,
+        Reference,
 
-		Cons,
+        Cons,
 		String,
 		Table,
-		Object,
+        Object,
 
-		Closure,
+        Closure,
 		LuaApi,
 	}
 
@@ -34,16 +35,17 @@ namespace Lisp
 		const ulong NilMark = (((ulong)ValueType.Nil) << 48) | NonFloatBits;
 		const ulong IntegerMark = (((ulong)ValueType.Integer) << 48) | NonFloatBits;
 		const ulong BoolMark = (((ulong)ValueType.Bool) << 48) | NonFloatBits;
-		const ulong SymbolMark = (((ulong)ValueType.Symbol) << 48) | NonFloatBits;
-		const ulong ConsMark = (((ulong)ValueType.Cons) << 48) | NonFloatBits;
-		const ulong StringMark = (((ulong)ValueType.String) << 48) | NonFloatBits;
-		const ulong TableMark = (((ulong)ValueType.Table) << 48) | NonFloatBits;
-		const ulong ObjectMark = (((ulong)ValueType.Object) << 48) | NonFloatBits;
-		const ulong ClosureMark = ObjectMark | (ulong)ValueType.Closure;
-		const ulong LuaApiMark = ObjectMark | (ulong)ValueType.LuaApi;
+        const ulong ReferenceMark = (((ulong)ValueType.Reference) << 48) | NonFloatBits;
+        const ulong SymbolMark = ReferenceMark | (ulong)ValueType.Symbol;
+        const ulong ConsMark = ReferenceMark | (ulong)ValueType.Cons;
+		const ulong StringMark = ReferenceMark | (ulong)ValueType.String;
+        const ulong TableMark = ReferenceMark | (ulong)ValueType.Table;
+        const ulong ClosureMark = ReferenceMark | (ulong)ValueType.Closure;
+		const ulong LuaApiMark = ReferenceMark | (ulong)ValueType.LuaApi;
+        const ulong ObjectMark = ReferenceMark | (ulong)ValueType.Object;
 
-		// type用の16bit(bit63..48)の情報
-		const int Type16Mask = 0x0007;
+        // type用の16bit(bit63..48)の情報
+        const int Type16Mask = 0x0007;
 		const int Type16FloatBits = 0xfff8;
 		const int Type16NotFloat = 0x7ff8;
 		const int Type16Nan = 0x0008;
@@ -206,7 +208,7 @@ namespace Lisp
 				{
 					var type16 = (int)((val_ & NanBoxingMask) >> 48);
 					var type = (ValueType)(type16 & Type16Mask);
-					if (type == ValueType.Object)
+					if (type == ValueType.Reference)
 					{
 						return (ValueType)(val_ & SubValueTypeMask);
 					}
@@ -448,7 +450,6 @@ namespace Lisp
 				}
 				else
 				{
-					var type = value.GetType();
 					val_ = ObjectMark;
 					obj_ = value;
 				}
