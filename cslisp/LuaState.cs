@@ -33,16 +33,16 @@ namespace Lisp
 
 	public sealed class Closure
 	{
-		public Function Func;
-		public Upval[] Upvals;
-		public Closure(Function func)
+		public Lambda Lambda;
+		public Env Env;
+		public Closure(Lambda lambda, Env env)
 		{
-			Func = func;
-			Upvals = new Upval[Func.Upvals.Length];
+			Lambda = lambda;
+			Env = env;
 		}
 	}
 
-	public delegate void LuaApi(LuaState L);
+	public delegate Value LuaApi(params Value[] param);
 
 	public class LuaState
 	{

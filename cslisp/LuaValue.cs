@@ -11,14 +11,14 @@ namespace Lisp
 		Float,
 		Bool,
 		Symbol,
-        Reference,
+		Reference,
 
-        Cons,
+		Cons,
 		String,
 		Table,
-        Object,
+		Object,
 
-        Closure,
+		Closure,
 		LuaApi,
 	}
 
@@ -35,17 +35,17 @@ namespace Lisp
 		const ulong NilMark = (((ulong)ValueType.Nil) << 48) | NonFloatBits;
 		const ulong IntegerMark = (((ulong)ValueType.Integer) << 48) | NonFloatBits;
 		const ulong BoolMark = (((ulong)ValueType.Bool) << 48) | NonFloatBits;
-        const ulong ReferenceMark = (((ulong)ValueType.Reference) << 48) | NonFloatBits;
-        const ulong SymbolMark = ReferenceMark | (ulong)ValueType.Symbol;
-        const ulong ConsMark = ReferenceMark | (ulong)ValueType.Cons;
+		const ulong ReferenceMark = (((ulong)ValueType.Reference) << 48) | NonFloatBits;
+		const ulong SymbolMark = ReferenceMark | (ulong)ValueType.Symbol;
+		const ulong ConsMark = ReferenceMark | (ulong)ValueType.Cons;
 		const ulong StringMark = ReferenceMark | (ulong)ValueType.String;
-        const ulong TableMark = ReferenceMark | (ulong)ValueType.Table;
-        const ulong ClosureMark = ReferenceMark | (ulong)ValueType.Closure;
+		const ulong TableMark = ReferenceMark | (ulong)ValueType.Table;
+		const ulong ClosureMark = ReferenceMark | (ulong)ValueType.Closure;
 		const ulong LuaApiMark = ReferenceMark | (ulong)ValueType.LuaApi;
-        const ulong ObjectMark = ReferenceMark | (ulong)ValueType.Object;
+		const ulong ObjectMark = ReferenceMark | (ulong)ValueType.Object;
 
-        // type用の16bit(bit63..48)の情報
-        const int Type16Mask = 0x0007;
+		// type用の16bit(bit63..48)の情報
+		const int Type16Mask = 0x0007;
 		const int Type16FloatBits = 0xfff8;
 		const int Type16NotFloat = 0x7ff8;
 		const int Type16Nan = 0x0008;

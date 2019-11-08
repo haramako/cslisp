@@ -11,7 +11,7 @@ namespace Lisp
 		StreamReader r_;
 		int unreadBuf_;
 
-        Parser parser_;
+		Parser parser_;
 
 		public string Filename
 		{
@@ -62,15 +62,15 @@ namespace Lisp
 			}
 		}
 
-        public Value ReadValue()
-        {
-            if( parser_ == null)
-            {
-                parser_ = new Parser();
-            }
+		public Value ReadValue()
+		{
+			if( parser_ == null)
+			{
+				parser_ = new Parser();
+			}
 
-            return parser_.Parse(this);
-        }
+			return parser_.Parse(this);
+		}
 
 	}
 }
