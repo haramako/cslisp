@@ -4,9 +4,11 @@ using System.Text;
 
 namespace Lisp
 {
-	internal static class C
+	public static class C
 	{
 		public static readonly Value Nil = Value.Nil;
+
+		public static readonly Value Begin = new Value(Symbol.Intern("begin"));
 		public static readonly Value QuasiQuote = new Value("quasiquote");
 		public static readonly Value Quote = new Value("quote");
 		public static readonly Value Unquote = new Value("unquote");

@@ -46,10 +46,17 @@ namespace Lisp
 	public class Lambda
 	{
 		public Code[] Code;
+		public Symbol[] Params;
 
-		public Lambda(Code[] codes)
+		public Lambda(Value param, Code[] codes)
 		{
 			Code = codes;
+			var paramList = new List<Symbol>();
+			for( var p = param; !p.IsNil; p = p.AsCons.Cdr)
+			{
+				paramList.Add(p.AsCons.Car.AsSymbol);
+			}
+			Params = paramList.ToArray();
 		}
 
 		public override string ToString()
@@ -96,11 +103,13 @@ namespace Lisp
 			Value _, param, body;
 			ConsUtil.Bind2Rest(code, out _, out param, out body);
 
-			compile(newCtx, body);
-			return new Lambda(newCtx.Codes.ToArray());
+			body = new Value(new Cons(C.Begin, body));
+			compileForm(newCtx, body);
+			newCtx.Emit(Operator.Ret);
+			return new Lambda(param, newCtx.Codes.ToArray());
 		}
 
-		void compileList(CompileContext ctx, Value code)
+		void compileForm(CompileContext ctx, Value code)
 		{
 			var cons = code.AsCons;
 			var car = cons.Car;
@@ -188,7 +197,7 @@ namespace Lisp
 			//printf( "eval: %s\n", v2s(sexp));
 			if( code.IsCons)
 			{
-				compileList(ctx, code);
+				compileForm(ctx, code);
 			}
 			else if( code.IsSymbol)
 			{
@@ -205,7 +214,7 @@ namespace Lisp
 			var ctx = new CompileContext();
 			compile(ctx, code);
 			ctx.Emit(Operator.Ret);
-			return new Lambda(ctx.Codes.ToArray());
+			return new Lambda(C.Nil, ctx.Codes.ToArray());
 		}
 
 		#if false

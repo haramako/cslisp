@@ -152,6 +152,7 @@ namespace Lisp
 								closure = restored.Closure;
 								pc = restored.Pc;
 								e = closure.Env;
+								codes = closure.Lambda.Code;
 							}
 							else
 							{
@@ -176,10 +177,15 @@ namespace Lisp
 							var vt = applicant.ValueType;
 							if ( vt == ValueType.Closure)
 							{
+								d.Push(new Dump(closure, pc));
 								var cl = applicant.AsClosure;
-								d.Push(new Dump());
+								var lmd = cl.Lambda;
 								e = cl.Env;
 								codes = cl.Lambda.Code;
+								for( int i = 0; i < args.Length; i++)
+								{
+									e.Define(lmd.Params[i], args[i]);
+								}
 								pc = 0;
 							}
 							else if( vt == ValueType.LuaApi)
