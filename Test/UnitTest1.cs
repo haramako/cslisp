@@ -22,6 +22,7 @@ namespace Tests
 			Console.WriteLine(pp_.Print(v));
 		}
 
+
 		Value parse(string src)
 		{
 			var s = new MemoryStream(Encoding.UTF8.GetBytes(src));
@@ -34,6 +35,17 @@ namespace Tests
 		}
 
 		// ƒeƒXƒg
+		[TestCase("()", "()")]
+		[TestCase("(1)", "(1)")]
+		[TestCase("(1 2)", "(2 1)")]
+		[TestCase("(1 2 3)", "(3 2 1)")]
+		public void TestReverseInplace(string src, string expected)
+		{
+			var list = parse(src);
+			list = ConsUtil.ReverseInplace(list);
+			Assert.AreEqual(expected, list.ToString());
+		}
+
 
 		[TestCase("1", "1")]
 		[TestCase(@"""hoge""", @"""hoge""")]
@@ -68,24 +80,35 @@ namespace Tests
 
 		public Value Display(params Value[] args)
 		{
-			foreach (var arg in args)
+			for( int i = 0; i < args.Length; i++)
 			{
-				Console.Write(arg);
-				Console.Write(" ");
+				Console.Write(args[i]);
+				if( i < args.Length - 1 )
+				{
+					Console.Write(" ");
+				}
 			}
-			Console.WriteLine("");
 			return Value.Nil;
 		}
 
 		[TestCase("(display 1)")]
+		[TestCase("(define +1 (lambda (n) (+ 1 n ))) (display (+1 2))")]
 		public void TestRun(string src)
 		{
 			var compiler = new Compiler();
 			var lmd = compiler.Compile(parse(src));
+
+			var code = lmd.Code;
+			for (int i = 0; i < code.Length; i++)
+			{
+				Console.WriteLine("{0:0000}: {1}", i, code[i]);
+			}
+
 			var eval = new Eval(0);
 			var env = new Env(null);
 			env.Define(Symbol.Intern("display"), new Value(Display));
 			var closure = new Closure(lmd, env);
+
 			eval.Run(closure);
 		}
 	}

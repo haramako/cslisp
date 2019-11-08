@@ -100,6 +100,7 @@ namespace Lisp
 			while (true)
 			{
 				c = codes[pc++];
+				Console.WriteLine(c);
 				switch( c.Op)
 				{
 					case Operator.Ldc:
@@ -114,8 +115,8 @@ namespace Lisp
 						break;
 					case Operator.Def:
 						{
-							var val = s.Pop();
-							var sym = s.Pop().AsSymbol;
+							var val = s.Peek();
+							var sym = c.Val.AsSymbol;
 							e.Define(sym, val);
 						}
 						break;

@@ -94,7 +94,7 @@ namespace Lisp
 			var newCtx = new CompileContext();
 
 			Value _, param, body;
-			List.Bind2Rest(code, out _, out param, out body);
+			ConsUtil.Bind2Rest(code, out _, out param, out body);
 
 			compile(newCtx, body);
 			return new Lambda(newCtx.Codes.ToArray());
@@ -112,7 +112,7 @@ namespace Lisp
 					case "define":
 						{
 							Value sym, def;
-							List.Bind2(cdr, out sym, out def);
+							ConsUtil.Bind2(cdr, out sym, out def);
 							compile(ctx, def);
 							ctx.Emit(Operator.Def, sym);
 						}
@@ -121,7 +121,7 @@ namespace Lisp
 					case "define-syntax":
 						{
 							Value sym, def;
-							List.Bind2(cdr, out sym, out def);
+							ConsUtil.Bind2(cdr, out sym, out def);
 							compile(ctx, def);
 							ctx.Emit(Operator.Syntax, sym);
 						}
@@ -130,7 +130,7 @@ namespace Lisp
 					case "set!":
 						{
 							Value sym, def;
-							List.Bind2(code, out sym, out def);
+							ConsUtil.Bind2(code, out sym, out def);
 							compile(ctx, def);
 							ctx.Emit(Operator.Set, sym);
 						}
@@ -150,7 +150,7 @@ namespace Lisp
 					case "if":
 						{
 							Value cond, thenBody, elseBody;
-							List.Bind2Rest(code, out cond, out thenBody, out elseBody);
+							ConsUtil.Bind2Rest(code, out cond, out thenBody, out elseBody);
 							compile(ctx, cond);
 
 							var ifPos = ctx.Position;

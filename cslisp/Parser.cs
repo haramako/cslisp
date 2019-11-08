@@ -288,5 +288,20 @@ namespace Lisp
 			}
 			throw new Exception("Must not reach");
 		}
+
+		public Value ParseList(Port port)
+		{
+			var tail = C.Nil;
+			while (true)
+			{
+				var code = Parse(port);
+				if( code.IsNil)
+				{
+					return ConsUtil.ReverseInplace(tail);
+				}
+				tail = new Value(new Cons(code, tail));
+			}
+		}
+
 	}
 }

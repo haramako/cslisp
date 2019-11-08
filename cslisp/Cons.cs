@@ -44,7 +44,7 @@ namespace Lisp
 		}
 	}
 
-	public static class List
+	public static class ConsUtil
 	{
 		public static void Bind2(Value src, out Value a, out Value b)
 		{
@@ -61,6 +61,25 @@ namespace Lisp
 			cur = cur.Cdr.AsCons;
 			b = cur.Car;
 			rest = cur.Cdr;
+		}
+
+		public static Value ReverseInplace(Value list)
+		{
+			if( list.IsNil)
+			{
+				return list;
+			}
+
+			var tail = C.Nil;
+			var cur = list;
+			while (!cur.IsNil)
+			{
+				var next = cur.AsCons.Cdr;
+				cur.AsCons.Cdr = tail;
+				tail = cur;
+				cur = next;
+			}
+			return tail;
 		}
 	}
 
