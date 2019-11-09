@@ -7,6 +7,16 @@ using System.Runtime.CompilerServices;
 
 namespace Lisp
 {
+	public class LispApiAttribute : Attribute
+	{
+		public string Name { get; private set; }
+
+		public LispApiAttribute(string name = null)
+		{
+			Name = name;
+		}
+	}
+
 	public class LuaException : Exception
 	{
 		public LuaException(string msg) : base(msg)
@@ -43,7 +53,7 @@ namespace Lisp
 		}
 	}
 
-	public delegate Value LuaApi(params Value[] param);
+	public delegate Value LispApi(params Value[] param);
 
 	public class Vm
 	{
@@ -56,7 +66,7 @@ namespace Lisp
 
 		public Vm()
 		{
-			Stdlib.Core.Setup(this);
+			ImportApi(typeof(Stdlib.Core));
 			compiler_ = new Compiler(this);
 		}
 
@@ -105,6 +115,25 @@ namespace Lisp
 		public Value Apply(Closure closure, params Value[] args)
 		{
 			return eval_.Apply(closure, args);
+		}
+
+		public void ImportApi(Type module)
+		{
+			foreach (var method in module.GetMethods())
+			{
+				var attributes = method.GetCustomAttributes(typeof(LispApiAttribute), true);
+				foreach (var attr in attributes)
+				{
+					var api = (LispApiAttribute)attr;
+					var name = api.Name;
+					if( name == null)
+					{
+						name = method.Name.Replace('_', '-');
+					}
+					var func = (LispApi)method.CreateDelegate(typeof(LispApi));
+					rootEnv_.Define(Symbol.Intern(name), new Value(func));
+				}
+			}
 		}
 	}
 }

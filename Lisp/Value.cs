@@ -158,7 +158,7 @@ namespace Lisp
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Value(LuaApi v)
+		public Value(LispApi v)
 		{
 			if (v == null)
 			{
@@ -493,13 +493,13 @@ namespace Lisp
 			}
 		}
 
-		public LuaApi AsLuaApi
+		public LispApi AsLuaApi
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
 				checkType(ValueType.LuaApi);
-				return (LuaApi)obj_;
+				return (LispApi)obj_;
 			}
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set

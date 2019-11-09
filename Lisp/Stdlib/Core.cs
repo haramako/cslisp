@@ -8,13 +8,14 @@ namespace Lisp.Stdlib
 	{
 		public static void Setup(Vm vm)
 		{
-			vm.RootEnv.Define(Symbol.Intern("display"), new Value(Display));
-			vm.RootEnv.Define(Symbol.Intern("puts"), new Value(Puts));
-			vm.RootEnv.Define(Symbol.Intern("begin"), new Value(Begin));
-			vm.RootEnv.Define(Symbol.Intern("+"), new Value(Add));
+			vm.RootEnv.Define(Symbol.Intern("display"), new Value(display));
+			vm.RootEnv.Define(Symbol.Intern("puts"), new Value(puts));
+			vm.RootEnv.Define(Symbol.Intern("begin"), new Value(begin));
+			vm.RootEnv.Define(Symbol.Intern("+"), new Value(add));
 		}
 
-		public static Value Display(params Value[] args)
+		[LispApi]
+		public static Value display(params Value[] args)
 		{
 			for (int i = 0; i < args.Length; i++)
 			{
@@ -27,19 +28,22 @@ namespace Lisp.Stdlib
 			return Value.Nil;
 		}
 
-		public static Value Puts(params Value[] args)
+		[LispApi]
+		public static Value puts(params Value[] args)
 		{
-			Display(args);
+			display(args);
 			Console.WriteLine();
 			return Value.Nil;
 		}
 
-		public static Value Begin(params Value[] args)
+		[LispApi]
+		public static Value begin(params Value[] args)
 		{
 			return args[args.Length - 1];
 		}
 
-		public static Value Add(params Value[] args)
+		[LispApi("+")]
+		public static Value add(params Value[] args)
 		{
 			var r = new Value(0);
 			for (int i = 0; i < args.Length; i++)
