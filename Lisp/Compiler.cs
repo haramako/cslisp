@@ -50,40 +50,7 @@ namespace Lisp
 		public int Line;
 	}
 
-	public class Lambda
-	{
-		public Code[] Code;
-		public SourceLocation[] Locations;
-		public Symbol[] Params;
-		public Symbol RestParam;
 
-		public Lambda(Value param, Code[] codes, SourceLocation[] locations)
-		{
-			Code = codes;
-			Locations = locations;
-
-			var paramList = new List<Symbol>();
-			for( var p = param; !p.IsNil; p = p.Cdr)
-			{
-				if (p.IsCons)
-				{
-					paramList.Add(p.Car.AsSymbol);
-				}
-				else
-				{
-					// rest parameter
-					RestParam = p.AsSymbol;
-					break;
-				}
-			}
-			Params = paramList.ToArray();
-		}
-
-		public override string ToString()
-		{
-			return "#<lambda>";
-		}
-	}
 
 	public class Compiler
 	{
@@ -121,7 +88,7 @@ namespace Lisp
 
 			var oldCode = code;
 			code = normalizeSexp(ctx, code);
-			Console.WriteLine($"normalize: {oldCode} ==> {PrettyPrinter.Instance.Print(code, 1000)}");
+			//Console.WriteLine($"normalize: {oldCode} ==> {PrettyPrinter.Instance.Print(code, 1000)}");
 
 			compile(ctx, code);
 			ctx.Emit(Operator.Ret);
@@ -156,7 +123,10 @@ namespace Lisp
 			body = Value.Cons(C.SpBegin, body);
 			compileForm(newCtx, body);
 			newCtx.Emit(Operator.Ret);
-			return new Lambda(param, newCtx.Codes.ToArray(), newCtx.Locations.ToArray());
+
+			var lmd = new Lambda(param, newCtx.Codes.ToArray(), newCtx.Locations.ToArray());
+            lmd.DefinedLocation = code.AsCons.Location;
+            return lmd;
 		}
 
 		void compileForm(CompileContext ctx, Value code)
@@ -165,7 +135,7 @@ namespace Lisp
 			var car = cons.Car;
 			var cdr = cons.Cdr;
 			ctx.CurrentLocation = code.AsCons.Location;
-			trace("{0} {1}", ctx.CurrentLocation.Line, PrettyPrinter.Instance.Print(code, 30));
+			//trace("{0} {1}", ctx.CurrentLocation.Line, PrettyPrinter.Instance.Print(code, 30));
 			bool normalForm = false;
 			if (car.IsSymbol)
 			{
@@ -215,7 +185,6 @@ namespace Lisp
 						{
 							for (var cur = cdr; !cur.IsNil; cur = cur.Cdr)
 							{
-								trace("begin {0}", cur.Car);
 								compile(ctx, cur.Car);
 								if (!cur.Cdr.IsNil)
 								{
@@ -320,7 +289,7 @@ namespace Lisp
 			}
 			else if (sym == "lambda")
 			{
-				return Value.Cons(C.SpLambda, Value.Cons(rest.Car, normalizeList(ctx, rest.Cdr)));
+				return Value.ConsSrc(s, C.SpLambda, Value.ConsSrc(rest, rest.Car, normalizeList(ctx, rest.Cdr)));
 			}
 			else if (sym == "%define-syntax")
 			{
@@ -394,6 +363,10 @@ namespace Lisp
 				}
 
 				var expanded = vm_.Apply(closure, s, C.Nil, C.Nil);
+                if( expanded.Is<Exception>())
+                {
+                    throw expanded.As<Exception>();
+                }
 
 				return normalizeSexp(ctx, expanded);
 			}

@@ -19,7 +19,8 @@ namespace Lisp
 
 	public class LispException : Exception
 	{
-		public LispException(string msg) : base(msg) {}
+        public LispException() : base() { }
+        public LispException(string msg) : base(msg) {}
 	}
 
 	public sealed class Closure

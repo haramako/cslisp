@@ -138,7 +138,7 @@ namespace Lisp
 
 		public Value Execute()
 		{
-			int pc = 0;
+			int pc = pc_;
 			Code[] code = code_;
 
 			var closure = closure_;
@@ -154,7 +154,7 @@ namespace Lisp
 				{
 					location = closure.Lambda.Locations[pc];
 					c = code[pc++];
-					Console.WriteLine("{0} {3} at {1}:{2}", c, location.Filename, location.Line, s.Count);
+					//Console.WriteLine("{0} {3} at {1}:{2}", c, location.Filename, location.Line, s.Count);
 					switch (c.Op)
 					{
 						case Operator.Ldc:
@@ -176,6 +176,11 @@ namespace Lisp
 							{
 								var val = s.Peek();
 								var sym = c.Val.AsSymbol;
+                                if( val.IsClosure)
+                                {
+                                    var lmd = val.AsClosure.Lambda;
+                                    lmd.Name = sym;
+                                }
 								e.Define(sym, val);
 							}
 							break;
@@ -190,7 +195,8 @@ namespace Lisp
 							{
 								var val = s.Peek();
 								var sym = c.Val.AsSymbol;
-								val.AsClosure.IsSyntax = true;
+                                val.AsClosure.IsSyntax = true;
+                                val.AsClosure.Lambda.Name = sym;
 								e.Define(sym, val);
 							}
 							break;
@@ -294,8 +300,17 @@ namespace Lisp
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("{0}:{1}: error {2}", location.Filename, location.Line, ex);
-				throw;
+                Console.WriteLine("{0}:{1}: error {2}", location.Filename, location.Line, ex.Message);
+
+                while (d.Count > 0)
+                {
+                    var curDump = d.Pop();
+                    var stackLmd = curDump.Closure.Lambda;
+                    var l = stackLmd.Locations[curDump.Pc-1];
+                    Console.WriteLine("{0}:{1}: in {2}", l.Filename, l.Line, stackLmd);
+                }
+
+                return new Value(ex);
 			}
 		}
 

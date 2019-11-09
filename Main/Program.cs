@@ -11,8 +11,10 @@ class Program
 
 	static void Main(string[] args)
 	{
+		#if !DEBUG
 		try
 		{
+		#endif
 			for (int i = 0; i < args.Length; i++)
 			{
 				var arg = args[i];
@@ -40,12 +42,14 @@ class Program
 						break;
 				}
 			}
+			#if !DEBUG
 		}
 		catch (Exception ex)
 		{
 			//waitKey();
 			throw;
 		}
+			#endif
 		waitKey();
 	}
 

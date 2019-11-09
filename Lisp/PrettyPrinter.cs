@@ -7,7 +7,7 @@ namespace Lisp
 {
 	public class PrettyPrinter
 	{
-		class LengthLimitException : Exception { }
+		class LengthLimitException : LispException { }
 
 		public static PrettyPrinter Instance = new PrettyPrinter();
 
@@ -49,9 +49,11 @@ namespace Lisp
 					sb_.Append("\"");
 					break;
 				case ValueType.Closure:
-					// TODO: 未実装
-					sb_.Append("#<lambda>");
-					break;
+                    // TODO: 未実装
+                    sb_.Append("#<");
+					sb_.Append(v.AsClosure.Lambda.Name);
+                    sb_.Append(">");
+                    break;
 				case ValueType.LispApi:
 					{
 						// TODO: 未実装
