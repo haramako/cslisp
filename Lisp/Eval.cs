@@ -101,7 +101,7 @@ namespace Lisp
 			{
 				var location = closure.Lambda.Locations[pc];
 				c = codes[pc++];
-				Console.WriteLine("{0} at {1}:{2}", c, location.Filename, location.Line);
+				//Console.WriteLine("{0} at {1}:{2}", c, location.Filename, location.Line);
 				switch( c.Op)
 				{
 					case Operator.Ldc:

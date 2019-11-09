@@ -8,9 +8,10 @@ class Program
 {
 	static bool compileOnly = false;
 	static bool verbose = false;
+
 	static void Main(string[] args)
 	{
-		for( int i = 0; i < args.Length; i++)
+		for (int i = 0; i < args.Length; i++)
 		{
 			var arg = args[i];
 			switch (arg)

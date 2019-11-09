@@ -44,7 +44,7 @@ namespace Lisp
 
 	public delegate Value LuaApi(params Value[] param);
 
-	public class LuaState
+	public class Vm
 	{
 	}
 }
