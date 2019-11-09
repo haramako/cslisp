@@ -308,6 +308,12 @@ namespace Lisp
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool Is<T>() where T : class
+		{
+			return (ValueType == ValueType.Object) && (obj_ is T);
+		}
+
 		// TODO: 48bit以上の扱い
 		public int AsInt
 		{
@@ -806,6 +812,10 @@ namespace Lisp
 		public static Value Cons(Value car, Value cdr)
 		{
 			return new Value(new Cons(car, cdr));
+		}
+		public static Value ConsSrc(Value src, Value car, Value cdr)
+		{
+			return new Value(Lisp.Cons.WithLocation(src, car, cdr));
 		}
 
 		public Value Car => this.AsCons.Car;

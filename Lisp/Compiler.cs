@@ -9,6 +9,7 @@ namespace Lisp
 	{
 		Ld,
 		Ldc,
+		Pop,
 		Def,
 		Set,
 		Syntax,
@@ -102,6 +103,10 @@ namespace Lisp
 			public int Position => Codes.Count;
 		}
 
+		//===================================================================
+		// コンパイル
+		//===================================================================
+
 		Lambda compileLambda(CompileContext ctx, Value code)
 		{
 			var newCtx = new CompileContext();
@@ -125,7 +130,7 @@ namespace Lisp
 			{
 				switch (car.AsSymbol.ToString())
 				{
-					case "define":
+					case "%define":
 						{
 							Value sym, def;
 							ConsUtil.Bind2(cdr, out sym, out def);
@@ -134,7 +139,7 @@ namespace Lisp
 						}
 						break;
 
-					case "define-syntax":
+					case "%define-syntax":
 						{
 							Value sym, def;
 							ConsUtil.Bind2(cdr, out sym, out def);
@@ -143,7 +148,7 @@ namespace Lisp
 						}
 						break;
 
-					case "set!":
+					case "%set!":
 						{
 							Value sym, def;
 							ConsUtil.Bind2(code, out sym, out def);
@@ -152,18 +157,31 @@ namespace Lisp
 						}
 						break;
 
-					case "quote":
+					case "%quote":
 						ctx.Emit(Operator.Ldc, cdr);
 						break;
 
-					case "lambda":
+					case "%lambda":
 						{
 							var lmd = compileLambda(ctx, code);
 							ctx.Emit(Operator.Ldf, new Value(lmd));
 						}
 						break;
 
-					case "if":
+					case "%begin":
+						{
+							for( var cur = cdr; !cur.IsNil; cur = cur.Cdr)
+							{
+								trace("begin {0}", cur.Car);
+								compile(ctx, cur.Car);
+								if (!cur.Cdr.IsNil)
+								{
+									ctx.Emit(Operator.Pop);
+								}
+							}
+						}
+						break;
+					case "%if":
 						{
 							Value cond, thenBody, elseBody;
 							ConsUtil.Bind2Rest(code, out cond, out thenBody, out elseBody);
@@ -219,6 +237,11 @@ namespace Lisp
 		public Lambda Compile(Value code)
 		{
 			var ctx = new CompileContext();
+
+			var oldCode = code;
+			code = NormalizeSexp(ctx, code);
+			Console.WriteLine($"normalize: {oldCode}=>{code}");
+
 			compile(ctx, code);
 			ctx.Emit(Operator.Ret);
 			return new Lambda(C.Nil, ctx.Codes.ToArray(), ctx.Locations.ToArray());
@@ -229,90 +252,94 @@ namespace Lisp
 			return Compile(Value.Cons(Value.Intern("begin"), code));
 		}
 
-		#if false
-		Value normalize_sexp(Context ctx, Value s)
+
+		//===================================================================
+		// Syntax
+		//===================================================================
+
+		Value NormalizeSexp(CompileContext ctx, Value s)
 		{
 			// printf( "s:%s\n", v2s_limit(s,30) );
-			if (!IS_PAIR(s)) return s;
-			if (IS_PAIR(CAR(s))) return normalize_list(ctx, s);
-			if (TYPE_OF(CAR(s)) != TYPE_SYMBOL) return s;
+			if (!s.IsCons) return s;
+			if (s.Car.IsCons) return NormalizeList(ctx, s);
+			if (!s.Car.IsSymbol) return s;
 
-			Symbol sym = V2SYMBOL(CAR(s));
-			Value rest = CDR(s);
-			if (sym == SYM_DEFINE)
+			string sym = s.Car.AsSymbol.ToString();
+			Value rest = s.Cdr;
+			if (sym == "define")
 			{
-				if (IS_SYMBOL(CAR(rest)))
+				if (rest.Car.IsSymbol)
 				{
 					// (define sym val) の形
-					return cons_src(s, V_DEFINE, normalize_list(ctx, rest));
+					return Value.ConsSrc(s, C.SpDefine, NormalizeList(ctx, rest));
 				}
-				else if (IS_PAIR(CAR(rest)))
+				else if (rest.Car.IsCons)
 				{
 					// (define (sym args ...) ... ) の形
-					Value lambda = cons_src(s, V_LAMBDA,
-											cons_src(CAR(rest), CDAR(rest), normalize_list(ctx, CDR(rest))));
-					return cons_src(s, V_DEFINE,
-									cons_src(CAR(rest), CAAR(rest),
-											 cons_src(CDR(rest),
-													  lambda, C.Nil)));
+					Value lambda = Value.ConsSrc(s, C.SpLambda,
+												 Value.ConsSrc(rest.Car, rest.Car.Cdr, NormalizeList(ctx, rest.Cdr)));
+					return Value.ConsSrc(s, C.SpLambda,
+										 Value.ConsSrc(rest.Car, rest.Car.Car,
+													   Value.ConsSrc(rest.Cdr, lambda, C.Nil)));
 				}
 				else
 				{
-					assert(0);
+					throw new LuaException("Invalid define form");
 				}
 			}
-			else if (sym == SYM_LAMBDA)
+			else if (sym == "lambda")
 			{
-				return cons3(V_LAMBDA, CAR(rest), normalize_list(ctx, CDR(rest)));
+				return Value.Cons(C.SpLambda, Value.Cons(rest.Car, NormalizeList(ctx, rest.Cdr)));
 			}
-			else if (sym == SYM_DEFINE_SYNTAX2)
+			else if (sym == "define-syntax")
 			{
-				return cons_src(s, V_DEFINE_SYNTAX2, normalize_list(ctx, rest));
+				return Value.ConsSrc(s, C.SpDefineSyntax, NormalizeList(ctx, rest));
 
 			}
-			else if (sym == SYM_IF)
+			else if (sym == "if")
 			{
 				Value _cond, _then, _else;
-				bind3cdr(rest, _cond, _then, _else);
-				if (_else == C.Nil) _else = cons(V_UNDEF, C.Nil);
-				return cons4(V_IF, normalize_sexp(ctx, _cond), normalize_sexp(ctx, _then), normalize_list(ctx, _else));
+				ConsUtil.Bind2Rest(rest, out _cond, out _then, out _else);
+				if (_else == C.Nil) _else = Value.Cons(C.Undef, C.Nil);
+				return ConsUtil.Cons(C.SpIf, NormalizeSexp(ctx, _cond), NormalizeSexp(ctx, _then), NormalizeList(ctx, _else));
 
 			}
-			else if (sym == SYM_BEGIN)
+			else if (sym == "begin")
 			{
-				if (rest == C.Nil) return V_UNDEF;
-				if (CDR(rest) == C.Nil) return normalize_sexp(ctx, CAR(rest));
-				return cons(V_BEGIN, normalize_list(ctx, rest));
+				if (rest == C.Nil) return C.Undef;
+				if (rest.Cdr == C.Nil) return NormalizeSexp(ctx, rest.Car);
+				return ConsUtil.Cons(C.SpBegin, NormalizeList(ctx, rest));
 
 			}
-			else if (sym == SYM_SET_I)
+			else if (sym == "set!")
 			{
-				return cons3(V_SET_I, CAR(rest), normalize_sexp(ctx, CDR(rest)));
-
+				Value sym_, val;
+				ConsUtil.Bind2(rest, out sym_, out val);
+				return ConsUtil.Cons(C.SpSet, sym_, NormalizeSexp(ctx, val));
 			}
-			else if (sym == SYM_QUOTE)
+			else if (sym == "quote")
 			{
-				return cons(V_QUOTE, rest);
+				return ConsUtil.Cons(C.SpQuote, rest);
 
 			}
 			else
 			{
-				s = normalize_syntax(ctx, s);
-				return normalize_list(ctx, s);
+				s = NormalizeSyntax(ctx, s);
+				return NormalizeList(ctx, s);
 			}
 		}
 
 		// implicit begin
-		Value normalize_begin(Context ctx, Value list)
+		Value NormalizeBegin(CompileContext ctx, Value list)
 		{
-			return normalize_sexp(ctx, cons_src(list, (Value)SYM_BEGIN, list));
+			return NormalizeSexp(ctx, Value.ConsSrc(list, C.Begin, list));
 		}
 
-		Value normalize_list(Context ctx, Value list)
+		Value NormalizeList(CompileContext ctx, Value list)
 		{
-			if (IS_PAIR(list))
+			if (list.IsCons)
 			{
-				return cons_src(list, normalize_sexp(ctx, CAR(list)), normalize_list(ctx, CDR(list)));
+				return Value.ConsSrc(list, NormalizeSexp(ctx, list.Car), NormalizeList(ctx, list.Cdr));
 			}
 			else
 			{
@@ -320,16 +347,18 @@ namespace Lisp
 			}
 		}
 
-		Value normalize_syntax(Context ctx, Value s)
+		Value NormalizeSyntax(CompileContext ctx, Value s)
 		{
-			if (!IS_SYMBOL(CAR(s))) return s;
+			return s;
+			#if false
+			if (!s.Car.IsSymbol) return s;
 
 			//printf("hoge: %s\n", v2s(bundle_get( ctx->bundle, intern("define-syntax"), C.Nil )));
 			Value v = bundle_get(ctx->bundle, V2SYMBOL(CAR(s)), C.Nil);
-			if (!IS_LAMBDA(v)) return s;
+			if (!v.Is<Closure>()) return s;
 
-			Lambda lmd = V2LAMBDA(v);
-			if (lmd->type != LAMBDA_TYPE_MACRO)
+			Closure lmd = v.As<Closure>();
+			if (!lmd.IsSyntax)
 			{
 				return s;
 			}
@@ -341,7 +370,7 @@ namespace Lisp
 			//printf("normalize_syntax2: %s\n", v2s(s));
 
 			return normalize_sexp(ctx, s);
+			#endif
 		}
-		#endif
 	}
 }

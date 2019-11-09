@@ -111,6 +111,11 @@ namespace Lisp
 							s.Push(val);
 						}
 						break;
+					case Operator.Pop:
+						{
+							s.Pop();
+						}
+						break;
 					case Operator.Def:
 						{
 							var val = s.Peek();

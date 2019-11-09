@@ -104,7 +104,15 @@ namespace Tests
 		public void TestRun(string src)
 		{
 			var vm = new Vm();
-			var result = vm.Run(src);
+			var closure = vm.Compile(src);
+
+			var code = closure.Lambda.Code;
+			for (int i = 0; i < code.Length; i++)
+			{
+				Console.WriteLine("{0:0000}: {1}", i, code[i]);
+			}
+
+			var result = vm.Run(closure);
 			Console.WriteLine(result);
 		}
 	}
