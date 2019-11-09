@@ -26,21 +26,23 @@ namespace Lisp
 			Cdr = cdr;
 		}
 
-		public static Value WithLocation(Port src, Value car, Value cdr)
+		public static Value WithLocation(string filename, int line, Value car, Value cdr)
 		{
 			var cons = new Cons(car, cdr);
-			cons.SrcFilename = src.Filename;
-			cons.SrcLine = src.Line;
+			cons.SrcFilename = filename;
+			cons.SrcLine = line;
 			return new Value(cons);
+		}
+
+		public static Value WithLocation(Port src, Value car, Value cdr)
+		{
+			return WithLocation(src.Filename, src.Line, car, cdr);
 		}
 
 		public static Value WithLocation(Value src, Value car, Value cdr)
 		{
-			var cons = new Cons(car, cdr);
 			var srcCons = src.AsCons;
-			cons.SrcFilename = srcCons.SrcFilename;
-			cons.SrcLine = srcCons.SrcLine;
-			return new Value(cons);
+			return WithLocation(srcCons.SrcFilename, srcCons.SrcLine, car, cdr);
 		}
 
 		public SourceLocation Location => new SourceLocation { Filename = SrcFilename, Line = SrcLine };
@@ -52,9 +54,20 @@ namespace Lisp
 		{
 			return new Value(new Cons(car, cdr));
 		}
+
 		public static Value ConsSrc(Value src, Value car, Value cdr)
 		{
 			return new Value(Lisp.Cons.WithLocation(src, car, cdr));
+		}
+
+		public static Value ConsSrc(Port port, Value car, Value cdr)
+		{
+			return new Value(Lisp.Cons.WithLocation(port, car, cdr));
+		}
+
+		public static Value ConsSrc(string filename, int line, Value car, Value cdr)
+		{
+			return new Value(Lisp.Cons.WithLocation(filename, line, car, cdr));
 		}
 
 		public static Value Cons(Value v1, Value v2, Value v3)

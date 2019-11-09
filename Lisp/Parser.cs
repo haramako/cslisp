@@ -57,8 +57,10 @@ namespace Lisp
 					}
 					else
 					{
+						var filename = s.Filename;
+						var line = s.Line;
 						var cdr = parseList(s);
-						return Cons.WithLocation(s, val, cdr);
+						return Value.ConsSrc(filename, line, val, cdr);
 					}
 			}
 		}
@@ -254,13 +256,13 @@ namespace Lisp
 				case '\'':
 					{
 						var result = Parse(s);
-						result = Cons.WithLocation(s, C.Quote, Cons.WithLocation(s, result, Value.Nil));
+						result = Value.ConsSrc(s, C.Quote, Value.ConsSrc(s, result, Value.Nil));
 						return result;
 					}
 				case '`':
 					{
 						var result = Parse(s);
-						result = Cons.WithLocation(s, C.QuasiQuote, Cons.WithLocation(s, result, Value.Nil));
+						result = Value.ConsSrc(s, C.QuasiQuote, Value.ConsSrc(s, result, Value.Nil));
 						return result;
 					}
 				case ',':
@@ -276,7 +278,7 @@ namespace Lisp
 						}
 
 						var result = Parse(s);
-						result = Cons.WithLocation(s, sym, Cons.WithLocation(s, result, Value.Nil));
+						result = Value.ConsSrc(s, sym, Value.ConsSrc(s, result, Value.Nil));
 						return result;
 					}
 				default:

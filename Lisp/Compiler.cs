@@ -125,8 +125,8 @@ namespace Lisp
 			newCtx.Emit(Operator.Ret);
 
 			var lmd = new Lambda(param, newCtx.Codes.ToArray(), newCtx.Locations.ToArray());
-            lmd.DefinedLocation = code.AsCons.Location;
-            return lmd;
+			lmd.DefinedLocation = code.AsCons.Location;
+			return lmd;
 		}
 
 		void compileForm(CompileContext ctx, Value code)
@@ -363,10 +363,10 @@ namespace Lisp
 				}
 
 				var expanded = vm_.Apply(closure, s, C.Nil, C.Nil);
-                if( expanded.Is<Exception>())
-                {
-                    throw expanded.As<Exception>();
-                }
+				if( expanded.Is<Exception>())
+				{
+					throw expanded.As<Exception>();
+				}
 
 				return normalizeSexp(ctx, expanded);
 			}

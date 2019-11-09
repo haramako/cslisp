@@ -11,16 +11,16 @@ namespace Lisp.Stdlib
 		{
 			for (int i = 0; i < args.Length; i++)
 			{
-                if (args[i].IsString)
-                {
-                    Console.Write(args[i].AsString);
-                }
-                else
-                {
-                    Console.Write(args[i]);
-                }
+				if (args[i].IsString)
+				{
+					Console.Write(args[i].AsString);
+				}
+				else
+				{
+					Console.Write(args[i]);
+				}
 
-                if (i < args.Length - 1)
+				if (i < args.Length - 1)
 				{
 					Console.Write(" ");
 				}

@@ -49,11 +49,11 @@ namespace Lisp
 					sb_.Append("\"");
 					break;
 				case ValueType.Closure:
-                    // TODO: 未実装
-                    sb_.Append("#<");
+					// TODO: 未実装
+					sb_.Append("#<");
 					sb_.Append(v.AsClosure.Lambda.Name);
-                    sb_.Append(">");
-                    break;
+					sb_.Append(">");
+					break;
 				case ValueType.LispApi:
 					{
 						// TODO: 未実装

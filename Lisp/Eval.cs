@@ -176,11 +176,11 @@ namespace Lisp
 							{
 								var val = s.Peek();
 								var sym = c.Val.AsSymbol;
-                                if( val.IsClosure)
-                                {
-                                    var lmd = val.AsClosure.Lambda;
-                                    lmd.Name = sym;
-                                }
+								if( val.IsClosure)
+								{
+									var lmd = val.AsClosure.Lambda;
+									lmd.Name = sym;
+								}
 								e.Define(sym, val);
 							}
 							break;
@@ -195,8 +195,8 @@ namespace Lisp
 							{
 								var val = s.Peek();
 								var sym = c.Val.AsSymbol;
-                                val.AsClosure.IsSyntax = true;
-                                val.AsClosure.Lambda.Name = sym;
+								val.AsClosure.IsSyntax = true;
+								val.AsClosure.Lambda.Name = sym;
 								e.Define(sym, val);
 							}
 							break;
@@ -300,17 +300,17 @@ namespace Lisp
 			}
 			catch (Exception ex)
 			{
-                Console.WriteLine("{0}:{1}: error {2}", location.Filename, location.Line, ex.Message);
+				Console.WriteLine("{0}:{1}: error {2}", location.Filename, location.Line, ex.Message);
 
-                while (d.Count > 0)
-                {
-                    var curDump = d.Pop();
-                    var stackLmd = curDump.Closure.Lambda;
-                    var l = stackLmd.Locations[curDump.Pc-1];
-                    Console.WriteLine("{0}:{1}: in {2}", l.Filename, l.Line, stackLmd);
-                }
+				while (d.Count > 0)
+				{
+					var curDump = d.Pop();
+					var stackLmd = curDump.Closure.Lambda;
+					var l = stackLmd.Locations[curDump.Pc - 1];
+					Console.WriteLine("{0}:{1}: in {2}", l.Filename, l.Line, stackLmd);
+				}
 
-                return new Value(ex);
+				return new Value(ex);
 			}
 		}
 
