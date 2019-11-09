@@ -43,14 +43,23 @@ namespace Lisp
 
 	}
 
+	public struct SourceLocation
+	{
+		public string Filename;
+		public int Line;
+	}
+
 	public class Lambda
 	{
 		public Code[] Code;
+		public SourceLocation[] Locations;
 		public Symbol[] Params;
 
-		public Lambda(Value param, Code[] codes)
+		public Lambda(Value param, Code[] codes, SourceLocation[] locations)
 		{
 			Code = codes;
+			Locations = locations;
+
 			var paramList = new List<Symbol>();
 			for( var p = param; !p.IsNil; p = p.AsCons.Cdr)
 			{
@@ -85,14 +94,21 @@ namespace Lisp
 		public class CompileContext
 		{
 			public List<Code> Codes = new List<Code>();
+			public List<SourceLocation> Locations = new List<SourceLocation>();
+			public SourceLocation CurrentLocation;
+
 			public void Emit(Operator op)
 			{
 				Codes.Add(new Code(op));
+				Locations.Add(CurrentLocation);
 			}
+
 			public void Emit(Operator op, Value val)
 			{
 				Codes.Add(new Code(op, val));
+				Locations.Add(CurrentLocation);
 			}
+
 			public int Position => Codes.Count;
 		}
 
@@ -106,7 +122,7 @@ namespace Lisp
 			body = new Value(new Cons(C.Begin, body));
 			compileForm(newCtx, body);
 			newCtx.Emit(Operator.Ret);
-			return new Lambda(param, newCtx.Codes.ToArray());
+			return new Lambda(param, newCtx.Codes.ToArray(), newCtx.Locations.ToArray());
 		}
 
 		void compileForm(CompileContext ctx, Value code)
@@ -114,6 +130,7 @@ namespace Lisp
 			var cons = code.AsCons;
 			var car = cons.Car;
 			var cdr = cons.Cdr;
+			ctx.CurrentLocation = code.Location;
 			if (car.IsSymbol)
 			{
 				switch (car.AsSymbol.ToString())
@@ -214,7 +231,7 @@ namespace Lisp
 			var ctx = new CompileContext();
 			compile(ctx, code);
 			ctx.Emit(Operator.Ret);
-			return new Lambda(C.Nil, ctx.Codes.ToArray());
+			return new Lambda(C.Nil, ctx.Codes.ToArray(), ctx.Locations.ToArray());
 		}
 
 		#if false

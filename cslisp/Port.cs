@@ -24,7 +24,7 @@ namespace Lisp
 			private set;
 		} = 1;
 
-		public Port(Stream s, string filename = null)
+		public Port(Stream s, string filename = "<unknown>")
 		{
 			s_ = s;
 			r_ = new StreamReader(s_);

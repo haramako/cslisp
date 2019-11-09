@@ -42,6 +42,8 @@ namespace Lisp
 			cons.SrcLine = srcCons.SrcLine;
 			return new Value(cons);
 		}
+
+		public SourceLocation Location => new SourceLocation { Filename = SrcFilename, Line = SrcLine };
 	}
 
 	public static class ConsUtil

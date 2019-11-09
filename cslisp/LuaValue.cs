@@ -508,6 +508,8 @@ namespace Lisp
 			return (T)obj_;
 		}
 
+		public SourceLocation Location => this.AsCons.Location;
+
 		//====================================================
 		// Lua operators
 		//====================================================

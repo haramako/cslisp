@@ -135,7 +135,7 @@ namespace Tests
 		}
 
 		[TestCase("(puts 1)")]
-		[TestCase("(define +1 (lambda (n) (+ 1 n ))) (+1 2)")]
+		[TestCase("(define +1 \n(lambda (n) (+ 1 n ))) \n(+1 2)")]
 		public void TestRun(string src)
 		{
 			var lmd = compile(src);
