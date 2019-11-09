@@ -117,15 +117,30 @@ namespace Lisp
 			var lmd = closure.Lambda;
 
 			env_ = new Env(closure.Env);
-			for (int i = 0; i < args.Length; i++)
-			{
-				env_.Define(lmd.Params[i], args[i]);
-			}
+			loadParameters(env_, lmd, args);
 
 			code_ = closure.Lambda.Code;
 			pc_ = 0;
 
 			return Execute();
+		}
+
+		void loadParameters(Env e, Lambda lmd, Value[] args)
+		{
+			for (int i = 0; i < lmd.Params.Length; i++)
+			{
+				e.Define(lmd.Params[i], args[i]);
+			}
+			if (lmd.RestParam != null)
+			{
+				var li = C.Nil;
+				for (int i = lmd.Params.Length; i < args.Length; i++)
+				{
+					li = Value.Cons(args[i], li);
+				}
+				li = Value.ReverseInplace(li);
+				e.Define(lmd.RestParam, li);
+			}
 		}
 
 		public Value Run(Closure closure)
@@ -250,10 +265,8 @@ namespace Lisp
 									code = cl.Lambda.Code;
 									closure = cl;
 
-									for (int i = 0; i < args.Length; i++)
-									{
-										e.Define(lmd.Params[i], args[i]);
-									}
+									loadParameters(e, lmd, args);
+
 									pc = 0;
 								}
 								else if (vt == ValueType.LispApi)

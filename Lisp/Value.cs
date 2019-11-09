@@ -823,27 +823,5 @@ namespace Lisp
 			return !a.Equals(b);
 		}
 
-		//====================================================
-		// Utility methods
-		//====================================================
-
-		public Value Car => this.AsCons.Car;
-		public Value Cdr => this.AsCons.Cdr;
-
-		public static Value Intern(string symbol) => new Value(Symbol.Intern(symbol));
-
-		public static readonly Value T = new Value(true);
-		public static readonly Value F = new Value(false);
-
-
-		public static bool Eqv(Value a, Value b)
-		{
-			return a == b;
-		}
-
-		public static bool Equal(Value a, Value b)
-		{
-			return a == b;
-		}
 	}
 }

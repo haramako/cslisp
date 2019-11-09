@@ -234,6 +234,6 @@
 (or #f (puts "OK"))
 
 (define y '(3 4))
-(puts `(1 ,x ,@y 2))
+(puts `(1 ,x ,@y ,y 2))
 
 
