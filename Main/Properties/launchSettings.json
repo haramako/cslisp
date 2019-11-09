@@ -2,7 +2,8 @@
   "profiles": {
     "Main": {
       "commandName": "Project",
-      "commandLineArgs": "-v -e \"(+ 1 2)\""
+      "commandLineArgs": "-v macrotest.scm",
+      "workingDirectory": "C:\\Work\\cslisp"
     }
   }
 }

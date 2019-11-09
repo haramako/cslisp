@@ -55,6 +55,7 @@ namespace Lisp
 		public Code[] Code;
 		public SourceLocation[] Locations;
 		public Symbol[] Params;
+		public Symbol RestParam;
 
 		public Lambda(Value param, Code[] codes, SourceLocation[] locations)
 		{
@@ -64,7 +65,16 @@ namespace Lisp
 			var paramList = new List<Symbol>();
 			for( var p = param; !p.IsNil; p = p.Cdr)
 			{
-				paramList.Add(p.Car.AsSymbol);
+				if (p.IsCons)
+				{
+					paramList.Add(p.Car.AsSymbol);
+				}
+				else
+				{
+					// rest parameter
+					RestParam = p.AsSymbol;
+					break;
+				}
 			}
 			Params = paramList.ToArray();
 		}
@@ -111,7 +121,7 @@ namespace Lisp
 
 			var oldCode = code;
 			code = normalizeSexp(ctx, code);
-			Console.WriteLine($"normalize: {oldCode}=>{code}");
+			Console.WriteLine($"normalize: {oldCode} ==> {PrettyPrinter.Instance.Print(code, 1000)}");
 
 			compile(ctx, code);
 			ctx.Emit(Operator.Ret);
@@ -141,9 +151,9 @@ namespace Lisp
 			var newCtx = new CompileContext();
 
 			Value _, param, body;
-			ConsUtil.Bind2Rest(code, out _, out param, out body);
+			Value.Bind2Rest(code, out _, out param, out body);
 
-			body = ConsUtil.Cons(C.SpBegin, body);
+			body = Value.Cons(C.SpBegin, body);
 			compileForm(newCtx, body);
 			newCtx.Emit(Operator.Ret);
 			return new Lambda(param, newCtx.Codes.ToArray(), newCtx.Locations.ToArray());
@@ -155,6 +165,8 @@ namespace Lisp
 			var car = cons.Car;
 			var cdr = cons.Cdr;
 			ctx.CurrentLocation = code.AsCons.Location;
+			trace("{0} {1}", ctx.CurrentLocation.Line, PrettyPrinter.Instance.Print(code, 30));
+			bool normalForm = false;
 			if (car.IsSymbol)
 			{
 				switch (car.AsSymbol.ToString())
@@ -162,7 +174,7 @@ namespace Lisp
 					case "%define":
 						{
 							Value sym, def;
-							ConsUtil.Bind2(cdr, out sym, out def);
+							Value.Bind2(cdr, out sym, out def);
 							compile(ctx, def);
 							ctx.Emit(Operator.Def, sym);
 						}
@@ -171,7 +183,7 @@ namespace Lisp
 					case "%define-syntax":
 						{
 							Value sym, def;
-							ConsUtil.Bind2(cdr, out sym, out def);
+							Value.Bind2(cdr, out sym, out def);
 							compile(ctx, def);
 							ctx.Emit(Operator.Syntax, sym);
 						}
@@ -180,7 +192,7 @@ namespace Lisp
 					case "%set!":
 						{
 							Value sym, def;
-							ConsUtil.Bind2(code, out sym, out def);
+							Value.Bind2(code, out sym, out def);
 							compile(ctx, def);
 							ctx.Emit(Operator.Set, sym);
 						}
@@ -201,7 +213,7 @@ namespace Lisp
 
 					case "%begin":
 						{
-							for( var cur = cdr; !cur.IsNil; cur = cur.Cdr)
+							for (var cur = cdr; !cur.IsNil; cur = cur.Cdr)
 							{
 								trace("begin {0}", cur.Car);
 								compile(ctx, cur.Car);
@@ -215,7 +227,7 @@ namespace Lisp
 					case "%if":
 						{
 							Value cond, thenBody, elseBody;
-							ConsUtil.Bind2Rest(code, out cond, out thenBody, out elseBody);
+							Value.Bind2Rest(code.Cdr, out cond, out thenBody, out elseBody);
 							compile(ctx, cond);
 
 							var ifPos = ctx.Position;
@@ -226,7 +238,7 @@ namespace Lisp
 							ctx.Emit(Operator.Goto);
 
 							var elsePos = ctx.Position;
-							compile(ctx, elseBody);
+							compile(ctx, Value.Cons(C.SpBegin, elseBody));
 							var endPos = ctx.Position;
 
 							ctx.Codes[ifPos] = new Code(Operator.If, new Value(elsePos));
@@ -235,16 +247,23 @@ namespace Lisp
 						}
 						break;
 					default:
-						{
-							int len = 0;
-							for (var cur = code; !cur.IsNil; cur = cur.Cdr, len++)
-							{
-								compile(ctx, cur.Car);
-							}
-							ctx.Emit(Operator.Ap, new Value(len));
-						}
+						normalForm = true;
 						break;
 				}
+			}
+			else
+			{
+				normalForm = true;
+			}
+
+			if (normalForm)
+			{
+				int len = 0;
+				for (var cur = code; !cur.IsNil; cur = cur.Cdr, len++)
+				{
+					compile(ctx, cur.Car);
+				}
+				ctx.Emit(Operator.Ap, new Value(len));
 			}
 		}
 
@@ -290,20 +309,20 @@ namespace Lisp
 					// (define (sym args ...) ... ) の形
 					Value lambda = Value.ConsSrc(s, C.SpLambda,
 												 Value.ConsSrc(rest.Car, rest.Car.Cdr, normalizeList(ctx, rest.Cdr)));
-					return Value.ConsSrc(s, C.SpLambda,
+					return Value.ConsSrc(s, C.SpDefine,
 										 Value.ConsSrc(rest.Car, rest.Car.Car,
 													   Value.ConsSrc(rest.Cdr, lambda, C.Nil)));
 				}
 				else
 				{
-					throw new LuaException("Invalid define form");
+					throw new LispException("Invalid define form");
 				}
 			}
 			else if (sym == "lambda")
 			{
 				return Value.Cons(C.SpLambda, Value.Cons(rest.Car, normalizeList(ctx, rest.Cdr)));
 			}
-			else if (sym == "define-syntax")
+			else if (sym == "%define-syntax")
 			{
 				return Value.ConsSrc(s, C.SpDefineSyntax, normalizeList(ctx, rest));
 
@@ -311,27 +330,27 @@ namespace Lisp
 			else if (sym == "if")
 			{
 				Value _cond, _then, _else;
-				ConsUtil.Bind2Rest(rest, out _cond, out _then, out _else);
+				Value.Bind2Rest(rest, out _cond, out _then, out _else);
 				if (_else == C.Nil) _else = Value.Cons(C.Undef, C.Nil);
-				return ConsUtil.Cons(C.SpIf, normalizeSexp(ctx, _cond), normalizeSexp(ctx, _then), normalizeList(ctx, _else));
+				return Value.ConsSrc(s, C.SpIf, Value.Cons(normalizeSexp(ctx, _cond), normalizeSexp(ctx, _then), normalizeList(ctx, _else)));
 
 			}
 			else if (sym == "begin")
 			{
 				if (rest == C.Nil) return C.Undef;
 				if (rest.Cdr == C.Nil) return normalizeSexp(ctx, rest.Car);
-				return ConsUtil.Cons(C.SpBegin, normalizeList(ctx, rest));
+				return Value.Cons(C.SpBegin, normalizeList(ctx, rest));
 
 			}
 			else if (sym == "set!")
 			{
 				Value sym_, val;
-				ConsUtil.Bind2(rest, out sym_, out val);
-				return ConsUtil.Cons(C.SpSet, sym_, normalizeSexp(ctx, val));
+				Value.Bind2(rest, out sym_, out val);
+				return Value.ConsSrc(s, C.SpSet, Value.Cons(sym_, normalizeSexp(ctx, val)));
 			}
 			else if (sym == "quote")
 			{
-				return ConsUtil.Cons(C.SpQuote, rest);
+				return Value.ConsSrc(s, C.SpQuote, rest);
 
 			}
 			else

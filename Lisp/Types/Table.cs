@@ -137,7 +137,7 @@ namespace Lisp
 			}
 			else
 			{
-				throw new LuaException("invalid start index " + start);
+				throw new LispException("invalid start index " + start);
 			}
 
 			if (end.IsNil)
@@ -154,7 +154,7 @@ namespace Lisp
 			}
 			else
 			{
-				throw new LuaException("invalid end index " + start);
+				throw new LispException("invalid end index " + start);
 			}
 
 			if (istart < 0 || istart >= array_.Count || iend < 0 || iend > array_.Count)
@@ -250,7 +250,7 @@ namespace Lisp
 						}
 					}
 				default:
-					throw new LuaException("invalid indexing");
+					throw new LispException("invalid indexing");
 			}
 		}
 
@@ -278,7 +278,7 @@ namespace Lisp
 					map_[idx.AsString] = val;
 					break;
 				default:
-					throw new LuaException("invalid indexing");
+					throw new LispException("invalid indexing");
 			}
 		}
 	}

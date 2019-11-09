@@ -44,7 +44,7 @@ namespace Lisp
 			}
 			else
 			{
-				throw new LuaException($"Symbol '{symbol}' not found");
+				throw new LispException($"Symbol '{symbol}' not found");
 			}
 		}
 
@@ -67,7 +67,7 @@ namespace Lisp
 			}
 			else
 			{
-				throw new LuaException($"{symbol} not defined");
+				throw new LispException($"{symbol} not defined");
 			}
 		}
 	}
@@ -76,11 +76,13 @@ namespace Lisp
 	{
 		public Closure Closure;
 		public int Pc;
+		public Env Env;
 
-		public Dump(Closure closure, int pc)
+		public Dump(Closure closure, int pc, Env env)
 		{
 			Closure = closure;
 			Pc = pc;
+			Env = env;
 		}
 	}
 
@@ -114,7 +116,7 @@ namespace Lisp
 			closure_ = closure;
 			var lmd = closure.Lambda;
 
-			env_ = closure.Env;
+			env_ = new Env(closure.Env);
 			for (int i = 0; i < args.Length; i++)
 			{
 				env_.Define(lmd.Params[i], args[i]);
@@ -143,148 +145,157 @@ namespace Lisp
 			var s = stack_;
 			Env e = env_;
 			var d = dump_;
+			SourceLocation location = new SourceLocation();
 
-			Code c;
-			while (true)
+			try
 			{
-				var location = closure.Lambda.Locations[pc];
-				c = code[pc++];
-				//Console.WriteLine("{0} at {1}:{2}", c, location.Filename, location.Line);
-				switch( c.Op)
+				Code c;
+				while (true)
 				{
-					case Operator.Ldc:
-						s.Push(c.Val);
-						break;
-					case Operator.Ld:
-						{
-							var sym = c.Val.AsSymbol;
-							var val = e.Get(sym);
-							s.Push(val);
-						}
-						break;
-					case Operator.Pop:
-						{
-							s.Pop();
-						}
-						break;
-					case Operator.Def:
-						{
-							var val = s.Peek();
-							var sym = c.Val.AsSymbol;
-							e.Define(sym, val);
-						}
-						break;
-					case Operator.Set:
-						{
-							var val = s.Peek();
-							var sym = c.Val.AsSymbol;
-							e.Set(sym, val);
-						}
-						break;
-					case Operator.Syntax:
-						{
-							var val = s.Peek();
-							var sym = c.Val.AsSymbol;
-							val.AsClosure.IsSyntax = true;
-							e.Define(sym, val);
-						}
-						break;
-					case Operator.Ldf:
-						{
-							s.Push(new Value(new Closure(c.Val.As<Lambda>(), e)));
-						}
-						break;
-					case Operator.Goto:
-						{
-							pc = c.Val.AsInt;
-						}
-						break;
-					case Operator.Ret:
-						{
-							Dump restored;
-							if( d.TryPop( out restored))
+					location = closure.Lambda.Locations[pc];
+					c = code[pc++];
+					Console.WriteLine("{0} {3} at {1}:{2}", c, location.Filename, location.Line, s.Count);
+					switch (c.Op)
+					{
+						case Operator.Ldc:
+							s.Push(c.Val);
+							break;
+						case Operator.Ld:
 							{
-								closure = restored.Closure;
-								pc = restored.Pc;
-								e = closure.Env;
-								code = closure.Lambda.Code;
+								var sym = c.Val.AsSymbol;
+								var val = e.Get(sym);
+								s.Push(val);
 							}
-							else
+							break;
+						case Operator.Pop:
 							{
-								return s.Pop();
+								s.Pop();
 							}
-						}
-						break;
-					case Operator.If:
-						{
-							var val = s.Pop();
-							if (val.IsNil || !val.AsBool)
+							break;
+						case Operator.Def:
+							{
+								var val = s.Peek();
+								var sym = c.Val.AsSymbol;
+								e.Define(sym, val);
+							}
+							break;
+						case Operator.Set:
+							{
+								var val = s.Peek();
+								var sym = c.Val.AsSymbol;
+								e.Set(sym, val);
+							}
+							break;
+						case Operator.Syntax:
+							{
+								var val = s.Peek();
+								var sym = c.Val.AsSymbol;
+								val.AsClosure.IsSyntax = true;
+								e.Define(sym, val);
+							}
+							break;
+						case Operator.Ldf:
+							{
+								s.Push(new Value(new Closure(c.Val.As<Lambda>(), e)));
+							}
+							break;
+						case Operator.Goto:
 							{
 								pc = c.Val.AsInt;
 							}
-						}
-						break;
-					case Operator.Ap:
-						{
-							var len = c.Val.AsInt;
-							var args = popMulti(s, len - 1);
-							var applicant = s.Pop();
-							var vt = applicant.ValueType;
-							if ( vt == ValueType.Closure)
+							break;
+						case Operator.Ret:
 							{
-								d.Push(new Dump(closure, pc));
-								var cl = applicant.AsClosure;
-								var lmd = cl.Lambda;
-								e = cl.Env;
-								code = cl.Lambda.Code;
-								closure = cl;
+								Dump restored;
+								if (d.TryPop(out restored))
+								{
+									closure = restored.Closure;
+									pc = restored.Pc;
+									e = restored.Env;
+									code = closure.Lambda.Code;
+								}
+								else
+								{
+									return s.Pop();
+								}
+							}
+							break;
+						case Operator.If:
+							{
+								var val = s.Pop();
+								if (val.IsNil || val == Value.F)
+								{
+									pc = c.Val.AsInt;
+								}
+							}
+							break;
+						case Operator.Ap:
+							{
+								var len = c.Val.AsInt;
+								var args = popMulti(s, len - 1);
+								var applicant = s.Pop();
+								var vt = applicant.ValueType;
+								if (vt == ValueType.Closure)
+								{
+									d.Push(new Dump(closure, pc, e));
+									var cl = applicant.AsClosure;
+									var lmd = cl.Lambda;
+									e = new Env(cl.Env);
+									code = cl.Lambda.Code;
+									closure = cl;
 
-								for ( int i = 0; i < args.Length; i++)
-								{
-									e.Define(lmd.Params[i], args[i]);
+									for (int i = 0; i < args.Length; i++)
+									{
+										e.Define(lmd.Params[i], args[i]);
+									}
+									pc = 0;
 								}
-								pc = 0;
-							}
-							else if( vt == ValueType.LispApi)
-							{
-								var func = applicant.AsLispApi;
-								Value result;
-								Context ctx = null;
-								switch( func.Arity)
+								else if (vt == ValueType.LispApi)
 								{
-									case 0:
-										result = ((LispApi.Func0)func.Func)(ctx);
-										break;
-									case 1:
-										result = ((LispApi.Func1)func.Func)(ctx, args[0]);
-										break;
-									case 2:
-										result = ((LispApi.Func2)func.Func)(ctx, args[0], args[1]);
-										break;
-									case 3:
-										result = ((LispApi.Func3)func.Func)(ctx, args[0], args[1], args[2]);
-										break;
-									case 4:
-										result = ((LispApi.Func4)func.Func)(ctx, args[0], args[1], args[2], args[3]);
-										break;
-									case 5:
-										result = ((LispApi.Func5)func.Func)(ctx, args[0], args[1], args[2], args[3], args[4]);
-										break;
-									default:
-										result = ((LispApi.Flex)func.Func)(ctx, args);
-										break;
+									var func = applicant.AsLispApi;
+									Value result;
+									Context ctx = null;
+									switch (func.Arity)
+									{
+										case 0:
+											result = ((LispApi.Func0)func.Func)(ctx);
+											break;
+										case 1:
+											result = ((LispApi.Func1)func.Func)(ctx, args[0]);
+											break;
+										case 2:
+											result = ((LispApi.Func2)func.Func)(ctx, args[0], args[1]);
+											break;
+										case 3:
+											result = ((LispApi.Func3)func.Func)(ctx, args[0], args[1], args[2]);
+											break;
+										case 4:
+											result = ((LispApi.Func4)func.Func)(ctx, args[0], args[1], args[2], args[3]);
+											break;
+										case 5:
+											result = ((LispApi.Func5)func.Func)(ctx, args[0], args[1], args[2], args[3], args[4]);
+											break;
+										default:
+											result = ((LispApi.FuncVararg)func.Func)(ctx, args);
+											break;
+									}
+									s.Push(result);
 								}
-								s.Push(result);
+								else
+								{
+									throw new Exception($"Can't apply {applicant}");
+								}
 							}
-							else
-							{
-								throw new Exception($"Can't apply {applicant}");
-							}
-						}
-						break;
-					default:
-						throw new Exception("BUG");
+							break;
+						default:
+							throw new Exception("BUG");
+					}
 				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("{0}:{1}: error {2}", location.Filename, location.Line, ex);
+				throw;
 			}
 		}
 

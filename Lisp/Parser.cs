@@ -105,7 +105,7 @@ namespace Lisp
 
 		static Value parseToken(string str)
 		{
-			if (isNumber(str[0]) || (str[0] == '-' && isNumber(str[1])))
+			if (isNumber(str[0]) || (str.Length >= 2 && str[0] == '-' && isNumber(str[1])))
 			{
 				for (int i = 0; i < str.Length; i++)
 				{
@@ -186,7 +186,7 @@ namespace Lisp
 					}
 					#endif
 				default:
-					throw new LuaException($"unknown escaped string {c}\n");
+					throw new LispException($"unknown escaped string {c}\n");
 			}
 		}
 
@@ -234,7 +234,7 @@ namespace Lisp
 					}
 				case ')':
 				case ']':
-					throw new LuaException("paren not matched");
+					throw new LispException("paren not matched");
 				case '#':
 					switch (c = s.ReadChar())
 					{
@@ -247,7 +247,7 @@ namespace Lisp
 							Parse(s); // skip
 							return Parse(s);
 						default:
-							throw new LuaException($"invalid #char {c}\n");
+							throw new LispException($"invalid #char {c}\n");
 					}
 				case '"':
 					return readString(s);
@@ -297,7 +297,7 @@ namespace Lisp
 				var code = Parse(port);
 				if( code.IsNil)
 				{
-					return ConsUtil.ReverseInplace(tail);
+					return Value.ReverseInplace(tail);
 				}
 				tail = new Value(new Cons(code, tail));
 			}

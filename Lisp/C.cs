@@ -16,7 +16,7 @@ namespace Lisp
 
 		public static readonly Value Dot = Value.Intern(".");
 		public static readonly Value Eof = Value.Intern("<eof>");
-		public static readonly Value Undef = Value.Intern("#undef");
+		public static readonly Value Undef = new Value(1); // Value.Intern("#undef");
 
 		public static readonly Value SpDefine = Value.Intern("%define");
 		public static readonly Value SpLambda = Value.Intern("%lambda");

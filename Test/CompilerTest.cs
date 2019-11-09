@@ -64,7 +64,7 @@ namespace Tests
 		public void TestReverseInplace(string src, string expected)
 		{
 			var list = parse(src);
-			list = ConsUtil.ReverseInplace(list);
+			list = Value.ReverseInplace(list);
 			Assert.AreEqual(expected, list.ToString());
 		}
 
@@ -104,12 +104,22 @@ namespace Tests
 
 		[TestCase("(puts 1)")]
 		[TestCase("(define +1 \n(lambda (n) (+ 1 n ))) \n(+1 2)")]
-		[TestCase("(define-syntax a (lambda (c a b) '(display 1))) \n(a 1)")]
+		[TestCase("(%define-syntax a (lambda (c a b) '(display 1))) \n(a 1)")]
 		public void TestRun(string src)
 		{
 			var vm = new Vm();
 			var result = vm.Run(src);
 			Console.WriteLine(result);
+		}
+
+		[TestCase("#f", "#f", true)]
+		[TestCase("#t", "#t", true)]
+		[TestCase("#t", "#f", false)]
+		public void TestValueEqual(string src1, string src2, bool equals)
+		{
+			var v1 = parse(src1);
+			var v2 = parse(src2);
+			Assert.AreEqual(equals, src1 == src2);
 		}
 	}
 }

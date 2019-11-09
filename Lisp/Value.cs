@@ -22,7 +22,7 @@ namespace Lisp
 		LispApi,
 	}
 
-	public struct Value : IEquatable<Value>
+	public partial struct Value : IEquatable<Value>
 	{
 		const ulong NanBoxingMask = 0xffff000000000000;
 		const ulong ValueMask = 0x0000ffffffffffff;
@@ -684,7 +684,7 @@ namespace Lisp
 				case ValueType.Table:
 					return AsTable.ArraySize;
 				default:
-					throw new LuaException("attempt to get length of " + ToString());
+					throw new LispException("attempt to get length of " + ToString());
 			}
 		}
 
@@ -698,7 +698,7 @@ namespace Lisp
 				case ValueType.Float:
 					return (int)Math.Round(AsFloat);
 				default:
-					throw new LuaException(ToString() + " cannot convert to int");
+					throw new LispException(ToString() + " cannot convert to int");
 			}
 		}
 
@@ -712,7 +712,7 @@ namespace Lisp
 				case ValueType.Float:
 					return AsFloat;
 				default:
-					throw new LuaException(ToString() + " cannot convert to int");
+					throw new LispException(ToString() + " cannot convert to int");
 			}
 		}
 
@@ -827,22 +827,13 @@ namespace Lisp
 		// Utility methods
 		//====================================================
 
-		public static Value Cons(Value car, Value cdr)
-		{
-			return new Value(new Cons(car, cdr));
-		}
-		public static Value ConsSrc(Value src, Value car, Value cdr)
-		{
-			return new Value(Lisp.Cons.WithLocation(src, car, cdr));
-		}
-
 		public Value Car => this.AsCons.Car;
 		public Value Cdr => this.AsCons.Cdr;
 
 		public static Value Intern(string symbol) => new Value(Symbol.Intern(symbol));
 
 		public static readonly Value T = new Value(true);
-		public static readonly Value F = new Value(true);
+		public static readonly Value F = new Value(false);
 
 
 		public static bool Eqv(Value a, Value b)

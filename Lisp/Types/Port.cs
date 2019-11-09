@@ -54,7 +54,7 @@ namespace Lisp
 		{
 			if (unreadBuf_ != '\0')
 			{
-				throw new LuaException("Cant unread, already unread.");
+				throw new LispException("Cant unread, already unread.");
 			}
 			else
 			{

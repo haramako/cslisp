@@ -11,32 +11,40 @@ class Program
 
 	static void Main(string[] args)
 	{
-		for (int i = 0; i < args.Length; i++)
+		try
 		{
-			var arg = args[i];
-			switch (arg)
+			for (int i = 0; i < args.Length; i++)
 			{
-				case "-v": // verbose
-					verbose = true;
-					break;
-				case "-c": // compile only
-					compileOnly = true;
-					break;
-				case "-e": // execute string
-					{
-						var s = new MemoryStream(Encoding.UTF8.GetBytes(args[i + 1]));
-						i++;
-						var port = new Port(s, null);
-						run(port);
-					}
-					break;
-				default:
-					{
-						var port = new Port(File.OpenRead(arg), arg);
-						run(port);
-					}
-					break;
+				var arg = args[i];
+				switch (arg)
+				{
+					case "-v": // verbose
+						verbose = true;
+						break;
+					case "-c": // compile only
+						compileOnly = true;
+						break;
+					case "-e": // execute string
+						{
+							var s = new MemoryStream(Encoding.UTF8.GetBytes(args[i + 1]));
+							i++;
+							var port = new Port(s, null);
+							run(port);
+						}
+						break;
+					default:
+						{
+							var port = new Port(File.OpenRead(arg), arg);
+							run(port);
+						}
+						break;
+				}
 			}
+		}
+		catch (Exception ex)
+		{
+			//waitKey();
+			throw;
 		}
 		waitKey();
 	}

@@ -17,28 +17,9 @@ namespace Lisp
 		}
 	}
 
-	public class LuaException : Exception
+	public class LispException : Exception
 	{
-		public LuaException(string msg) : base(msg)
-		{
-		}
-	}
-
-	public sealed class CallInfo
-	{
-		public int Func;
-		public int Result;
-		public int Base;
-		public int SavedPc;
-		public int Wanted;
-		public CallInfo Prev;
-	}
-
-	public class Upval
-	{
-		public Value Val;
-		public int Index;
-		public bool IsOpen;
+		public LispException(string msg) : base(msg) {}
 	}
 
 	public sealed class Closure
@@ -60,7 +41,7 @@ namespace Lisp
 
 	public class LispApi
 	{
-		public delegate Value Flex(Context ctx, params Value[] param);
+		public delegate Value FuncVararg(Context ctx, params Value[] param);
 		public delegate Value Func0(Context ctx);
 		public delegate Value Func1(Context ctx, Value v1);
 		public delegate Value Func2(Context ctx, Value v1, Value v2);
@@ -75,7 +56,7 @@ namespace Lisp
 		{
 			Func = func;
 
-			if( func is Flex)
+			if( func is FuncVararg)
 			{
 				Arity = -1;
 			}
@@ -125,6 +106,18 @@ namespace Lisp
 			ImportApi(typeof(Stdlib.List));
 			ImportApi(typeof(Stdlib.Number));
 			ImportApi(typeof(Stdlib.Symbol));
+			RootEnv.Define(Symbol.Intern("%if"), C.Nil);
+			RootEnv.Define(Symbol.Intern("%define-syntax"), C.Nil);
+			RootEnv.Define(Symbol.Intern("%define"), C.Nil);
+			RootEnv.Define(Symbol.Intern("%lambda"), C.Nil);
+			RootEnv.Define(Symbol.Intern("%quote"), C.Nil);
+			RootEnv.Define(Symbol.Intern("%set!"), C.Nil);
+			RootEnv.Define(Symbol.Intern("%begin"), C.Nil);
+			RootEnv.Define(Symbol.Intern("begin"), C.Nil);
+			RootEnv.Define(Symbol.Intern("quasiquote"), C.Nil);
+			RootEnv.Define(Symbol.Intern("quote"), C.Nil);
+			RootEnv.Define(Symbol.Intern("unquote"), C.Nil);
+			RootEnv.Define(Symbol.Intern("unquote-splicing"), C.Nil);
 			compiler_ = new Compiler(this);
 		}
 
@@ -202,7 +195,7 @@ namespace Lisp
 							}
 							else
 							{
-								del = method.CreateDelegate(typeof(LispApi.Flex));
+								del = method.CreateDelegate(typeof(LispApi.FuncVararg));
 							}
 							break;
 						case 3:
@@ -218,7 +211,7 @@ namespace Lisp
 							del = method.CreateDelegate(typeof(LispApi.Func5));
 							break;
 						default:
-							throw new LuaException("Invalid parameter size");
+							throw new LispException("Invalid parameter size");
 					}
 					var func = new LispApi(del);
 					rootEnv_.Define(Symbol.Intern(name), new Value(func));

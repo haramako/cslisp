@@ -53,7 +53,7 @@ namespace Lisp.Stdlib
 			for (int i = 1; i < args.Length; i++)
 			{
 				var v = args[i];
-				if (v.Car != x) return Value.F;
+				if (v != x) return Value.F;
 			}
 			return Value.T;
 		}
@@ -66,7 +66,7 @@ namespace Lisp.Stdlib
 			for (int i = 1; i < args.Length; i++)
 			{
 				var v = args[i];
-				if (!Value.Eqv(v.Car, x)) return Value.F;
+				if (!Value.Eqv(v, x)) return Value.F;
 			}
 			return Value.T;
 		}
@@ -79,7 +79,7 @@ namespace Lisp.Stdlib
 			for (int i = 1; i < args.Length; i++)
 			{
 				var v = args[i];
-				if (!Value.Equal(v.Car, x)) return Value.F;
+				if (!Value.Equal(v, x)) return Value.F;
 			}
 			return Value.T;
 		}

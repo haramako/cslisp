@@ -46,11 +46,15 @@ namespace Lisp
 		public SourceLocation Location => new SourceLocation { Filename = SrcFilename, Line = SrcLine };
 	}
 
-	public static class ConsUtil
+	public partial struct Value
 	{
-		public static Value Cons(Value v1, Value v2)
+		public static Value Cons(Value car, Value cdr)
 		{
-			return Value.Cons(v1, v2);
+			return new Value(new Cons(car, cdr));
+		}
+		public static Value ConsSrc(Value src, Value car, Value cdr)
+		{
+			return new Value(Lisp.Cons.WithLocation(src, car, cdr));
 		}
 
 		public static Value Cons(Value v1, Value v2, Value v3)
