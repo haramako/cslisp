@@ -52,7 +52,7 @@ namespace Lisp
 					// TODO: 未実装
 					sb_.Append("#<lambda>");
 					break;
-				case ValueType.LuaApi:
+				case ValueType.LispApi:
 					{
 						// TODO: 未実装
 						sb_.Append("#<lambda>");

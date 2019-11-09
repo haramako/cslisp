@@ -6,16 +6,8 @@ namespace Lisp.Stdlib
 {
 	class Core
 	{
-		public static void Setup(Vm vm)
-		{
-			vm.RootEnv.Define(Symbol.Intern("display"), new Value(display));
-			vm.RootEnv.Define(Symbol.Intern("puts"), new Value(puts));
-			vm.RootEnv.Define(Symbol.Intern("begin"), new Value(begin));
-			vm.RootEnv.Define(Symbol.Intern("+"), new Value(add));
-		}
-
 		[LispApi]
-		public static Value display(params Value[] args)
+		public static Value display(Context ctx, params Value[] args)
 		{
 			for (int i = 0; i < args.Length; i++)
 			{
@@ -29,21 +21,15 @@ namespace Lisp.Stdlib
 		}
 
 		[LispApi]
-		public static Value puts(params Value[] args)
+		public static Value puts(Context ctx, params Value[] args)
 		{
-			display(args);
+			display(ctx, args);
 			Console.WriteLine();
 			return Value.Nil;
 		}
 
-		[LispApi]
-		public static Value begin(params Value[] args)
-		{
-			return args[args.Length - 1];
-		}
-
 		[LispApi("+")]
-		public static Value add(params Value[] args)
+		public static Value add(Context ctx, params Value[] args)
 		{
 			var r = new Value(0);
 			for (int i = 0; i < args.Length; i++)
@@ -52,6 +38,13 @@ namespace Lisp.Stdlib
 			}
 			return r;
 		}
+
+		[LispApi]
+		public static Value identity(Context ctx, Value v)
+		{
+			return v;
+		}
+
 
 	}
 }

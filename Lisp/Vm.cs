@@ -53,7 +53,62 @@ namespace Lisp
 		}
 	}
 
-	public delegate Value LispApi(params Value[] param);
+	public class Context
+	{
+
+	}
+
+	public class LispApi
+	{
+		public delegate Value Flex(Context ctx, params Value[] param);
+		public delegate Value Func0(Context ctx);
+		public delegate Value Func1(Context ctx, Value v1);
+		public delegate Value Func2(Context ctx, Value v1, Value v2);
+		public delegate Value Func3(Context ctx, Value v1, Value v2, Value v3);
+		public delegate Value Func4(Context ctx, Value v1, Value v2, Value v3, Value v4);
+		public delegate Value Func5(Context ctx, Value v1, Value v2, Value v3, Value v4, Value v5);
+
+		public Delegate Func;
+		public int Arity;
+
+		public LispApi(Delegate func)
+		{
+			Func = func;
+
+			if( func is Flex)
+			{
+				Arity = -1;
+			}
+			else if( func is Func0)
+			{
+				Arity = 0;
+			}
+			else if (func is Func1)
+			{
+				Arity = 1;
+			}
+			else if (func is Func2)
+			{
+				Arity = 2;
+			}
+			else if (func is Func3)
+			{
+				Arity = 3;
+			}
+			else if (func is Func4)
+			{
+				Arity = 4;
+			}
+			else if (func is Func5)
+			{
+				Arity = 5;
+			}
+			else
+			{
+				throw new ArgumentException($"Invalid func type {func}");
+			}
+		}
+	}
 
 	public class Vm
 	{
@@ -130,7 +185,39 @@ namespace Lisp
 					{
 						name = method.Name.Replace('_', '-');
 					}
-					var func = (LispApi)method.CreateDelegate(typeof(LispApi));
+					var param = method.GetParameters();
+					Delegate del;
+					switch (param.Length)
+					{
+						case 1:
+							del = method.CreateDelegate(typeof(LispApi.Func0));
+							break;
+						case 2:
+							if (param[1].ParameterType == typeof(Value))
+							{
+								del = method.CreateDelegate(typeof(LispApi.Func1));
+							}
+							else
+							{
+								del = method.CreateDelegate(typeof(LispApi.Flex));
+							}
+							break;
+						case 3:
+							del = method.CreateDelegate(typeof(LispApi.Func2));
+							break;
+						case 4:
+							del = method.CreateDelegate(typeof(LispApi.Func3));
+							break;
+						case 5:
+							del = method.CreateDelegate(typeof(LispApi.Func4));
+							break;
+						case 6:
+							del = method.CreateDelegate(typeof(LispApi.Func5));
+							break;
+						default:
+							throw new LuaException("Invalid parameter size");
+					}
+					var func = new LispApi(del);
 					rootEnv_.Define(Symbol.Intern(name), new Value(func));
 				}
 			}

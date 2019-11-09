@@ -120,7 +120,7 @@ namespace Lisp
 
 		public Lambda CompileBlock(Value code)
 		{
-			return Compile(Value.Cons(Value.Intern("begin"), code));
+			return Compile(Value.Cons(C.SpBegin, code));
 		}
 
 		//===================================================================
@@ -143,7 +143,7 @@ namespace Lisp
 			Value _, param, body;
 			ConsUtil.Bind2Rest(code, out _, out param, out body);
 
-			body = new Value(new Cons(C.Begin, body));
+			body = ConsUtil.Cons(C.SpBegin, body);
 			compileForm(newCtx, body);
 			newCtx.Emit(Operator.Ret);
 			return new Lambda(param, newCtx.Codes.ToArray(), newCtx.Locations.ToArray());

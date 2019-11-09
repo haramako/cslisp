@@ -19,7 +19,7 @@ namespace Lisp
 		Object,
 
 		Closure,
-		LuaApi,
+		LispApi,
 	}
 
 	public struct Value : IEquatable<Value>
@@ -41,7 +41,7 @@ namespace Lisp
 		const ulong StringMark = ReferenceMark | (ulong)ValueType.String;
 		const ulong TableMark = ReferenceMark | (ulong)ValueType.Table;
 		const ulong ClosureMark = ReferenceMark | (ulong)ValueType.Closure;
-		const ulong LuaApiMark = ReferenceMark | (ulong)ValueType.LuaApi;
+		const ulong LispApiMark = ReferenceMark | (ulong)ValueType.LispApi;
 		const ulong ObjectMark = ReferenceMark | (ulong)ValueType.Object;
 
 		// type用の16bit(bit63..48)の情報
@@ -167,7 +167,7 @@ namespace Lisp
 			}
 			else
 			{
-				val_ = LuaApiMark;
+				val_ = LispApiMark;
 				obj_ = v;
 			}
 		}
@@ -493,12 +493,12 @@ namespace Lisp
 			}
 		}
 
-		public LispApi AsLuaApi
+		public LispApi AsLispApi
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
-				checkType(ValueType.LuaApi);
+				checkType(ValueType.LispApi);
 				return (LispApi)obj_;
 			}
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -511,7 +511,7 @@ namespace Lisp
 				}
 				else
 				{
-					val_ = LuaApiMark;
+					val_ = LispApiMark;
 					obj_ = value;
 				}
 			}
@@ -754,7 +754,7 @@ namespace Lisp
 					case ValueType.String:
 						return (string)this.obj_ == (string)x.obj_;
 					case ValueType.Table:
-					case ValueType.LuaApi:
+					case ValueType.LispApi:
 					case ValueType.Object:
 					case ValueType.Symbol:
 						return this.obj_ == x.obj_;

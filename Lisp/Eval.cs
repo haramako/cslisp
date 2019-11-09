@@ -245,10 +245,36 @@ namespace Lisp
 								}
 								pc = 0;
 							}
-							else if( vt == ValueType.LuaApi)
+							else if( vt == ValueType.LispApi)
 							{
-								var func = applicant.AsLuaApi;
-								s.Push(func.Invoke(args));
+								var func = applicant.AsLispApi;
+								Value result;
+								Context ctx = null;
+								switch( func.Arity)
+								{
+									case 0:
+										result = ((LispApi.Func0)func.Func)(ctx);
+										break;
+									case 1:
+										result = ((LispApi.Func1)func.Func)(ctx, args[0]);
+										break;
+									case 2:
+										result = ((LispApi.Func2)func.Func)(ctx, args[0], args[1]);
+										break;
+									case 3:
+										result = ((LispApi.Func3)func.Func)(ctx, args[0], args[1], args[2]);
+										break;
+									case 4:
+										result = ((LispApi.Func4)func.Func)(ctx, args[0], args[1], args[2], args[3]);
+										break;
+									case 5:
+										result = ((LispApi.Func5)func.Func)(ctx, args[0], args[1], args[2], args[3], args[4]);
+										break;
+									default:
+										result = ((LispApi.Flex)func.Func)(ctx, args);
+										break;
+								}
+								s.Push(result);
 							}
 							else
 							{
