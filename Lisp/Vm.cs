@@ -122,6 +122,9 @@ namespace Lisp
 		public Vm()
 		{
 			ImportApi(typeof(Stdlib.Core));
+			ImportApi(typeof(Stdlib.List));
+			ImportApi(typeof(Stdlib.Number));
+			ImportApi(typeof(Stdlib.Symbol));
 			compiler_ = new Compiler(this);
 		}
 

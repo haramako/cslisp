@@ -317,6 +317,15 @@ namespace Lisp
 			}
 		}
 
+		public bool IsLispApi
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.LispApi;
+			}
+		}
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool Is<T>() where T : class
 		{
@@ -831,5 +840,19 @@ namespace Lisp
 		public Value Cdr => this.AsCons.Cdr;
 
 		public static Value Intern(string symbol) => new Value(Symbol.Intern(symbol));
+
+		public static readonly Value T = new Value(true);
+		public static readonly Value F = new Value(true);
+
+
+		public static bool Eqv(Value a, Value b)
+		{
+			return a == b;
+		}
+
+		public static bool Equal(Value a, Value b)
+		{
+			return a == b;
+		}
 	}
 }
