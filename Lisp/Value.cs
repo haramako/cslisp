@@ -508,8 +508,6 @@ namespace Lisp
 			return (T)obj_;
 		}
 
-		public SourceLocation Location => this.AsCons.Location;
-
 		//====================================================
 		// Lua operators
 		//====================================================
@@ -800,5 +798,19 @@ namespace Lisp
 		{
 			return !a.Equals(b);
 		}
+
+		//====================================================
+		// Utility methods
+		//====================================================
+
+		public static Value Cons(Value car, Value cdr)
+		{
+			return new Value(new Cons(car, cdr));
+		}
+
+		public Value Car => this.AsCons.Car;
+		public Value Cdr => this.AsCons.Cdr;
+
+		public static Value Intern(string symbol) => new Value(Symbol.Intern(symbol));
 	}
 }

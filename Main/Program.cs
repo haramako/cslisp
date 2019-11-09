@@ -43,16 +43,13 @@ class Program
 
 	static void run(Port port)
 	{
+		var vm = new Vm();
 
-		var parser = new Parser();
-		var list = parser.ParseList(port);
-		list = new Value(new Cons(C.Begin, list));
-
-		var compiler = new Compiler();
-		var lmd = compiler.Compile(list);
+		var closure = vm.Compile(port);
 
 		if (verbose)
 		{
+			var lmd = closure.Lambda;
 			for (int i = 0; i < lmd.Code.Length; i++)
 			{
 				Console.WriteLine("{0:0000}: {1}", i, lmd.Code[i]);
@@ -64,13 +61,7 @@ class Program
 			return;
 		}
 
-		var eval = new Eval(0);
-		var env = new Env(null);
-		env.Define(Symbol.Intern("begin"), new Value(begin));
-		env.Define(Symbol.Intern("+"), new Value(add));
-		var closure = new Closure(lmd, env);
-
-		var result = eval.Run(closure);
+		var result = vm.Run(closure);
 		Console.WriteLine(result);
 
 	}
@@ -87,21 +78,5 @@ class Program
 			Console.ReadKey();
 		}
 	}
-
-	static Value begin(params Value[] args)
-	{
-		return args[args.Length - 1];
-	}
-
-	static Value add(params Value[] args)
-	{
-		var r = new Value(0);
-		for (int i = 0; i < args.Length; i++)
-		{
-			r.AsInt = r.AsInt + args[i].AsInt;
-		}
-		return r;
-	}
-
 
 }

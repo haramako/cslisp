@@ -63,7 +63,7 @@ namespace Lisp
 			}
 		}
 
-		static bool _is_val_char(int c)
+		static bool isSymbolChar(int c)
 		{
 			switch (c)
 			{
@@ -91,25 +91,25 @@ namespace Lisp
 			for (; ; )
 			{
 				c = s.ReadChar();
-				if (!_is_val_char(c)) break;
+				if (!isSymbolChar(c)) break;
 				sb.Append((char)c);
 			}
 			s.UnreadChar(c);
 			return sb.ToString();
 		}
 
-		static bool isnumber(char c)
+		static bool isNumber(char c)
 		{
 			return (c >= '0' && c <= '9');
 		}
 
 		static Value parseToken(string str)
 		{
-			if (isnumber(str[0]) || (str[0] == '-' && isnumber(str[1])))
+			if (isNumber(str[0]) || (str[0] == '-' && isNumber(str[1])))
 			{
 				for (int i = 0; i < str.Length; i++)
 				{
-					if (!isnumber(str[i]))
+					if (!isNumber(str[i]))
 					{
 						return new Value(Symbol.Intern(str));
 					}

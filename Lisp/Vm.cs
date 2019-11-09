@@ -46,5 +46,46 @@ namespace Lisp
 
 	public class Vm
 	{
+		Compiler compiler_ = new Compiler();
+		Parser parser_ = new Parser();
+		Eval eval_ = new Eval();
+		Env rootEnv_ = new Env(null);
+
+		public Env RootEnv => rootEnv_;
+
+		public Vm()
+		{
+			Stdlib.Core.Setup(this);
+		}
+
+		public Closure Compile(string src, string filename = null)
+		{
+			var s = new MemoryStream(Encoding.UTF8.GetBytes(src));
+			return Compile(new Port(s, filename));
+		}
+
+		public Closure Compile(Port port)
+		{
+			var list = parser_.ParseList(port);
+			var lmd = compiler_.CompileBlock(list);
+			return new Closure(lmd, rootEnv_);
+		}
+
+		public Value Run(string src, string filename = null)
+		{
+			var s = new MemoryStream(Encoding.UTF8.GetBytes(src));
+			return Run(new Port(s, filename));
+		}
+
+		public Value Run(Port port)
+		{
+			return Run(Compile(port));
+		}
+
+		public Value Run(Closure closure)
+		{
+			return eval_.Run(closure);
+		}
+
 	}
 }

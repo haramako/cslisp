@@ -61,9 +61,9 @@ namespace Lisp
 			Locations = locations;
 
 			var paramList = new List<Symbol>();
-			for( var p = param; !p.IsNil; p = p.AsCons.Cdr)
+			for( var p = param; !p.IsNil; p = p.Cdr)
 			{
-				paramList.Add(p.AsCons.Car.AsSymbol);
+				paramList.Add(p.Car.AsSymbol);
 			}
 			Params = paramList.ToArray();
 		}
@@ -76,19 +76,9 @@ namespace Lisp
 
 	public class Compiler
 	{
-		string v2s(Value v, int limit = 100)
-		{
-			return PrettyPrinter.Instance.Print(v, limit);
-		}
-
 		void trace(string format, params object[] param)
 		{
 			Console.WriteLine(format, param);
-		}
-
-		void ERROR(string msg)
-		{
-
 		}
 
 		public class CompileContext
@@ -130,7 +120,7 @@ namespace Lisp
 			var cons = code.AsCons;
 			var car = cons.Car;
 			var cdr = cons.Cdr;
-			ctx.CurrentLocation = code.Location;
+			ctx.CurrentLocation = code.AsCons.Location;
 			if (car.IsSymbol)
 			{
 				switch (car.AsSymbol.ToString())
@@ -198,9 +188,9 @@ namespace Lisp
 					default:
 						{
 							int len = 0;
-							for (var cur = code; !cur.IsNil; cur = cur.AsCons.Cdr, len++)
+							for (var cur = code; !cur.IsNil; cur = cur.Cdr, len++)
 							{
-								compile(ctx, cur.AsCons.Car);
+								compile(ctx, cur.Car);
 							}
 							ctx.Emit(Operator.Ap, new Value(len));
 						}
@@ -232,6 +222,11 @@ namespace Lisp
 			compile(ctx, code);
 			ctx.Emit(Operator.Ret);
 			return new Lambda(C.Nil, ctx.Codes.ToArray(), ctx.Locations.ToArray());
+		}
+
+		public Lambda CompileBlock(Value code)
+		{
+			return Compile(Value.Cons(Value.Intern("begin"), code));
 		}
 
 		#if false

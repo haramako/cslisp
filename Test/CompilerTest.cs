@@ -99,56 +99,12 @@ namespace Tests
 			}
 		}
 
-		public Value Display(params Value[] args)
-		{
-			for( int i = 0; i < args.Length; i++)
-			{
-				Console.Write(args[i]);
-				if( i < args.Length - 1 )
-				{
-					Console.Write(" ");
-				}
-			}
-			return Value.Nil;
-		}
-
-		public Value Puts(params Value[] args)
-		{
-			Display(args);
-			Console.WriteLine();
-			return Value.Nil;
-		}
-
-		public Value Begin(params Value[] args)
-		{
-			return args[args.Length - 1];
-		}
-
-		public Value Add(params Value[] args)
-		{
-			var r = new Value(0);
-			for( int i = 0; i < args.Length; i++)
-			{
-				r.AsInt = r.AsInt + args[i].AsInt;
-			}
-			return r;
-		}
-
 		[TestCase("(puts 1)")]
 		[TestCase("(define +1 \n(lambda (n) (+ 1 n ))) \n(+1 2)")]
 		public void TestRun(string src)
 		{
-			var lmd = compile(src);
-
-			var eval = new Eval(0);
-			var env = new Env(null);
-			env.Define(Symbol.Intern("puts"), new Value(Puts));
-			env.Define(Symbol.Intern("display"), new Value(Display));
-			env.Define(Symbol.Intern("begin"), new Value(Begin));
-			env.Define(Symbol.Intern("+"), new Value(Add));
-			var closure = new Closure(lmd, env);
-
-			var result = eval.Run(closure);
+			var vm = new Vm();
+			var result = vm.Run(src);
 			Console.WriteLine(result);
 		}
 	}

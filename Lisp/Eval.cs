@@ -70,11 +70,8 @@ namespace Lisp
 
 	public class Eval
 	{
-		int ii;
-
-		public Eval(int i)
+		public Eval()
 		{
-			ii = i;
 		}
 
 		static T[] popMulti<T>(Stack<T> stack, int n)

@@ -76,7 +76,7 @@ namespace Lisp
 			var cur = list;
 			while (!cur.IsNil)
 			{
-				var next = cur.AsCons.Cdr;
+				var next = cur.Cdr;
 				cur.AsCons.Cdr = tail;
 				tail = cur;
 				cur = next;
