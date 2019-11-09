@@ -176,15 +176,15 @@ namespace Lisp
 						break;
 					case Operator.Set:
 						{
-							var val = s.Pop();
-							var sym = s.Pop().AsSymbol;
+							var val = s.Peek();
+							var sym = c.Val.AsSymbol;
 							e.Set(sym, val);
 						}
 						break;
 					case Operator.Syntax:
 						{
-							var val = s.Pop();
-							var sym = s.Pop().AsSymbol;
+							var val = s.Peek();
+							var sym = c.Val.AsSymbol;
 							val.AsClosure.IsSyntax = true;
 							e.Define(sym, val);
 						}
@@ -237,7 +237,9 @@ namespace Lisp
 								var lmd = cl.Lambda;
 								e = cl.Env;
 								code = cl.Lambda.Code;
-								for( int i = 0; i < args.Length; i++)
+								closure = cl;
+
+								for ( int i = 0; i < args.Length; i++)
 								{
 									e.Define(lmd.Params[i], args[i]);
 								}

@@ -308,6 +308,15 @@ namespace Lisp
 			}
 		}
 
+		public bool IsClosure
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.Closure;
+			}
+		}
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool Is<T>() where T : class
 		{

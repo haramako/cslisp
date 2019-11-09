@@ -188,7 +188,7 @@ namespace Lisp
 
 					case "%quote":
 						{
-							ctx.Emit(Operator.Ldc, cdr);
+							ctx.Emit(Operator.Ldc, cdr.Car);
 						}
 						break;
 
@@ -366,21 +366,17 @@ namespace Lisp
 			Value v;
 			if (vm_.RootEnv.TryGet(s.Car.AsSymbol, out v))
 			{
-				if (!v.Is<Closure>()) return s;
+				if (!v.IsClosure) return s;
 
-				Closure closure = v.As<Closure>();
+				Closure closure = v.AsClosure;
 				if (!closure.IsSyntax)
 				{
 					return s;
 				}
 
-				//printf("normalize_syntax: %s\n", v2s(s));
+				var expanded = vm_.Apply(closure, s, C.Nil, C.Nil);
 
-				s = vm_.Apply(closure, s, C.Nil, C.Nil);
-
-				//printf("normalize_syntax2: %s\n", v2s(s));
-
-				return normalizeSexp(ctx, s);
+				return normalizeSexp(ctx, expanded);
 			}
 			else
 			{

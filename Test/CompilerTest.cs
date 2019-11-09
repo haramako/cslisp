@@ -91,6 +91,7 @@ namespace Tests
 		[TestCase("(define x (lambda (a) (+ 1 a)))")]
 		public void TestCompile(string src)
 		{
+			#if false
 			var vm = new Vm();
 			var closure = vm.Compile(src);
 			var code = closure.Lambda.Code;
@@ -98,23 +99,16 @@ namespace Tests
 			{
 				Console.WriteLine("{0:0000}: {1}", i, code[i]);
 			}
+			#endif
 		}
 
 		[TestCase("(puts 1)")]
 		[TestCase("(define +1 \n(lambda (n) (+ 1 n ))) \n(+1 2)")]
-		[TestCase("(define-syntax a (lambda (c a b) c)) \n(a 1)")]
+		[TestCase("(define-syntax a (lambda (c a b) '(display 1))) \n(a 1)")]
 		public void TestRun(string src)
 		{
 			var vm = new Vm();
-			var closure = vm.Compile(src);
-
-			var code = closure.Lambda.Code;
-			for (int i = 0; i < code.Length; i++)
-			{
-				Console.WriteLine("{0:0000}: {1}", i, code[i]);
-			}
-
-			var result = vm.Run(closure);
+			var result = vm.Run(src);
 			Console.WriteLine(result);
 		}
 	}

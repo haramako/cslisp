@@ -60,6 +60,7 @@ namespace Lisp
 			compiler_ = new Compiler(this);
 		}
 
+		#if false
 		public Closure Compile(string src, string filename = null)
 		{
 			var s = new MemoryStream(Encoding.UTF8.GetBytes(src));
@@ -68,10 +69,11 @@ namespace Lisp
 
 		public Closure Compile(Port port)
 		{
-			var list = parser_.ParseList(port);
-			var lmd = compiler_.CompileBlock(list);
+			var list = parser_.Parse(port);
+			var lmd = compiler_.Compile(list);
 			return new Closure(lmd, rootEnv_);
 		}
+		#endif
 
 		public Value Run(string src, string filename = null)
 		{
@@ -81,7 +83,18 @@ namespace Lisp
 
 		public Value Run(Port port)
 		{
-			return Run(Compile(port));
+			Value result = C.Nil;
+			while (true)
+			{
+				var list = parser_.Parse(port);
+				if( list.IsNil)
+				{
+					return result;
+				}
+				var lmd = compiler_.Compile(list);
+				var closure = new Closure(lmd, rootEnv_);
+				result = Run(closure);
+			}
 		}
 
 		public Value Run(Closure closure)

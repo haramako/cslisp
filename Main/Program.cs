@@ -44,24 +44,7 @@ class Program
 	static void run(Port port)
 	{
 		var vm = new Vm();
-
-		var closure = vm.Compile(port);
-
-		if (verbose)
-		{
-			var lmd = closure.Lambda;
-			for (int i = 0; i < lmd.Code.Length; i++)
-			{
-				Console.WriteLine("{0:0000}: {1}", i, lmd.Code[i]);
-			}
-		}
-
-		if (compileOnly)
-		{
-			return;
-		}
-
-		var result = vm.Run(closure);
+		var result = vm.Run(port);
 		Console.WriteLine(result);
 
 	}
