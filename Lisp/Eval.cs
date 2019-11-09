@@ -16,22 +16,38 @@ namespace Lisp
 
 		public Env Up => up_;
 
-		public Value Get(Symbol symbol)
+		public bool TryGet(Symbol symbol, out Value val)
 		{
 			Value found;
 			if (dict_.TryGetValue(symbol, out found))
 			{
-				return found;
+				val = found;
+				return true;
 			}
 			else if (up_ != null)
 			{
-				return up_.Get(symbol);
+				return up_.TryGet(symbol, out val);
 			}
 			else
 			{
-				throw new Exception($"Symbol '{symbol}' not found");
+				val = C.Nil;
+				return false;
 			}
 		}
+
+		public Value Get(Symbol symbol)
+		{
+			Value found;
+			if ( TryGet(symbol, out found))
+			{
+				return found;
+			}
+			else
+			{
+				throw new LuaException($"Symbol '{symbol}' not found");
+			}
+		}
+
 
 		public void Define(Symbol symbol, Value val)
 		{
@@ -70,6 +86,14 @@ namespace Lisp
 
 	public class Eval
 	{
+		Closure closure_;
+
+		Stack<Value> stack_ = new Stack<Value>(); // SECDマシンの"S"
+		Env env_; // SECDマシンの"E"
+		Code[] code_; // SECDマシンの"C"
+		int pc_; // SECDマシンの"C"
+		Stack<Dump> dump_ = new Stack<Dump>(); // SECDマシンの"D"
+
 		public Eval()
 		{
 		}
@@ -84,20 +108,47 @@ namespace Lisp
 			return r;
 		}
 
+
+		public Value Apply(Closure closure, params Value[] args)
+		{
+			closure_ = closure;
+			var lmd = closure.Lambda;
+
+			env_ = closure.Env;
+			for (int i = 0; i < args.Length; i++)
+			{
+				env_.Define(lmd.Params[i], args[i]);
+			}
+
+			code_ = closure.Lambda.Code;
+			pc_ = 0;
+
+			return Execute();
+		}
+
 		public Value Run(Closure closure)
 		{
+			closure_ = closure;
+			code_ = closure.Lambda.Code;
+			env_ = closure.Env;
+			return Execute();
+		}
+
+		public Value Execute()
+		{
 			int pc = 0;
-			Code[] codes = closure.Lambda.Code;
+			Code[] code = code_;
 
-			var s = new Stack<Value>();
-			Env e = closure.Env;
+			var closure = closure_;
+			var s = stack_;
+			Env e = env_;
+			var d = dump_;
+
 			Code c;
-			var d = new Stack<Dump>();
-
 			while (true)
 			{
 				var location = closure.Lambda.Locations[pc];
-				c = codes[pc++];
+				c = code[pc++];
 				//Console.WriteLine("{0} at {1}:{2}", c, location.Filename, location.Line);
 				switch( c.Op)
 				{
@@ -134,6 +185,7 @@ namespace Lisp
 						{
 							var val = s.Pop();
 							var sym = s.Pop().AsSymbol;
+							val.AsClosure.IsSyntax = true;
 							e.Define(sym, val);
 						}
 						break;
@@ -155,7 +207,7 @@ namespace Lisp
 								closure = restored.Closure;
 								pc = restored.Pc;
 								e = closure.Env;
-								codes = closure.Lambda.Code;
+								code = closure.Lambda.Code;
 							}
 							else
 							{
@@ -184,7 +236,7 @@ namespace Lisp
 								var cl = applicant.AsClosure;
 								var lmd = cl.Lambda;
 								e = cl.Env;
-								codes = cl.Lambda.Code;
+								code = cl.Lambda.Code;
 								for( int i = 0; i < args.Length; i++)
 								{
 									e.Define(lmd.Params[i], args[i]);

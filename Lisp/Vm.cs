@@ -35,6 +35,7 @@ namespace Lisp
 	{
 		public Lambda Lambda;
 		public Env Env;
+		public bool IsSyntax;
 		public Closure(Lambda lambda, Env env)
 		{
 			Lambda = lambda;
@@ -46,7 +47,7 @@ namespace Lisp
 
 	public class Vm
 	{
-		Compiler compiler_ = new Compiler();
+		Compiler compiler_;
 		Parser parser_ = new Parser();
 		Eval eval_ = new Eval();
 		Env rootEnv_ = new Env(null);
@@ -56,6 +57,7 @@ namespace Lisp
 		public Vm()
 		{
 			Stdlib.Core.Setup(this);
+			compiler_ = new Compiler(this);
 		}
 
 		public Closure Compile(string src, string filename = null)
@@ -87,5 +89,9 @@ namespace Lisp
 			return eval_.Run(closure);
 		}
 
+		public Value Apply(Closure closure, params Value[] args)
+		{
+			return eval_.Apply(closure, args);
+		}
 	}
 }

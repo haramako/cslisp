@@ -43,7 +43,8 @@ namespace Tests
 			var code = parser.ParseList(port);
 			code = new Value(new Cons(C.Begin, code));
 
-			var compiler = new Compiler();
+			var vm = new Vm();
+			var compiler = new Compiler(vm);
 			var lmd = compiler.Compile(code);
 
 			Console.WriteLine(code);
@@ -90,9 +91,9 @@ namespace Tests
 		[TestCase("(define x (lambda (a) (+ 1 a)))")]
 		public void TestCompile(string src)
 		{
-			var compiler = new Compiler();
-			var lmd = compiler.Compile(parse(src));
-			var code = lmd.Code;
+			var vm = new Vm();
+			var closure = vm.Compile(src);
+			var code = closure.Lambda.Code;
 			for( int i = 0; i < code.Length; i++)
 			{
 				Console.WriteLine("{0:0000}: {1}", i, code[i]);
@@ -101,6 +102,7 @@ namespace Tests
 
 		[TestCase("(puts 1)")]
 		[TestCase("(define +1 \n(lambda (n) (+ 1 n ))) \n(+1 2)")]
+		[TestCase("(define-syntax a (lambda (c a b) c)) \n(a 1)")]
 		public void TestRun(string src)
 		{
 			var vm = new Vm();

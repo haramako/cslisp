@@ -77,11 +77,6 @@ namespace Lisp
 
 	public class Compiler
 	{
-		void trace(string format, params object[] param)
-		{
-			Console.WriteLine(format, param);
-		}
-
 		public class CompileContext
 		{
 			public List<Code> Codes = new List<Code>();
@@ -103,8 +98,42 @@ namespace Lisp
 			public int Position => Codes.Count;
 		}
 
+		Vm vm_;
+
+		public Compiler(Vm vm)
+		{
+			vm_ = vm;
+		}
+
+		public Lambda Compile(Value code)
+		{
+			var ctx = new CompileContext();
+
+			var oldCode = code;
+			code = normalizeSexp(ctx, code);
+			Console.WriteLine($"normalize: {oldCode}=>{code}");
+
+			compile(ctx, code);
+			ctx.Emit(Operator.Ret);
+			return new Lambda(C.Nil, ctx.Codes.ToArray(), ctx.Locations.ToArray());
+		}
+
+		public Lambda CompileBlock(Value code)
+		{
+			return Compile(Value.Cons(Value.Intern("begin"), code));
+		}
+
 		//===================================================================
-		// コンパイル
+		// Utility
+		//===================================================================
+
+		void trace(string format, params object[] param)
+		{
+			Console.WriteLine(format, param);
+		}
+
+		//===================================================================
+		// Compile
 		//===================================================================
 
 		Lambda compileLambda(CompileContext ctx, Value code)
@@ -158,7 +187,9 @@ namespace Lisp
 						break;
 
 					case "%quote":
-						ctx.Emit(Operator.Ldc, cdr);
+						{
+							ctx.Emit(Operator.Ldc, cdr);
+						}
 						break;
 
 					case "%lambda":
@@ -234,34 +265,15 @@ namespace Lisp
 			}
 		}
 
-		public Lambda Compile(Value code)
-		{
-			var ctx = new CompileContext();
-
-			var oldCode = code;
-			code = NormalizeSexp(ctx, code);
-			Console.WriteLine($"normalize: {oldCode}=>{code}");
-
-			compile(ctx, code);
-			ctx.Emit(Operator.Ret);
-			return new Lambda(C.Nil, ctx.Codes.ToArray(), ctx.Locations.ToArray());
-		}
-
-		public Lambda CompileBlock(Value code)
-		{
-			return Compile(Value.Cons(Value.Intern("begin"), code));
-		}
-
-
 		//===================================================================
-		// Syntax
+		// Syntax normalization
 		//===================================================================
 
-		Value NormalizeSexp(CompileContext ctx, Value s)
+		Value normalizeSexp(CompileContext ctx, Value s)
 		{
 			// printf( "s:%s\n", v2s_limit(s,30) );
 			if (!s.IsCons) return s;
-			if (s.Car.IsCons) return NormalizeList(ctx, s);
+			if (s.Car.IsCons) return normalizeList(ctx, s);
 			if (!s.Car.IsSymbol) return s;
 
 			string sym = s.Car.AsSymbol.ToString();
@@ -271,13 +283,13 @@ namespace Lisp
 				if (rest.Car.IsSymbol)
 				{
 					// (define sym val) の形
-					return Value.ConsSrc(s, C.SpDefine, NormalizeList(ctx, rest));
+					return Value.ConsSrc(s, C.SpDefine, normalizeList(ctx, rest));
 				}
 				else if (rest.Car.IsCons)
 				{
 					// (define (sym args ...) ... ) の形
 					Value lambda = Value.ConsSrc(s, C.SpLambda,
-												 Value.ConsSrc(rest.Car, rest.Car.Cdr, NormalizeList(ctx, rest.Cdr)));
+												 Value.ConsSrc(rest.Car, rest.Car.Cdr, normalizeList(ctx, rest.Cdr)));
 					return Value.ConsSrc(s, C.SpLambda,
 										 Value.ConsSrc(rest.Car, rest.Car.Car,
 													   Value.ConsSrc(rest.Cdr, lambda, C.Nil)));
@@ -289,11 +301,11 @@ namespace Lisp
 			}
 			else if (sym == "lambda")
 			{
-				return Value.Cons(C.SpLambda, Value.Cons(rest.Car, NormalizeList(ctx, rest.Cdr)));
+				return Value.Cons(C.SpLambda, Value.Cons(rest.Car, normalizeList(ctx, rest.Cdr)));
 			}
 			else if (sym == "define-syntax")
 			{
-				return Value.ConsSrc(s, C.SpDefineSyntax, NormalizeList(ctx, rest));
+				return Value.ConsSrc(s, C.SpDefineSyntax, normalizeList(ctx, rest));
 
 			}
 			else if (sym == "if")
@@ -301,21 +313,21 @@ namespace Lisp
 				Value _cond, _then, _else;
 				ConsUtil.Bind2Rest(rest, out _cond, out _then, out _else);
 				if (_else == C.Nil) _else = Value.Cons(C.Undef, C.Nil);
-				return ConsUtil.Cons(C.SpIf, NormalizeSexp(ctx, _cond), NormalizeSexp(ctx, _then), NormalizeList(ctx, _else));
+				return ConsUtil.Cons(C.SpIf, normalizeSexp(ctx, _cond), normalizeSexp(ctx, _then), normalizeList(ctx, _else));
 
 			}
 			else if (sym == "begin")
 			{
 				if (rest == C.Nil) return C.Undef;
-				if (rest.Cdr == C.Nil) return NormalizeSexp(ctx, rest.Car);
-				return ConsUtil.Cons(C.SpBegin, NormalizeList(ctx, rest));
+				if (rest.Cdr == C.Nil) return normalizeSexp(ctx, rest.Car);
+				return ConsUtil.Cons(C.SpBegin, normalizeList(ctx, rest));
 
 			}
 			else if (sym == "set!")
 			{
 				Value sym_, val;
 				ConsUtil.Bind2(rest, out sym_, out val);
-				return ConsUtil.Cons(C.SpSet, sym_, NormalizeSexp(ctx, val));
+				return ConsUtil.Cons(C.SpSet, sym_, normalizeSexp(ctx, val));
 			}
 			else if (sym == "quote")
 			{
@@ -324,22 +336,22 @@ namespace Lisp
 			}
 			else
 			{
-				s = NormalizeSyntax(ctx, s);
-				return NormalizeList(ctx, s);
+				s = normalizeSyntax(ctx, s);
+				return normalizeList(ctx, s);
 			}
 		}
 
 		// implicit begin
-		Value NormalizeBegin(CompileContext ctx, Value list)
+		Value normalizeBegin(CompileContext ctx, Value list)
 		{
-			return NormalizeSexp(ctx, Value.ConsSrc(list, C.Begin, list));
+			return normalizeSexp(ctx, Value.ConsSrc(list, C.Begin, list));
 		}
 
-		Value NormalizeList(CompileContext ctx, Value list)
+		Value normalizeList(CompileContext ctx, Value list)
 		{
 			if (list.IsCons)
 			{
-				return Value.ConsSrc(list, NormalizeSexp(ctx, list.Car), NormalizeList(ctx, list.Cdr));
+				return Value.ConsSrc(list, normalizeSexp(ctx, list.Car), normalizeList(ctx, list.Cdr));
 			}
 			else
 			{
@@ -347,30 +359,33 @@ namespace Lisp
 			}
 		}
 
-		Value NormalizeSyntax(CompileContext ctx, Value s)
+		Value normalizeSyntax(CompileContext ctx, Value s)
 		{
-			return s;
-			#if false
 			if (!s.Car.IsSymbol) return s;
 
-			//printf("hoge: %s\n", v2s(bundle_get( ctx->bundle, intern("define-syntax"), C.Nil )));
-			Value v = bundle_get(ctx->bundle, V2SYMBOL(CAR(s)), C.Nil);
-			if (!v.Is<Closure>()) return s;
+			Value v;
+			if (vm_.RootEnv.TryGet(s.Car.AsSymbol, out v))
+			{
+				if (!v.Is<Closure>()) return s;
 
-			Closure lmd = v.As<Closure>();
-			if (!lmd.IsSyntax)
+				Closure closure = v.As<Closure>();
+				if (!closure.IsSyntax)
+				{
+					return s;
+				}
+
+				//printf("normalize_syntax: %s\n", v2s(s));
+
+				s = vm_.Apply(closure, s, C.Nil, C.Nil);
+
+				//printf("normalize_syntax2: %s\n", v2s(s));
+
+				return normalizeSexp(ctx, s);
+			}
+			else
 			{
 				return s;
 			}
-
-			//printf("normalize_syntax: %s\n", v2s(s));
-
-			s = eval(ctx, cons5(v, cons(V_QUOTE, cons(s, C.Nil)), C.Nil, C.Nil, C.Nil));
-
-			//printf("normalize_syntax2: %s\n", v2s(s));
-
-			return normalize_sexp(ctx, s);
-			#endif
 		}
 	}
 }
