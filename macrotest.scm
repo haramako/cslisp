@@ -133,6 +133,13 @@
         (else x)))
      (qq (cadr expr) 0))))
 
+(define-syntax letrec
+  (er-macro-transformer
+   (lambda (expr rename compare)
+     ((lambda (defs)
+        `((,(rename 'lambda) () ,@defs ,@(cddr expr))))
+      (map (lambda (x) (cons (rename 'define) x)) (cadr expr))))))
+
 (define-syntax let
   (er-macro-transformer
    (lambda (expr rename compare)

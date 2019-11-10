@@ -98,6 +98,8 @@ namespace Lisp
 
 	public class Eval
 	{
+		Context ctx_;
+
 		Closure closure_;
 
 		Stack<Value> stack_ = new Stack<Value>(); // SECDマシンの"S"
@@ -110,8 +112,9 @@ namespace Lisp
 
 		public EvalStatistics Statistics => statistics_;
 
-		public Eval()
+		public Eval(Vm vm)
 		{
+			ctx_ = new Context(vm);
 		}
 
 		static T[] popMulti<T>(Stack<T> stack, int n)
@@ -167,6 +170,8 @@ namespace Lisp
 
 		public Value Execute()
 		{
+			Context ctx = ctx_;
+
 			int pc = pc_;
 			Code[] code = code_;
 
@@ -272,9 +277,21 @@ namespace Lisp
 							}
 							break;
 						case Operator.Ap:
+						case Operator.Ap1:
 							{
-								var len = c.Val.AsInt;
-								var args = popMulti(s, len - 1);
+								int len;
+								Value[] args;
+								if (c.Op == Operator.Ap)
+								{
+									len = c.Val.AsInt;
+									args = popMulti(s, len - 1);
+								}
+								else
+								{
+									var v = s.Pop();
+									args = Value.ListToArray(v);
+									len = args.Length;
+								}
 								var applicant = s.Pop();
 								var vt = applicant.ValueType;
 								if (vt == ValueType.Closure)
@@ -296,7 +313,6 @@ namespace Lisp
 									stat.ApNativeCount++;
 									var func = applicant.AsLispApi;
 									Value result;
-									Context ctx = null;
 									switch (func.Arity)
 									{
 										case 0:

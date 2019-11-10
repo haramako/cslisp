@@ -50,7 +50,8 @@ namespace Lisp.Stdlib
 			return new Value(r);
 		}
 
-		[LispApi("%")]
+		//[LispApi("%")]
+		[LispApi]
 		public static Value modulo(Context ctx, Value[] args)
 		{
 			int r = args[0].AsInt;

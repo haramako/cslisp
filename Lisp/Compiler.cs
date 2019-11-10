@@ -18,11 +18,12 @@ namespace Lisp
 		Goto,
 		Ret,
 		Ap,
+		Ap1,
 	}
 
 	public struct Code
 	{
-		public const int OperatorMax = (int)Operator.Ap + 1;
+		public const int OperatorMax = (int)Operator.Ap1 + 1;
 
 		public Operator Op;
 		public Value Val;
@@ -163,8 +164,8 @@ namespace Lisp
 
 					case "%set!":
 						{
-							Value sym, def;
-							Value.Bind2(code, out sym, out def);
+							Value _, sym, def;
+							Value.Bind3(code, out _, out sym, out def);
 							compile(ctx, def);
 							ctx.Emit(Operator.Set, sym);
 						}
@@ -217,6 +218,17 @@ namespace Lisp
 
 						}
 						break;
+					case "apply1":
+						{
+							int len = 0;
+							for (var cur = code.Cdr; !cur.IsNil; cur = cur.Cdr, len++)
+							{
+								compile(ctx, cur.Car);
+							}
+							ctx.Emit(Operator.Ap1);
+						}
+						break;
+
 					default:
 						normalForm = true;
 						break;
@@ -317,12 +329,11 @@ namespace Lisp
 			{
 				Value sym_, val;
 				Value.Bind2(rest, out sym_, out val);
-				return Value.ConsSrc(s, C.SpSet, Value.Cons(sym_, normalizeSexp(ctx, val)));
+				return Value.ConsSrc(s, C.SpSet, Value.Cons(sym_, normalizeSexp(ctx, val), C.Nil));
 			}
 			else if (sym == "quote")
 			{
 				return Value.ConsSrc(s, C.SpQuote, rest);
-
 			}
 			else
 			{

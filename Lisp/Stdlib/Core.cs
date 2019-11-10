@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Lisp.Stdlib
@@ -102,7 +103,7 @@ namespace Lisp.Stdlib
 			return Value.F;
 		}
 
-		[LispApi("!")]
+		[LispApi]
 		public static Value not(Context ctx, Value v)
 		{
 			return new Value(v == Value.F);
@@ -163,6 +164,13 @@ namespace Lisp.Stdlib
 		public static Value macro_p(Context ctx, Value v)
 		{
 			return new Value(v.IsClosure && v.AsClosure.IsSyntax);
+		}
+
+		[LispApi("%load")]
+		public static Value load(Context ctx, Value v)
+		{
+			var port = new Port(File.OpenRead(v.AsString), v.AsString);
+			return ctx.Vm.Run(port);
 		}
 
 	}

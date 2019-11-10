@@ -121,5 +121,27 @@ namespace Lisp
 			}
 			return tail;
 		}
+
+		public static int ListLength(Value list)
+		{
+			int len = 0;
+			for( var cur = list; !cur.IsNil; cur = cur.Cdr)
+			{
+				len++;
+			}
+			return len;
+		}
+
+		public static Value[] ListToArray(Value list)
+		{
+			var r = new Value[ListLength(list)];
+
+			int i = 0;
+			for (var cur = list; !cur.IsNil; cur = cur.Cdr)
+			{
+				r[i++] = cur.Car;
+			}
+			return r;
+		}
 	}
 }

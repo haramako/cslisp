@@ -1,8 +1,7 @@
 {
   "profiles": {
     "cslisp": {
-      "commandName": "Project",
-      "commandLineArgs": "-e \"(+ 1 2)\""
+      "commandName": "Project"
     }
   }
 }

@@ -109,7 +109,7 @@ namespace Lisp
 		{
 			if (isNumber(str[0]) || (str.Length >= 2 && str[0] == '-' && isNumber(str[1])))
 			{
-				for (int i = 0; i < str.Length; i++)
+				for (int i = 1; i < str.Length; i++)
 				{
 					if (!isNumber(str[i]))
 					{

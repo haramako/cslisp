@@ -38,7 +38,11 @@ namespace Lisp
 
 	public class Context
 	{
-
+		public Vm Vm;
+		public Context(Vm vm)
+		{
+			Vm = vm;
+		}
 	}
 
 	public class LispApi
@@ -97,7 +101,7 @@ namespace Lisp
 	{
 		Compiler compiler_;
 		Parser parser_ = new Parser();
-		Eval eval_ = new Eval();
+		Eval eval_;
 		Env rootEnv_ = new Env(null);
 
 		public Env RootEnv => rootEnv_;
@@ -108,6 +112,7 @@ namespace Lisp
 			ImportApi(typeof(Stdlib.List));
 			ImportApi(typeof(Stdlib.Number));
 			ImportApi(typeof(Stdlib.Symbol));
+
 			RootEnv.Define(Symbol.Intern("%if"), C.Nil);
 			RootEnv.Define(Symbol.Intern("%define-syntax"), C.Nil);
 			RootEnv.Define(Symbol.Intern("%define"), C.Nil);
@@ -120,7 +125,11 @@ namespace Lisp
 			RootEnv.Define(Symbol.Intern("quote"), C.Nil);
 			RootEnv.Define(Symbol.Intern("unquote"), C.Nil);
 			RootEnv.Define(Symbol.Intern("unquote-splicing"), C.Nil);
+			RootEnv.Define(Symbol.Intern("apply1"), C.Nil);
+
 			compiler_ = new Compiler(this);
+			eval_ = new Eval(this);
+
 		}
 
 		#if false
