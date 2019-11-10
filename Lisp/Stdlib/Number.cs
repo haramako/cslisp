@@ -7,7 +7,7 @@ namespace Lisp.Stdlib
 	public static class Number
 	{
 		[LispApi("+")]
-		public static Value add(Context ctx, Value[] args) /* -1 + */
+		public static Value add(Context ctx, Value[] args)
 		{
 			int r = 0;
 			for( int i = 0; i < args.Length; i++)
@@ -18,7 +18,7 @@ namespace Lisp.Stdlib
 		}
 
 		[LispApi("-")]
-		public static Value sub(Context ctx, Value[] args) /* -1 - */
+		public static Value sub(Context ctx, Value[] args)
 		{
 			int r = args[0].AsInt;
 			for (int i = 1; i < args.Length; i++)
@@ -29,7 +29,7 @@ namespace Lisp.Stdlib
 		}
 
 		[LispApi("*")]
-		public static Value mul(Context ctx, Value[] args) /* -1 * */
+		public static Value mul(Context ctx, Value[] args)
 		{
 			int r = 1;
 			for (int i = 0; i < args.Length; i++)
@@ -40,7 +40,7 @@ namespace Lisp.Stdlib
 		}
 
 		[LispApi("/")]
-		public static Value div(Context ctx, Value[] args) /* -1 / */
+		public static Value div(Context ctx, Value[] args)
 		{
 			int r = args[0].AsInt;
 			for (int i = 1; i < args.Length; i++)
@@ -51,7 +51,7 @@ namespace Lisp.Stdlib
 		}
 
 		[LispApi("%")]
-		public static Value modulo(Context ctx, Value[] args) /* -1 */
+		public static Value modulo(Context ctx, Value[] args)
 		{
 			int r = args[0].AsInt;
 			for (int i = 1; i < args.Length; i++)
@@ -62,7 +62,7 @@ namespace Lisp.Stdlib
 		}
 
 		[LispApi("=")]
-		public static Value eq(Context ctx, Value[] args) /* -1 = */
+		public static Value eq(Context ctx, Value[] args)
 		{
 			if (args.Length <= 0) return Value.T;
 			int n = args[0].AsInt;
@@ -82,7 +82,7 @@ namespace Lisp.Stdlib
 			for (int i = 1; i < args.Length; i++)
 			{
 				var cur = args[i].AsInt;
-				if (!(cur < n)) return Value.F;
+				if (!(n < cur)) return Value.F;
 				n = cur;
 			}
 			return Value.T;
@@ -96,7 +96,7 @@ namespace Lisp.Stdlib
 			for (int i = 1; i < args.Length; i++)
 			{
 				var cur = args[i].AsInt;
-				if (!(cur <= n)) return Value.F;
+				if (!(n <= cur)) return Value.F;
 				n = cur;
 			}
 			return Value.T;
@@ -110,7 +110,7 @@ namespace Lisp.Stdlib
 			for (int i = 1; i < args.Length; i++)
 			{
 				var cur = args[i].AsInt;
-				if (!(cur > n)) return Value.F;
+				if (!(n > cur)) return Value.F;
 				n = cur;
 			}
 			return Value.T;
@@ -124,7 +124,7 @@ namespace Lisp.Stdlib
 			for (int i = 1; i < args.Length; i++)
 			{
 				var cur = args[i].AsInt;
-				if (!(cur >= n)) return Value.F;
+				if (!(n >= cur)) return Value.F;
 				n = cur;
 			}
 			return Value.T;
