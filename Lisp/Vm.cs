@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace Lisp
 {
@@ -219,5 +220,26 @@ namespace Lisp
 				}
 			}
 		}
+
+		public void PrintStatistics()
+		{
+			var s = eval_.Statistics;
+			var opCount = s.ExecCount.Sum();
+
+			Console.WriteLine("==== Statistics ====");
+			Console.WriteLine("== General ==");
+			Console.WriteLine("OpCount   : {0,8}", opCount);
+			Console.WriteLine("MaxStack  : {0,8}", s.MaxStack);
+			Console.WriteLine("MaxDump   : {0,8}", s.MaxDump);
+			Console.WriteLine("ApLisp    : {0,8}", s.ApLispCount);
+			Console.WriteLine("ApNative  : {0,8}", s.ApNativeCount);
+
+			Console.WriteLine("== Operators ==");
+			for (int i = 0; i < s.ExecCount.Length; i++)
+			{
+				Console.WriteLine("{0,-6}: {1,8} ({2:00.0}%)", (Operator)i, s.ExecCount[i], 100f * s.ExecCount[i] / opCount);
+			}
+		}
+
 	}
 }

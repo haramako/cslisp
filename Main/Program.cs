@@ -58,7 +58,7 @@ class Program
 		var vm = new Vm();
 		var result = vm.Run(port);
 		Console.WriteLine(result);
-
+		vm.PrintStatistics();
 	}
 
 	/// <summary>

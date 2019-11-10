@@ -86,6 +86,16 @@ namespace Lisp
 		}
 	}
 
+	public class EvalStatistics
+	{
+		public int[] ExecCount = new int[Code.OperatorMax];
+		public int MaxStack;
+		public int MaxDump;
+		public int ApLispCount;
+		public int ApNativeCount;
+	}
+
+
 	public class Eval
 	{
 		Closure closure_;
@@ -95,6 +105,10 @@ namespace Lisp
 		Code[] code_; // SECDマシンの"C"
 		int pc_; // SECDマシンの"C"
 		Stack<Dump> dump_ = new Stack<Dump>(); // SECDマシンの"D"
+
+		EvalStatistics statistics_ = new EvalStatistics();
+
+		public EvalStatistics Statistics => statistics_;
 
 		public Eval()
 		{
@@ -162,6 +176,8 @@ namespace Lisp
 			var d = dump_;
 			SourceLocation location = new SourceLocation();
 
+			EvalStatistics stat = statistics_;
+
 			try
 			{
 				Code c;
@@ -169,7 +185,12 @@ namespace Lisp
 				{
 					location = closure.Lambda.Locations[pc];
 					c = code[pc++];
+
+					stat.ExecCount[(int)c.Op]++;
+					stat.MaxStack = Math.Max(stat.MaxStack, s.Count);
+					stat.MaxDump = Math.Max(stat.MaxDump, d.Count);
 					//Console.WriteLine("{0} {3} at {1}:{2}", c, location.Filename, location.Line, s.Count);
+
 					switch (c.Op)
 					{
 						case Operator.Ldc:
@@ -258,6 +279,7 @@ namespace Lisp
 								var vt = applicant.ValueType;
 								if (vt == ValueType.Closure)
 								{
+									stat.ApLispCount++;
 									d.Push(new Dump(closure, pc, e));
 									var cl = applicant.AsClosure;
 									var lmd = cl.Lambda;
@@ -271,6 +293,7 @@ namespace Lisp
 								}
 								else if (vt == ValueType.LispApi)
 								{
+									stat.ApNativeCount++;
 									var func = applicant.AsLispApi;
 									Value result;
 									Context ctx = null;
@@ -326,6 +349,5 @@ namespace Lisp
 				return new Value(ex);
 			}
 		}
-
 	}
 }

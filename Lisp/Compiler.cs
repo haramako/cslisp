@@ -22,6 +22,8 @@ namespace Lisp
 
 	public struct Code
 	{
+		public const int OperatorMax = (int)Operator.Ap + 1;
+
 		public Operator Op;
 		public Value Val;
 
