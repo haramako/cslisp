@@ -2,6 +2,10 @@ task :format do
   sh 'astyle', '--options=.astyle', *Dir.glob('**/*.cs').reject{|f| f=~ %r{/obj/} }
 end
 
+task :test do
+  sh 'dotnet', 'Main/bin/Debug/netcoreapp2.1/Main.dll', 'test.scm'
+end
+
 namespace :githook do
   task :setup do
     IO.write('.git/hooks/pre-commit', "#!/bin/sh\nrake githook:precommit")

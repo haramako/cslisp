@@ -60,7 +60,7 @@ namespace Lisp.Stdlib
 		public static Value list_a(Context ctx, Value[] args)
 		{
 			if (args.Length <= 0) return C.Nil;
-			if (args.Length <= 1) return Value.Cons(args[0], C.Nil);
+			if (args.Length <= 1) return args[0];
 
 			Value cons = Value.Cons(args[0], C.Nil);
 			Value cur = cons;
@@ -78,6 +78,18 @@ namespace Lisp.Stdlib
 				}
 			}
 			return cons;
+		}
+
+		[LispApi]
+		public static Value append(Context ctx, Value[] args)
+		{
+			return Value.Append(args);
+		}
+
+		[LispApi]
+		public static Value reverse(Context ctx, Value list)
+		{
+			return Value.Reverse(list);
 		}
 
 	}

@@ -12,7 +12,7 @@ namespace Lisp
 		Pop,
 		Def,
 		Set,
-		Syntax,
+		Syn,
 		If,
 		Ldf,
 		Goto,
@@ -165,7 +165,7 @@ namespace Lisp
 							Value sym, def;
 							Value.Bind2(cdr, out sym, out def);
 							compile(ctx, def);
-							ctx.Emit(Operator.Syntax, sym);
+							ctx.Emit(Operator.Syn, sym);
 						}
 						break;
 
@@ -225,14 +225,14 @@ namespace Lisp
 
 						}
 						break;
-					case "apply1":
+					case "apply":
 						{
 							int len = 0;
 							for (var cur = code.Cdr; !cur.IsNil; cur = cur.Cdr, len++)
 							{
 								compile(ctx, cur.Car);
 							}
-							ctx.Emit(Operator.Ap1);
+							ctx.Emit(Operator.Ap1, new Value(len));
 						}
 						break;
 

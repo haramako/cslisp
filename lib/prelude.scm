@@ -103,26 +103,6 @@
   (syntax-rules ()
 	  ((_ ?cnd ?body ...) (if ?cnd (begin ?body ...)))))
 
-(define (reverse lis)
-  (let recur ((r '()) (lis lis))
-	(if (pair? lis)
-		(recur (cons (car lis) r) (cdr lis))
-		r)))
-
-(define (append . lists)
-  (define (prepend-1 r lis)
-	(if (pair? lis)
-		(cons (car lis) (prepend-1 r (cdr lis)))
-		r))
-  (if (pair? lists)
-	  (let recur ((r '())
-				  (list1 (car lists))
-				  (lists (cdr lists)))
-		(if (pair? lists)
-			(prepend-1 (recur r (car lists) (cdr lists)) list1)
-			(prepend-1 r list1)))
-	  '()))
-
 ;; number
 
 (define (zero? x) (eqv? x 0))

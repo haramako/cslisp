@@ -12,18 +12,16 @@
 
 (define end-of-line "\n")
 
+(define exit %exit)
+
 (define (error err other)
   (display err)
   (newline)
-  (exit))
+  (%exit))
 
 (define (newline)
   (display end-of-line))
   
-(define (puts x)
-  (display x)
-  (newline))
-
 (define (close-syntax sym mac-env)
   sym)
 
@@ -164,22 +162,6 @@
             (error "bad let syntax" expr)))
       (if (identifier? (cadr expr)) (car (cddr expr)) (cadr expr))))))
 
-
-(define (reverse-rec r ls)
-  (if (null? ls)
-	  r
-	  (reverse-rec (cons (car ls) r) (cdr ls))))
-
-(define (reverse ls)
-  (reverse-rec '() ls))
-
-(define (apply proc arg1 . args)
-  (if (null? args)
-      (apply1 proc arg1)
-      ((lambda (lol)
-         (apply1 proc (append2 (reverse (cdr lol)) (car lol))))
-       (reverse (cons arg1 args)))))
-
 (define (map proc ls . lol)
   (define (map1 proc ls res)
     (if (pair? ls)
@@ -208,39 +190,4 @@
 
 (define (vector? ls) #f)
 (define (cons-source kar kdr) (cons kar kdr))
-
-(define (append-helper ls res)
-  (if (null? ls)
-      res
-      (append-helper (cdr ls) (append2 (car ls) res))))
-
-(define (append . o)
-  (if (null? o)
-      '()
-      ((lambda (lol)
-         (append-helper (cdr lol) (car lol)))
-       (reverse o))))
-
-(define (append-rec rb ra)
-  (if (null? ra)
-	  rb
-	  (append-rec (cons (car ra) rb) (cdr ra))))
-  
-(define (append2 a b) (append-rec b (reverse a)))
-  
-
-(define x 2)
-(cond
- ((eq? x 1) (puts "one"))
- ((eq? x 2) (puts "two"))
- (else (puts "more")))
-
-(and #t (puts "OK"))
-(and #f (puts "NG"))
-(or #t (puts "NG"))
-(or #f (puts "OK"))
-
-(define y '(3 4))
-(puts `(1 ,x ,@y ,y 2))
-
 

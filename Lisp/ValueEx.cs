@@ -10,24 +10,17 @@ namespace Lisp
 		// Utility methods
 		//====================================================
 
-		public Value Car => this.AsCons.Car;
-		public Value Cdr => this.AsCons.Cdr;
-
 		public static Value Intern(string symbol) => new Value(Symbol.Intern(symbol));
 
 		public static readonly Value T = new Value(true);
 		public static readonly Value F = new Value(false);
 
+		//====================================================
+		// Cons
+		//====================================================
 
-		public static bool Eqv(Value a, Value b)
-		{
-			return a == b;
-		}
-
-		public static bool DeepEqual(Value a, Value b)
-		{
-			return a == b;
-		}
+		public Value Car => this.AsCons.Car;
+		public Value Cdr => this.AsCons.Cdr;
 
 		public static Value Cons(Value car, Value cdr)
 		{
@@ -102,6 +95,9 @@ namespace Lisp
 			rest = cur.Cdr;
 		}
 
+		//====================================================
+		// List
+		//====================================================
 
 		public static Value ReverseInplace(Value list)
 		{
@@ -142,6 +138,147 @@ namespace Lisp
 				r[i++] = cur.Car;
 			}
 			return r;
+		}
+
+		static Value appendReverse(Value a, Value b)
+		{
+			var tail = a;
+			for( var cur = b; !cur.IsNil; cur = cur.Cdr)
+			{
+				tail = Cons(b.Car, tail);
+			}
+			return tail;
+		}
+
+		public static Value Append(Value[] list)
+		{
+			if (list.Length <= 0) return C.Nil;
+			if (list.Length <= 1) return list[0];
+
+			var head = Value.Cons(C.Nil, C.Nil);
+			var tail = head;
+			for( int i = 0; i < list.Length - 1; i++)
+			{
+				var curList = list[i];
+				for (var cur = curList; !cur.IsNil; cur = cur.Cdr)
+				{
+					var newTail = Value.Cons(cur.Car, C.Nil);
+					tail.AsCons.Cdr = newTail;
+					tail = newTail;
+				}
+			}
+
+			tail.AsCons.Cdr = list[list.Length - 1];
+
+			return head.Cdr;
+		}
+
+		public static Value Reverse(Value list)
+		{
+			return appendReverse(C.Nil, list);
+		}
+
+		//====================================================
+		// Equality
+		//====================================================
+
+		public static bool Eq(Value a, Value b)
+		{
+			if (a.val_ == b.val_)
+			{
+				switch (a.ValueType)
+				{
+					case ValueType.String:
+					case ValueType.Table:
+					case ValueType.LispApi:
+					case ValueType.Object:
+					case ValueType.Symbol:
+					case ValueType.Cons:
+						return a.obj_ == b.obj_;
+					default:
+						return true;
+				}
+			}
+			else
+			{
+				if (a.IsNumber)
+				{
+					switch (a.ValueType)
+					{
+						case ValueType.Integer:
+							if (b.IsFloat)
+							{
+								return b.AsFloat == a.ConvertToFloat();
+							}
+							else
+							{
+								return false;
+							}
+						case ValueType.Float:
+							if (b.IsInteger)
+							{
+								return b.ConvertToFloat() == a.AsFloat;
+							}
+							else
+							{
+								return false;
+							}
+						default:
+							return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+
+		public static bool Eqv(Value a, Value b)
+		{
+			return a == b;
+		}
+
+		public static List<Value> deepEqualCache = new List<Value>();
+
+		public static bool DeepEqual(Value a, Value b)
+		{
+			var r = deepEqualSub(a, b);
+			deepEqualCache.Clear();
+			return r;
+		}
+
+		public static bool deepEqualSub(Value a, Value b)
+		{
+			if (a == b)
+			{
+				return true;
+			}
+			else
+			{
+				var vt = a.ValueType;
+				if (vt == b.ValueType)
+				{
+					switch (vt)
+					{
+						case ValueType.Cons:
+							if (a.obj_ == b.obj_)
+							{
+								return true;
+							}
+							else
+							{
+								return deepEqualSub(a.Car, b.Car) && deepEqualSub(a.Cdr, b.Cdr);
+							}
+						default:
+							return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
+			}
 		}
 	}
 }

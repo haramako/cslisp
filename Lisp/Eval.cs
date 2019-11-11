@@ -239,7 +239,7 @@ namespace Lisp
 								e.Set(sym, val);
 							}
 							break;
-						case Operator.Syntax:
+						case Operator.Syn:
 							{
 								var val = s.Peek();
 								var sym = c.Val.AsSymbol;
@@ -295,9 +295,20 @@ namespace Lisp
 								}
 								else
 								{
-									var v = s.Pop();
-									args = Value.ListToArray(v);
+									var tmpLen = c.Val.AsInt - 1 - 1; // applicant と tail
+									var tail = Value.ListToArray(s.Pop());
+									var tmpArgs = popMulti(s, tmpLen);
+
+									args = new Value[tmpLen + tail.Length];
 									len = args.Length;
+									for ( int i = 0; i < tmpLen; i++)
+									{
+										args[i] = tmpArgs[i];
+									}
+									for (int i = 0; i < tail.Length; i++)
+									{
+										args[tmpLen + i] = tail[i];
+									}
 								}
 								var applicant = s.Pop();
 								var vt = applicant.ValueType;
@@ -319,6 +330,8 @@ namespace Lisp
 								{
 									stat.ApNativeCount++;
 									var func = applicant.AsLispApi;
+									ctx.Env = e;
+
 									Value result;
 									switch (func.Arity)
 									{
@@ -372,6 +385,8 @@ namespace Lisp
 					}
 					Console.WriteLine("{0}: in {1}", l.DisplayString, stackLmd);
 				}
+
+				throw;
 
 				return new Value(ex);
 			}

@@ -80,8 +80,6 @@
 ;; test identity
 (assert '(1) (identity '(1)) )
 
-(puts "#1##")
-
 ;; test eq? eqv? equal?
 (let ((var '(1)))
   (assert #t (eq? '() '()))
@@ -97,8 +95,6 @@
   (assert #t (equal? var '(1)))
   (assert #f (equal? var '(1 2)))
   (assert #f (equal? '(1 2) '(1 3))))
-
-(puts "#2##")
 
 (assert #t (eq?))
 (assert #t (eq? 1))

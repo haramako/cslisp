@@ -62,7 +62,7 @@ namespace Lisp.Stdlib
 			for (int i = 1; i < args.Length; i++)
 			{
 				var v = args[i];
-				if (v != x) return Value.F;
+				if (!Value.Eq(v, x)) return Value.F;
 			}
 			return Value.T;
 		}
@@ -96,11 +96,8 @@ namespace Lisp.Stdlib
 		[LispApi("define?")]
 		public static Value define_p(Context ctx, Value sym)
 		{
-			#if false
-			ERROR_IF_NOT_SYMBOL(sym);
-			return bundle_find(ctx->bundle, V2SYMBOL(sym), true, false) ? VALUE_T : VALUE_F;
-			#endif
-			return Value.F;
+			Value found;
+			return new Value(ctx.Env.TryGet(sym.AsSymbol, out found));
 		}
 
 		[LispApi]
@@ -172,6 +169,13 @@ namespace Lisp.Stdlib
 			var src = File.ReadAllBytes(v.AsString);
 			var port = new Port(new MemoryStream(src), v.AsString);
 			return ctx.Vm.Run(port);
+		}
+
+		[LispApi("%exit")]
+		public static Value exit(Context ctx, Value v)
+		{
+			Environment.Exit(v.AsInt);
+			return C.Nil;
 		}
 
 	}

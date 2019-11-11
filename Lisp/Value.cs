@@ -192,7 +192,10 @@ namespace Lisp
 		[Conditional("DEBUG")]
 		public void checkType(ValueType t)
 		{
-			check(ValueType == t);
+			if( ValueType != t)
+			{
+				throw new Exception($"Type error expect {t}, but {ValueType}");
+			}
 		}
 
 		public ValueType ValueType

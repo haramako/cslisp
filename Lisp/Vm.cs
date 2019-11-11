@@ -38,7 +38,9 @@ namespace Lisp
 
 	public class Context
 	{
-		public Vm Vm;
+		public readonly Vm Vm;
+		public Env Env;
+
 		public Context(Vm vm)
 		{
 			Vm = vm;
@@ -128,7 +130,7 @@ namespace Lisp
 			RootEnv.Define(Symbol.Intern("quote"), C.Nil);
 			RootEnv.Define(Symbol.Intern("unquote"), C.Nil);
 			RootEnv.Define(Symbol.Intern("unquote-splicing"), C.Nil);
-			RootEnv.Define(Symbol.Intern("apply1"), C.Nil);
+			RootEnv.Define(Symbol.Intern("apply"), C.Nil);
 
 			compiler_ = new Compiler(this);
 			eval_ = new Eval(this);

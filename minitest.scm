@@ -15,14 +15,12 @@
   (if (equal? test expect) #t
     (newline)
     (puts "FAILED:" '?test "EXPECT" expect "BUT" test)
-    (inc! *minitest-failed*)))
+    (set! *minitest-failed* (+ 1 *minitest-failed*))))
 
 (define-syntax assert-exception
   (er-macro-transformer 
     (lambda (expr rename compare)
       '(display 1))))
-
-(define (exit code) (puts code))
 
 (define (minitest-finish)
   (newline)
