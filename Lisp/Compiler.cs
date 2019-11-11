@@ -47,16 +47,6 @@ namespace Lisp
 
 	}
 
-	public struct SourceLocation
-	{
-		public string Filename;
-		public int Line;
-
-		public string DisplayString => $"{Filename}:{Line}";
-	}
-
-
-
 	public class Compiler
 	{
 		public class CompileContext

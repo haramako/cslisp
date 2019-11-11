@@ -72,5 +72,7 @@ namespace Lisp
 			return parser_.Parse(this);
 		}
 
+		public SourceLocation Location => new SourceLocation(Filename, Line);
+
 	}
 }

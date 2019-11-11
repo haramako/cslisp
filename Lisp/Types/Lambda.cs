@@ -44,7 +44,7 @@ namespace Lisp
 			}
 			else
 			{
-				return $"#<lambda {DefinedLocation.Filename}:{DefinedLocation.Line}>";
+				return $"#<lambda {DefinedLocation.DisplayString}>";
 			}
 		}
 	}

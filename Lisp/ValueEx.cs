@@ -36,17 +36,17 @@ namespace Lisp
 
 		public static Value ConsSrc(Value src, Value car, Value cdr)
 		{
-			return new Value(Lisp.Cons.WithLocation(src, car, cdr));
+			return new Value(new Cons(src.AsCons.Location, car, cdr));
 		}
 
 		public static Value ConsSrc(Port port, Value car, Value cdr)
 		{
-			return new Value(Lisp.Cons.WithLocation(port, car, cdr));
+			return new Value(new Cons(port.Location, car, cdr));
 		}
 
 		public static Value ConsSrc(string filename, int line, Value car, Value cdr)
 		{
-			return new Value(Lisp.Cons.WithLocation(filename, line, car, cdr));
+			return new Value(new Cons(new SourceLocation(filename, line), car, cdr));
 		}
 
 		public static Value Cons(Value v1, Value v2, Value v3)

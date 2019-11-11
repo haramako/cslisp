@@ -359,7 +359,7 @@ namespace Lisp
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("{0}:{1}: error {2}", location.Filename, location.Line, ex.Message);
+				Console.WriteLine("{0}: error {1}", location.DisplayString, ex.Message);
 
 				while (d.Count > 0)
 				{
@@ -370,7 +370,7 @@ namespace Lisp
 					{
 						l = curDump.Closure.Lambda.DefinedLocation;
 					}
-					Console.WriteLine("{0}:{1}: in {2}", l.Filename, l.Line, stackLmd);
+					Console.WriteLine("{0}: in {1}", l.DisplayString, stackLmd);
 				}
 
 				return new Value(ex);
