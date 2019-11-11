@@ -12,7 +12,7 @@ namespace Lisp.Stdlib
 			return new Value(v.AsSymbol.ToString());
 		}
 
-		[LispApi(">=")]
+		[LispApi]
 		public static Value gensym(Context ctx) /* 0 */
 		{
 			throw new Exception();

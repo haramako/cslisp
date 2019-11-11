@@ -766,6 +766,7 @@ namespace Lisp
 					case ValueType.LispApi:
 					case ValueType.Object:
 					case ValueType.Symbol:
+					case ValueType.Cons:
 						return this.obj_ == x.obj_;
 					default:
 						return true;

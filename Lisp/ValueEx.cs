@@ -24,7 +24,7 @@ namespace Lisp
 			return a == b;
 		}
 
-		public static bool Equal(Value a, Value b)
+		public static bool DeepEqual(Value a, Value b)
 		{
 			return a == b;
 		}

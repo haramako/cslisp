@@ -69,7 +69,10 @@
 (define (error err other)
   (display err)
   (newline)
-  (exit))
+  (exit))#;(define (error . mes)
+  (apply puts (list "error:" mes))
+  (backtrace)
+  (exit 1))
 
 ;; require
 (define %require-loaded-modules '())
@@ -146,7 +149,7 @@
   (let loop ((li li) (n 0))
 	(if (null? li) n (loop (cdr li) (+ n 1)))))
 
-(define-syntax let1
+#;(define-syntax let1
   (syntax-rules ()
 	((_ ?var ?body ...)
 	 (let (?var) ?body ...))))

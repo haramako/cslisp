@@ -194,7 +194,14 @@ namespace Lisp
 					stat.ExecCount[(int)c.Op]++;
 					stat.MaxStack = Math.Max(stat.MaxStack, s.Count);
 					stat.MaxDump = Math.Max(stat.MaxDump, d.Count);
-					//Console.WriteLine("{0} {3} at {1}:{2}", c, location.Filename, location.Line, s.Count);
+
+
+					var l = location;
+					if (l.Line == 0)
+					{
+						l = closure.Lambda.DefinedLocation;
+					}
+					//Console.WriteLine("{0} {3} at {1}:{2}", c, l.Filename, l.Line, s.Count);
 
 					switch (c.Op)
 					{
@@ -359,6 +366,10 @@ namespace Lisp
 					var curDump = d.Pop();
 					var stackLmd = curDump.Closure.Lambda;
 					var l = stackLmd.Locations[curDump.Pc - 1];
+					if( l.Line == 0)
+					{
+						l = curDump.Closure.Lambda.DefinedLocation;
+					}
 					Console.WriteLine("{0}:{1}: in {2}", l.Filename, l.Line, stackLmd);
 				}
 

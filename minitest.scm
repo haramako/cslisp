@@ -10,7 +10,7 @@
   (display ".")
   (if (zero? (modulo *minitest-count* 80)) (newline)))
 
-(define (assert expect test . eqf)
+(define (assert expect test . rest)
   (minitest-dot)
   (if (equal? test expect) #t
     (newline)
@@ -19,7 +19,8 @@
 
 (define-syntax assert-exception
   (er-macro-transformer 
-    (lambda (expr rename compare))))
+    (lambda (expr rename compare)
+      '(display 1))))
 
 (define (minitest-finish)
   (newline)

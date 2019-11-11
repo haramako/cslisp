@@ -88,7 +88,7 @@ namespace Lisp.Stdlib
 			for (int i = 1; i < args.Length; i++)
 			{
 				var v = args[i];
-				if (!Value.Equal(v, x)) return Value.F;
+				if (!Value.DeepEqual(v, x)) return Value.F;
 			}
 			return Value.T;
 		}

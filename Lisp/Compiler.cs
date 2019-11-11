@@ -51,6 +51,8 @@ namespace Lisp
 	{
 		public string Filename;
 		public int Line;
+
+		public string DisplayString => $"{Filename}:{Line}";
 	}
 
 
@@ -95,7 +97,10 @@ namespace Lisp
 
 			compile(ctx, code);
 			ctx.Emit(Operator.Ret);
-			return new Lambda(C.Nil, ctx.Codes.ToArray(), ctx.Locations.ToArray());
+			var lmd = new Lambda(C.Nil, ctx.Codes.ToArray(), ctx.Locations.ToArray());
+			lmd.DefinedLocation = code.AsCons.Location;
+
+			return lmd;
 		}
 
 		public Lambda CompileBlock(Value code)
@@ -378,6 +383,7 @@ namespace Lisp
 				var expanded = vm_.Apply(closure, s, C.Nil, C.Nil);
 				if( expanded.Is<Exception>())
 				{
+					Console.WriteLine("{0}:Error occured in syntax expand, ", s.AsCons.Location.DisplayString);
 					throw expanded.As<Exception>();
 				}
 
