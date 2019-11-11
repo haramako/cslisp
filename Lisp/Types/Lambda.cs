@@ -5,17 +5,24 @@ namespace Lisp
 {
 	public class Lambda
 	{
-		public Code[] Code;
-		public Symbol[] Params;
+		static int NextId;
+
+		public readonly Code[] Code;
+		public readonly Symbol[] Params;
 		public Symbol RestParam;
 
 		// for debug
+		public readonly int Id;
 		public Symbol Name;
 		public SourceLocation DefinedLocation;
 		public SourceLocation[] Locations;
+		public Value OriginalSource;
+		public Value ExpandedSource;
 
 		public Lambda(Value param, Code[] codes, SourceLocation[] locations)
 		{
+			Id = NextId++;
+
 			Code = codes;
 			Locations = locations;
 
@@ -44,7 +51,7 @@ namespace Lisp
 			}
 			else
 			{
-				return $"#<lambda {DefinedLocation.DisplayString}>";
+				return $"#<lambda #{Id} {DefinedLocation.DisplayString}>";
 			}
 		}
 	}

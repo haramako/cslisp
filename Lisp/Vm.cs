@@ -104,6 +104,9 @@ namespace Lisp
 		Eval eval_;
 		Env rootEnv_ = new Env(null);
 
+		public Compiler Compiler => compiler_;
+		public Parser Parser => parser_;
+		public Eval Eval => eval_;
 		public Env RootEnv => rootEnv_;
 
 		public Vm()
@@ -164,6 +167,7 @@ namespace Lisp
 					return result;
 				}
 				var lmd = compiler_.Compile(list);
+
 				var closure = new Closure(lmd, rootEnv_);
 				result = Run(closure);
 			}

@@ -6,11 +6,14 @@ using System.Diagnostics;
 
 class Program
 {
-	static bool compileOnly = false;
+	static TextWriter dumpWriter;
 	static bool verbose = false;
+	static Vm vm;
 
 	static void Main(string[] args)
 	{
+		vm = new Vm();
+
 		try
 		{
 			for (int i = 0; i < args.Length; i++)
@@ -21,8 +24,11 @@ class Program
 					case "-v": // verbose
 						verbose = true;
 						break;
-					case "-c": // compile only
-						compileOnly = true;
+					case "--dump": // compile only
+						{
+							dumpWriter = new StreamWriter(File.OpenWrite(args[i + 1]));
+							i++;
+						}
 						break;
 					case "-e": // execute string
 						{
@@ -47,12 +53,22 @@ class Program
 			throw;
 			//waitKey();
 		}
+		finally
+		{
+			if( dumpWriter != null)
+			{
+				foreach (var lmd in vm.Compiler.Lambdas)
+				{
+					new global::Lisp.Debug.CodePrinter().PrintLambda(dumpWriter, lmd);
+				}
+				dumpWriter.Dispose();
+			}
+		}
 		waitKey();
 	}
 
 	static void run(Port port)
 	{
-		var vm = new Vm();
 		var result = vm.Run(port);
 		Console.WriteLine(result);
 		vm.PrintStatistics();

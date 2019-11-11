@@ -71,6 +71,9 @@ namespace Lisp
 		}
 
 		Vm vm_;
+		List<Lambda> lambdas_ = new List<Lambda>();
+
+		public List<Lambda> Lambdas => lambdas_;
 
 		public Compiler(Vm vm)
 		{
@@ -82,13 +85,18 @@ namespace Lisp
 			var ctx = new CompileContext();
 
 			var oldCode = code;
-			code = normalizeSexp(ctx, code);
+			var expandedCode = normalizeSexp(ctx, code);
 			//Console.WriteLine($"normalize: {oldCode} ==> {PrettyPrinter.Instance.Print(code, 1000)}");
 
-			compile(ctx, code);
+			compile(ctx, expandedCode);
 			ctx.Emit(Operator.Ret);
 			var lmd = new Lambda(C.Nil, ctx.Codes.ToArray(), ctx.Locations.ToArray());
+
 			lmd.DefinedLocation = code.AsCons.Location;
+			lmd.OriginalSource = code;
+			lmd.ExpandedSource = expandedCode;
+
+			lambdas_.Add(lmd);
 
 			return lmd;
 		}
@@ -123,7 +131,11 @@ namespace Lisp
 			newCtx.Emit(Operator.Ret);
 
 			var lmd = new Lambda(param, newCtx.Codes.ToArray(), newCtx.Locations.ToArray());
+
 			lmd.DefinedLocation = code.AsCons.Location;
+			lmd.ExpandedSource = body;
+
+			lambdas_.Add(lmd);
 			return lmd;
 		}
 
