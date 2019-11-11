@@ -22,6 +22,8 @@
     (lambda (expr rename compare)
       '(display 1))))
 
+(define (exit code) (puts code))
+
 (define (minitest-finish)
   (newline)
   (puts "finished" *minitest-count* "tests" *minitest-failed* "failed")

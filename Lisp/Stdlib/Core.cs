@@ -169,7 +169,8 @@ namespace Lisp.Stdlib
 		[LispApi("%load")]
 		public static Value load(Context ctx, Value v)
 		{
-			var port = new Port(File.OpenRead(v.AsString), v.AsString);
+			var src = File.ReadAllBytes(v.AsString);
+			var port = new Port(new MemoryStream(src), v.AsString);
 			return ctx.Vm.Run(port);
 		}
 

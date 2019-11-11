@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Lisp
@@ -216,6 +217,24 @@ namespace Lisp
 			}
 		}
 
+		public Dictionary<string, char> escapedChar = new Dictionary<string, char>
+		{
+			{ "space", ' ' },
+			{ "newline", '\n' },
+			{ "nl", '\n'},
+			{ "lf", '\n' },
+			{ "return", '\r' },
+			{ "cr", '\r' },
+			{ "tab", '\t' },
+			{ "ht", '\t' },
+			{"page", (char)0x0c },
+			{"escape", (char)0x1b },
+			{"ecs", (char)0x1b },
+			{"delete", (char)0x7f },
+			{"del", (char)0x7f },
+			{"null", '\0' },
+		};
+
 		public Value Parse(Port s)
 		{
 			skipSpace(s);
@@ -248,6 +267,54 @@ namespace Lisp
 							// s-exp comment
 							Parse(s); // skip
 							return Parse(s);
+						case '|':
+							// multi-line comment
+							{
+								var level = 1;
+								for (; ; )
+								{
+									switch (c = s.ReadChar())
+									{
+										case '|':
+											if (s.ReadChar() == '#')
+											{
+												level--;
+												if (level <= 0) return Parse(s);
+											}
+											break;
+										case '#':
+											if (s.ReadChar() == '|') level++;
+											break;
+										case -1:
+										case '\0':
+											throw new Exception("invalid char in '#|' comment");
+										default:
+											break;
+									}
+								}
+							}
+						case '\\':
+							{
+								var buf = readToken(s);
+								char ch;
+								if (buf.Length == 1)
+								{
+									return new Value((char)buf[0]);
+								}
+								else if (buf[0] == 'x' || buf[0] == 'u')
+								{
+									int num = int.Parse(buf, NumberStyles.AllowHexSpecifier);
+									return new Value(num);
+								}
+								else if( escapedChar.TryGetValue(buf, out ch))
+								{
+									return new Value(escapedChar);
+								}
+								else
+								{
+									throw new Exception($"invalid #{buf}");
+								}
+							}
 						default:
 							throw new LispException($"invalid #char {c}\n");
 					}

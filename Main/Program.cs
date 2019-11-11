@@ -11,10 +11,8 @@ class Program
 
 	static void Main(string[] args)
 	{
-		#if !DEBUG
 		try
 		{
-		#endif
 			for (int i = 0; i < args.Length; i++)
 			{
 				var arg = args[i];
@@ -36,20 +34,19 @@ class Program
 						break;
 					default:
 						{
-							var port = new Port(File.OpenRead(arg), arg);
+							var port = new Port(new MemoryStream(File.ReadAllBytes(arg)), arg);
 							run(port);
 						}
 						break;
 				}
 			}
-			#if !DEBUG
 		}
 		catch (Exception ex)
 		{
-			//waitKey();
+			Console.WriteLine(ex);
 			throw;
+			//waitKey();
 		}
-			#endif
 		waitKey();
 	}
 

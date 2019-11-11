@@ -186,8 +186,8 @@
 (assert #f (symbol? 0))
 (assert #t (number? 0))
 (assert #f (number? 'a))
-(assert #t (char? #\a))
-(assert #t (char? #\space))
+#;(assert #t (char? #\a))
+#;(assert #t (char? #\space))
 (assert #f (char? 0))
 (assert #f (pair? 'a))
 (assert #t (null? '()))
@@ -206,20 +206,21 @@
 (assert 6 (apply + 1 '(2 3)))
 
 ;; test syntax-expand1
-(define-syntax test-syntax
+#;(define-syntax test-syntax
   (syntax-rules ()
 	((_ x) (1 x 2))))
-(assert '(1 0 2) (syntax-expand1 '(test-syntax 0)))
+#;(assert '(1 0 2) (syntax-expand1 '(test-syntax 0)))
 
 ;; test current-environment, eval
-(assert 3 (eval '(+ 1 2)))
-(let ((x 1))
+#;(assert 3 (eval '(+ 1 2)))
+#;(let ((x 1))
   (define env (current-environment))
   (let ((x 2))
 	(assert 1 (eval 'x env))
 	(assert 2 (eval 'x))))
 
 ;; test display, write, read
+#|
 (assert-exception #t (display))
 (assert-exception #t (display 1 1))
 (assert-exception #t (write))
@@ -314,5 +315,6 @@
   (nil! hoge)
   (assert '() hoge))
 	
+|#
 
 (minitest-finish)

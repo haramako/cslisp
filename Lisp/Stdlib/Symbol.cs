@@ -6,7 +6,7 @@ namespace Lisp.Stdlib
 {
 	public static class Symbol
 	{
-		[LispApi]
+		[LispApi("symbol->string")]
 		public static Value symbol_to_string(Context ctx, Value v) /* 1 */
 		{
 			return new Value(v.AsSymbol.ToString());
