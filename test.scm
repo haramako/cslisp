@@ -202,10 +202,10 @@
 (assert 6 (apply + 1 '(2 3)))
 
 ;; test syntax-expand1
-(define-syntax test-syntax
+#;(define-syntax test-syntax
   (syntax-rules ()
 	  ((_ x) (1 x 2))))
-(assert '(1 0 2) (syntax-expand11 '(test-syntax 0)))
+#;(assert '(1 0 2) (syntax-expand11 '(test-syntax 0)))
 
 ;; test current-environment, eval
 #;(assert 3 (eval '(+ 1 2)))

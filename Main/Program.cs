@@ -1,8 +1,9 @@
 ﻿using System;
-using Lisp;
 using System.IO;
 using System.Text;
 using System.Diagnostics;
+using Lisp;
+using Lisp.Debugging;
 
 class Program
 {
@@ -59,7 +60,7 @@ class Program
 			{
 				foreach (var lmd in vm.Compiler.Lambdas)
 				{
-					new global::Lisp.Debug.CodePrinter().PrintLambda(dumpWriter, lmd);
+					new CodePrinter().PrintLambda(dumpWriter, lmd);
 				}
 				dumpWriter.Dispose();
 			}
