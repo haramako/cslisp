@@ -14,9 +14,8 @@
 
 (define exit %exit)
 
-(define (error err other)
-  (display err)
-  (newline)
+(define (error . err)
+  (apply puts err)
   (%exit 1))
 
 (define (newline)
@@ -204,7 +203,7 @@
 
 (define (memq obj lis)
   (if (null? lis) 
-    #t
+    #f
     (if (eq? (car lis) obj) 
       #t 
       (memq obj (cdr lis)))))

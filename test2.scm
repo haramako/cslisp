@@ -1,11 +1,10 @@
 (%load "macrotest.scm")
-#;(%load "lib/prelude.scm")
-
-(define v.1 99)
-(puts v.1)
+(%load "lib/prelude.scm")
 
 (define-syntax test-syntax
   (syntax-rules ()
-	  ((_ x) (display x))))
+	  ((_ x) (puts x))
+	  ((_ x y) (puts x y))))
 
-(test-syntax 0)
+(test-syntax 1)
+(test-syntax 1 2)

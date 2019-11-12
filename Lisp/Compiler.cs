@@ -85,7 +85,7 @@ namespace Lisp
 			var ctx = new CompileContext();
 
 			var expandedCode = normalizeSexp(ctx, code);
-			Console.WriteLine($"normalize: {code} ==> {PrettyPrinter.Instance.Print(expandedCode, 1000)}");
+			//Console.WriteLine($"normalize: {code} ==> {PrettyPrinter.Instance.Print(expandedCode, 1000)}");
 
 			compile(ctx, expandedCode);
 			ctx.Emit(Operator.Ret);
