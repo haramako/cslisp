@@ -3,7 +3,7 @@ task :format do
 end
 
 task :test do
-  sh 'dotnet', 'Main/bin/Debug/netcoreapp2.1/Main.dll', 'test.scm'
+  sh 'dotnet', 'Main/bin/Debug/netcoreapp2.1/Main.dll', '--dump', 'dump.txt', 'test.scm'
 end
 
 namespace :githook do
