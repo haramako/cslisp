@@ -7,13 +7,13 @@ namespace Lisp.Stdlib
 	public static class Symbol
 	{
 		[LispApi("symbol->string")]
-		public static Value symbol_to_string(Context ctx, Value v) /* 1 */
+		public static Value symbol_to_string(Context ctx, Value v)
 		{
 			return new Value(v.AsSymbol.ToString());
 		}
 
 		[LispApi]
-		public static Value gensym(Context ctx) /* 0 */
+		public static Value gensym(Context ctx)
 		{
 			throw new Exception();
 			#if false

@@ -17,7 +17,7 @@
 (define (error err other)
   (display err)
   (newline)
-  (%exit))
+  (%exit 1))
 
 (define (newline)
   (display end-of-line))
@@ -177,6 +177,17 @@
       (map1 proc ls '())
       (mapn proc (cons ls lol) '())))
 
+(define (any pred ls . lol)
+  (define (any1 pred ls)
+    (if (pair? (cdr ls))
+        ((lambda (x) (if x x (any1 pred (cdr ls)))) (pred (car ls)))
+        (pred (car ls))))
+  (define (anyn pred lol)
+    (if (every pair? lol)
+        ((lambda (x) (if x x (anyn pred (map cdr lol))))
+         (apply pred (map car lol)))
+        #f))
+  (if (null? lol) (if (pair? ls) (any1 pred ls) #f) (anyn pred (cons ls lol))))
 
 (define (every pred ls . lol)
   (define (every1 pred ls)
@@ -190,6 +201,27 @@
 
 (define (vector? ls) #f)
 (define (cons-source kar kdr) (cons kar kdr))
+
+(define (memq obj lis)
+  (if (null? lis) 
+    #t
+    (if (eq? (car lis) obj) 
+      #t 
+      (memq obj (cdr lis)))))
+
+
+(define (find-tail pred ls)
+  (and (pair? ls) (if (pred (car ls)) ls (find-tail pred (cdr ls)))))
+
+(define (find pred ls)
+  (cond ((find-tail pred ls) => car) (else #f)))
+
+(define-syntax syntax-quote 
+  (er-macro-transformer 
+    (lambda (expr rename compare)
+      (list (rename 'quote) (cadr expr)))))
+
+(define strip-syntactic-closures identity)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; syntax-rules

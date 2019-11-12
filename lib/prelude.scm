@@ -38,7 +38,8 @@
 (define (nthcdr n lis)
   (if (eqv? 0 n) lis (nth (- n 1) (cdr lis))))
 
-(define (map f li)
+
+#;(define (map f li)
   (let recur ((f f) (li li))
 	(if (pair? li)
 		(cons (f (car li)) (recur f (cdr li)))

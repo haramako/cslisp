@@ -145,7 +145,7 @@ namespace Lisp
 			var tail = a;
 			for( var cur = b; !cur.IsNil; cur = cur.Cdr)
 			{
-				tail = Cons(b.Car, tail);
+				tail = Cons(cur.Car, tail);
 			}
 			return tail;
 		}

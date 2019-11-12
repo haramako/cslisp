@@ -6,6 +6,10 @@ task :test do
   sh 'dotnet', 'Main/bin/Debug/netcoreapp2.1/Main.dll', '--dump', 'dump.txt', 'test.scm'
 end
 
+task :test2 do
+  sh 'dotnet', 'Main/bin/Debug/netcoreapp2.1/Main.dll', '--dump', 'dump.txt', 'test2.scm'
+end
+
 namespace :githook do
   task :setup do
     IO.write('.git/hooks/pre-commit', "#!/bin/sh\nrake githook:precommit")
