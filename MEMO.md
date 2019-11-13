@@ -3,15 +3,16 @@
 - VMコードのダンプなどを追加
 - equal?
 - exit
+- syntax_rules が動くようにする
+- minitest.scm を動くようにする
+- append
 
 
+* if分を3項だけとるようにする
 * エラーがちゃんと動くようにする
-* syntax_rules が動くようにする
-* minitest.scm を動くようにする
 * require が動くようにする
 * call/cc
 * eval
-* append
 * 衛生的マクロがちゃんとうごくように rename を実装する
 * stasticsに関数ごとのコールを追加
 
