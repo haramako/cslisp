@@ -14,6 +14,10 @@ jobs:
           command:
             dotnet build
       - run:
-          name: Run App
+          name: Run NUnit Test
           command:
             dotnet run --project Test/Test.csproj
+      - run:
+          name: Run Test
+          command:
+            sh test.sh
