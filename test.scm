@@ -37,7 +37,7 @@
 
 (assert 1 (if #t 1 2))
 (assert 2 (if #f 1 2))
-(assert 3 (if #f 1 2 3))
+#;(assert 3 (if #f 1 2 3))
 
 ;; test lambda
 (define +1 (lambda (x) (+ x 1)))

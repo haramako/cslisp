@@ -204,8 +204,24 @@ namespace Lisp
 						break;
 					case "%if":
 						{
-							Value cond, thenBody, elseBody;
-							Value.Bind2Rest(code.Cdr, out cond, out thenBody, out elseBody);
+							Value cond, thenBody, elseAndRest;
+							Value.Bind2Rest(code.Cdr, out cond, out thenBody, out elseAndRest);
+
+							// else節の処理を行う
+							Value elseBody;
+							if (!elseAndRest.IsNil)
+							{
+								elseBody = elseAndRest.Car;
+								if( elseAndRest.Cdr != C.Nil)
+								{
+									throw new LispException("Invalid 'if' form, must has 2 or 3 clauses");
+								}
+							}
+							else
+							{
+								elseBody = C.Nil;
+							}
+
 							compile(ctx, cond);
 
 							var ifPos = ctx.Position;
@@ -216,7 +232,14 @@ namespace Lisp
 							ctx.Emit(Operator.Goto);
 
 							var elsePos = ctx.Position;
-							compile(ctx, Value.Cons(C.SpBegin, elseBody));
+							if( !elseBody.IsNil)
+							{
+								compile(ctx, elseBody);
+							}
+							else
+							{
+								ctx.Emit(Operator.Ldc, C.Nil);
+							}
 							var endPos = ctx.Position;
 
 							ctx.Codes[ifPos] = new Code(Operator.If, new Value(elsePos));

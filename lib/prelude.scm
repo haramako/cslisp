@@ -48,8 +48,8 @@
 (define (for-each f l)
   (let recur ((f f) (l l))
 	(if (not (pair? l)) #f
-		(f (car l))
-		(recur f (cdr l)))))
+		(begin (f (car l))
+		  (recur f (cdr l))))))
 
 (define (newline)
   (display end-of-line))
@@ -58,9 +58,10 @@
 (define (puts . x)
   (if (not (pair? x))
 	  (display end-of-line)
-	(display (car x))
-	(display " ")
-	(apply puts (cdr x))))
+	  (begin 
+	    (display (car x))
+	    (display " ")
+	    (apply puts (cdr x)))))
 
 ;; #p macro
 (define (*tee* x)
@@ -85,15 +86,16 @@
 		(if (eqv? mod (car lis)) #t
 			(loaded? (cdr lis)))))
   (if (loaded? %require-loaded-modules) #f
-	  ;; not yet load
-	  (set! %require-loaded-modules (cons mod %require-loaded-modules))
-	  (let loop ((paths runtime-load-path))
-		(if (null? paths)
-			(error "cannot require" mod)
-			(let ((path (string-append (car paths) "/" (symbol->string mod) ".scm")))
-			  (if (file-exists? path)
+      (begin
+	    ;; not yet load
+	    (set! %require-loaded-modules (cons mod %require-loaded-modules))
+	    (let loop ((paths runtime-load-path))
+		  (if (null? paths)
+			  (error "cannot require" mod)
+			  (let ((path (string-append (car paths) "/" (symbol->string mod) ".scm")))
+			  	  (if (file-exists? path)
 				  (load path)
-				  (loop (cdr paths))))))))
+				  (loop (cdr paths)))))))))
 
 #;(define-syntax require
   (syntax-rules ()

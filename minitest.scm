@@ -13,9 +13,9 @@
 (define (assert expect test . rest)
   (minitest-dot)
   (if (equal? test expect) #t
-    (newline)
-    (puts "FAILED:" '?test "EXPECT" expect "BUT" test)
-    (set! *minitest-failed* (+ 1 *minitest-failed*))))
+    (begin (newline)
+      (puts "FAILED:" '?test "EXPECT" expect "BUT" test)
+      (set! *minitest-failed* (+ 1 *minitest-failed*)))))
 
 (define-syntax assert-exception
   (er-macro-transformer 
