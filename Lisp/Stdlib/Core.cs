@@ -174,8 +174,7 @@ namespace Lisp.Stdlib
 		[LispApi("%exit")]
 		public static Value exit(Context ctx, Value v)
 		{
-			Environment.Exit(v.AsInt);
-			return C.Nil;
+			throw new ExitException(v.AsInt);
 		}
 
 	}

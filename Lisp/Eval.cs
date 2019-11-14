@@ -224,7 +224,7 @@ namespace Lisp
 							{
 								var val = s.Peek();
 								var sym = c.Val.AsSymbol;
-								if( val.IsClosure)
+								if (val.IsClosure)
 								{
 									var lmd = val.AsClosure.Lambda;
 									lmd.Name = sym;
@@ -301,7 +301,7 @@ namespace Lisp
 
 									args = new Value[tmpLen + tail.Length];
 									len = args.Length;
-									for ( int i = 0; i < tmpLen; i++)
+									for (int i = 0; i < tmpLen; i++)
 									{
 										args[i] = tmpArgs[i];
 									}
@@ -370,6 +370,10 @@ namespace Lisp
 					}
 				}
 			}
+			catch (ExitException ex)
+			{
+				throw;
+			}
 			catch (Exception ex)
 			{
 				Console.WriteLine("{0}: error {1}", location.DisplayString, ex.Message);
@@ -379,7 +383,7 @@ namespace Lisp
 					var curDump = d.Pop();
 					var stackLmd = curDump.Closure.Lambda;
 					var l = stackLmd.Locations[curDump.Pc - 1];
-					if( l.Line == 0)
+					if (l.Line == 0)
 					{
 						l = curDump.Closure.Lambda.DefinedLocation;
 					}

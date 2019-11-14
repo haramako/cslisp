@@ -48,6 +48,14 @@ class Program
 				}
 			}
 		}
+		catch (ExitException ex)
+		{
+			if (verbose)
+			{
+				vm.PrintStatistics();
+			}
+			Environment.Exit(ex.Code);
+		}
 		catch (Exception ex)
 		{
 			Console.WriteLine(ex);
@@ -56,7 +64,7 @@ class Program
 		}
 		finally
 		{
-			if( dumpWriter != null)
+			if (dumpWriter != null)
 			{
 				foreach (var lmd in vm.Compiler.Lambdas)
 				{
@@ -72,7 +80,10 @@ class Program
 	{
 		var result = vm.Run(port);
 		Console.WriteLine(result);
-		vm.PrintStatistics();
+		if (verbose)
+		{
+			vm.PrintStatistics();
+		}
 	}
 
 	/// <summary>

@@ -24,6 +24,15 @@ namespace Lisp
 		public LispException(string msg) : base(msg) {}
 	}
 
+	public class ExitException : Exception
+	{
+		public readonly int Code;
+		public ExitException(int code) : base("Exit program")
+		{
+			Code = code;
+		}
+	}
+
 	public sealed class Closure
 	{
 		public Lambda Lambda;
