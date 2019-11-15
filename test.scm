@@ -231,6 +231,7 @@
   (let ((is (open-input-string (get-output-string os))))
 	(assert 1 (read is))
 	(assert "a" (read is))))
+|#
 
 (define cond-test
   (lambda (x)
@@ -244,8 +245,7 @@
 (assert 'other (cond-test 3))
 (assert #f (cond-test #f))
 
-
-
+#|
 ;; test do
 (assert 55
 		(do ((sum 0 (+ sum i))
@@ -260,6 +260,7 @@
 ;; test call-with-values
 (assert 3 (call-with-values (lambda () (values 1 2)) +))
 (assert 1 (call-with-values (lambda () 1) identity))
+|#
 
 ;; test list-tail
 (assert '(1 2) (list-tail '(1 2) 0))
@@ -270,6 +271,7 @@
 (assert 0 (length '() ))
 (assert 2 (length '(1 2)))
 
+#|
 (begin
   (assert 1
 		  (call/cc
@@ -295,6 +297,7 @@
 		   (undef (if #f 0)))
 	(assert (list undef (cons 1 undef)) (list a b)))
   )
+|#
 
 ;; test define-syntax
 (define-syntax my-set!
@@ -311,6 +314,4 @@
   (nil! hoge)
   (assert '() hoge))
 	
-|#
-
 (minitest-finish)

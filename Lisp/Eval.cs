@@ -144,6 +144,11 @@ namespace Lisp
 
 		void loadParameters(Env e, Lambda lmd, Value[] args)
 		{
+			if( args.Length < lmd.Params.Length)
+			{
+				throw new LispException($"Not enough arguments for {lmd}, expect {lmd.Params.Length} but {args.Length}");
+			}
+
 			for (int i = 0; i < lmd.Params.Length; i++)
 			{
 				e.Define(lmd.Params[i], args[i]);
@@ -183,6 +188,7 @@ namespace Lisp
 
 			EvalStatistics stat = statistics_;
 
+			restart:
 			try
 			{
 				Code c;
@@ -374,25 +380,93 @@ namespace Lisp
 			{
 				throw;
 			}
-			catch (Exception ex)
+			catch (LispException ex)
 			{
-				Console.WriteLine("{0}: error {1}", location.DisplayString, ex.Message);
+				// Convert exception to scheme error.
+				ex.SetLocation(location);
 
-				while (d.Count > 0)
+
+				Closure errorFunc = null;
+				Value found;
+				if (e.TryGet(Symbol.Intern("error"), out found))
 				{
-					var curDump = d.Pop();
-					var stackLmd = curDump.Closure.Lambda;
-					var l = stackLmd.Locations[curDump.Pc - 1];
-					if (l.Line == 0)
+					if( found.IsClosure)
 					{
-						l = curDump.Closure.Lambda.DefinedLocation;
+						errorFunc = found.AsClosure;
 					}
-					Console.WriteLine("{0}: in {1}", l.DisplayString, stackLmd);
 				}
 
-				throw;
+				if (errorFunc != null)
+				{
+					applyClosure(errorFunc, new Value[] { new Value(ex.Message) }, ref pc, ref code, ref closure, ref s, ref e, ref d);
+					goto restart;
+				}
+				else
+				{
+					saveRegisters(pc, code, closure, s, e, d);
+					ShowBacktrace(ex);
+					throw;
+				}
+			}
+		}
 
-				return new Value(ex);
+		void saveRegisters(int pc, Code[] code, Closure closure, Stack<Value> stack, Env env, Stack<Dump> dump)
+		{
+			pc_ = pc;
+			code_ = code;
+			closure_ = closure;
+			stack_ = stack;
+			env_ = env;
+			dump_ = dump;
+		}
+
+		void restoreRegisters(out int pc, out Code[] code, out Closure closure, out Stack<Value> stack, out Env env, out Stack<Dump> dump)
+		{
+			pc = pc_;
+			code = code_;
+			closure = closure_;
+			stack = stack_;
+			env = env_;
+			dump = dump_;
+		}
+
+		void applyClosure(Closure newClosure, Value[] args, ref int pc, ref Code[] code, ref Closure closure, ref Stack<Value> stack, ref Env env, ref Stack<Dump> dump)
+		{
+			dump.Push(new Dump(closure, pc, env));
+
+			statistics_.ApLispCount++;
+			pc = 0;
+			var cl = newClosure;
+			var lmd = cl.Lambda;
+			env = new Env(cl.Env);
+			code = cl.Lambda.Code;
+			closure = cl;
+
+			loadParameters(env, lmd, args);
+		}
+
+		public void ShowBacktrace(Exception ex)
+		{
+			if (ex != null)
+			{
+				var l = closure_.Lambda.Locations[pc_ - 1];
+				if (l.Line == 0)
+				{
+					l = closure_.Lambda.DefinedLocation;
+				}
+				Console.WriteLine("{0}: error {1}", l.DisplayString, ex.Message);
+			}
+
+			while (dump_.Count > 0)
+			{
+				var curDump = dump_.Pop();
+				var stackLmd = curDump.Closure.Lambda;
+				var l = stackLmd.Locations[curDump.Pc];
+				if (l.Line == 0)
+				{
+					l = curDump.Closure.Lambda.DefinedLocation;
+				}
+				Console.WriteLine("{0}: in {1}", l.DisplayString, stackLmd);
 			}
 		}
 	}

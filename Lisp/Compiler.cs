@@ -91,7 +91,10 @@ namespace Lisp
 			ctx.Emit(Operator.Ret);
 			var lmd = new Lambda(C.Nil, ctx.Codes.ToArray(), ctx.Locations.ToArray());
 
-			lmd.DefinedLocation = code.AsCons.Location;
+			if (code.IsCons)
+			{
+				lmd.DefinedLocation = code.AsCons.Location;
+			}
 			lmd.OriginalSource = code;
 			lmd.ExpandedSource = expandedCode;
 

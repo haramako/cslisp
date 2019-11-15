@@ -20,11 +20,18 @@ namespace Lisp
 
 	public class LispException : Exception
 	{
+		public SourceLocation Location;
+
 		public LispException() : base() { }
 		public LispException(string msg) : base(msg) {}
+
+		public void SetLocation(SourceLocation location)
+		{
+			Location = location;
+		}
 	}
 
-	public class ExitException : Exception
+	public class ExitException : LispException
 	{
 		public readonly int Code;
 		public ExitException(int code) : base("Exit program")

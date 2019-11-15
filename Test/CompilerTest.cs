@@ -102,6 +102,7 @@ namespace Tests
 			#endif
 		}
 
+		[TestCase("1")]
 		[TestCase("(puts 1)")]
 		[TestCase("(define +1 \n(lambda (n) (+ 1 n ))) \n(+1 2)")]
 		[TestCase("(%define-syntax a (lambda (c a b) '(display 1))) \n(a 1)")]
@@ -120,6 +121,18 @@ namespace Tests
 			var v1 = parse(src1);
 			var v2 = parse(src2);
 			Assert.AreEqual(equals, src1 == src2);
+		}
+
+		[TestCase("x")]
+		[TestCase("(+ 'a 'b)")]
+		public void CompileErrorTest(string src)
+		{
+			var vm = new Vm();
+			Assert.Catch<ExitException>(() =>
+			{
+				var result = vm.Run("(define(error msg) (display msg) (%exit 1))\n" + src);
+				Console.WriteLine(result);
+			});
 		}
 	}
 }

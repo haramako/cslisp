@@ -54,13 +54,8 @@ class Program
 			{
 				vm.PrintStatistics();
 			}
+			waitKey();
 			Environment.Exit(ex.Code);
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine(ex);
-			throw;
-			//waitKey();
 		}
 		finally
 		{

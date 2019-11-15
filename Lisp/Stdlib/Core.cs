@@ -177,5 +177,12 @@ namespace Lisp.Stdlib
 			throw new ExitException(v.AsInt);
 		}
 
+		[LispApi("%backtrace")]
+		public static Value backtrace(Context ctx)
+		{
+			ctx.Vm.Eval.ShowBacktrace(null);
+			return C.Nil;
+		}
+
 	}
 }

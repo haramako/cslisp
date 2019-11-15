@@ -68,12 +68,11 @@
   (puts "tee:" x)
   x)
 
-(define (error err other)
+(define (error err . other)
+  (display "error: ")
   (display err)
   (newline)
-  (exit))#;(define (error . mes)
-  (apply puts (list "error:" mes))
-  (backtrace)
+  (%backtrace)
   (exit 1))
 
 ;; require
