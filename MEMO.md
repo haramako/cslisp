@@ -7,10 +7,8 @@
 - minitest.scm を動くようにする
 - append
 - if分を3項だけとるようにする
+- エラーがちゃんと動くようにする
 
-
-* エラーがちゃんと動くようにする
-  * CompilerエラーとRuntimeError に分ける
 * require が動くようにする
 * call/cc
 * eval

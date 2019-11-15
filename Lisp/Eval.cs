@@ -461,7 +461,7 @@ namespace Lisp
 			{
 				var curDump = dump_.Pop();
 				var stackLmd = curDump.Closure.Lambda;
-				var l = stackLmd.Locations[curDump.Pc];
+				var l = stackLmd.Locations[curDump.Pc - 1];
 				if (l.Line == 0)
 				{
 					l = curDump.Closure.Lambda.DefinedLocation;

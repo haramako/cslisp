@@ -163,26 +163,5 @@ namespace Lisp.Stdlib
 			return new Value(v.IsClosure && v.AsClosure.IsSyntax);
 		}
 
-		[LispApi("%load")]
-		public static Value load(Context ctx, Value v)
-		{
-			var src = File.ReadAllBytes(v.AsString);
-			var port = new Port(new MemoryStream(src), v.AsString);
-			return ctx.Vm.Run(port);
-		}
-
-		[LispApi("%exit")]
-		public static Value exit(Context ctx, Value v)
-		{
-			throw new ExitException(v.AsInt);
-		}
-
-		[LispApi("%backtrace")]
-		public static Value backtrace(Context ctx)
-		{
-			ctx.Vm.Eval.ShowBacktrace(null);
-			return C.Nil;
-		}
-
 	}
 }

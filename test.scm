@@ -207,13 +207,16 @@
 	  ((_ x) (1 x 2))))
 #;(assert '(1 0 2) (syntax-expand11 '(test-syntax 0)))
 
+(define (eval code env)
+  ((%eval-compile code env)))
+
 ;; test current-environment, eval
-#;(assert 3 (eval '(+ 1 2)))
-#;(let ((x 1))
+(assert 3 (eval '(+ 1 2) (current-environment)))
+(let ((x 1))
   (define env (current-environment))
   (let ((x 2))
-	(assert 1 (eval 'x env))
-	(assert 2 (eval 'x))))
+	  (assert 1 (eval 'x env))
+	  (assert 2 (eval 'x (current-environment)))))
 
 ;; test display, write, read
 #|

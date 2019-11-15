@@ -134,6 +134,7 @@ namespace Lisp
 			ImportApi(typeof(Stdlib.Number));
 			ImportApi(typeof(Stdlib.Symbol));
 			ImportApi(typeof(Stdlib.StringLib));
+			ImportApi(typeof(Stdlib.Misc));
 
 			RootEnv.Define(Symbol.Intern("%if"), C.Nil);
 			RootEnv.Define(Symbol.Intern("%define-syntax"), C.Nil);
