@@ -51,9 +51,6 @@
 		(begin (f (car l))
 		  (recur f (cdr l))))))
 
-(define (newline)
-  (display end-of-line))
-
 ;; (puts obj1 ...)
 (define (puts . x)
   (if (not (pair? x))
@@ -67,13 +64,6 @@
 (define (*tee* x)
   (puts "tee:" x)
   x)
-
-(define (error err . other)
-  (display "error: ")
-  (display err)
-  (newline)
-  (%backtrace)
-  (exit 1))
 
 ;; require
 (define %require-loaded-modules '())

@@ -408,11 +408,6 @@ namespace Lisp
 				}
 
 				var expanded = vm_.Apply(closure, s, C.Nil, C.Nil);
-				if( expanded.Is<Exception>())
-				{
-					Console.WriteLine("{0}:Error occured in syntax expand, ", s.AsCons.Location.DisplayString);
-					throw expanded.As<Exception>();
-				}
 
 				return normalizeSexp(ctx, expanded);
 			}

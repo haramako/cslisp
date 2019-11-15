@@ -14,13 +14,16 @@
 
 (define exit %exit)
 
-(define (error . err)
-  (apply puts err)
-  (%exit 1))
-
 (define (newline)
   (display end-of-line))
-  
+
+(define (error err . other)
+  (display "error: ")
+  (display err)
+  (newline)
+  (%backtrace)
+  (exit 1))
+
 (define (close-syntax sym mac-env)
   sym)
 
