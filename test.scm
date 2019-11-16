@@ -37,7 +37,6 @@
 
 (assert 1 (if #t 1 2))
 (assert 2 (if #f 1 2))
-#;(assert 3 (if #f 1 2 3))
 
 ;; test lambda
 (define +1 (lambda (x) (+ x 1)))
@@ -71,7 +70,7 @@
 ;; check cfunc argument number
 (assert-exception #t (car))
 (assert-exception #t (car 1 2))
-(assert-exception #t (display))
+#;(assert-exception #t (display))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; test cfunc
@@ -207,9 +206,6 @@
 	  ((_ x) (1 x 2))))
 #;(assert '(1 0 2) (syntax-expand11 '(test-syntax 0)))
 
-(define (eval code env)
-  ((%eval-compile code env)))
-
 ;; test current-environment, eval
 (assert 3 (eval '(+ 1 2) (current-environment)))
 (let ((x 1))
@@ -283,7 +279,6 @@
         (error #t))))
   )
 
-#|
 ;; test let, let*
 '(let ((a 1))
   (let ((a (+ a 1))
@@ -297,7 +292,6 @@
 		   (undef (if #f 0)))
 	(assert (list undef (cons 1 undef)) (list a b)))
   )
-|#
 
 ;; test define-syntax
 (define-syntax my-set!

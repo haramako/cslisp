@@ -280,16 +280,16 @@ namespace Lisp
 								Dump restored;
 								if (d.TryPop(out restored))
 								{
-									closure = restored.Closure;
-									pc = restored.Pc;
-									e = restored.Env;
-									code = closure.Lambda.Code;
 									#if DEBUG
 									if (restored.StackSize != s.Count - 1)
 									{
 										Console.WriteLine($"Invalid stack size {restored.StackSize} {s.Count - 1}");
 									}
 									#endif
+									closure = restored.Closure;
+									pc = restored.Pc;
+									e = restored.Env;
+									code = closure.Lambda.Code;
 								}
 								else
 								{
@@ -362,6 +362,14 @@ namespace Lisp
 									stat.ApNativeCount++;
 									var func = applicant.AsLispApi;
 									ctx.Env = e;
+
+									if(func.Arity >= 0)
+									{
+										if( args.Length < func.Arity)
+										{
+											throw new LispException($"Invalid argument length, expect {func.Arity} but {args.Length} for {func.Func}");
+										}
+									}
 
 									Value result;
 									switch (func.Arity)

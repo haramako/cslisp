@@ -28,9 +28,15 @@
 	))
 
 (define-syntax assert-exception
-  (er-macro-transformer 
-    (lambda (expr rename compare)
-      '(display 1))))
+  (syntax-rules ()
+	((_ ?exeption ?test)
+	 (try (lambda (x) x)
+		  (minitest-dot)
+		  ?test
+		  (newline)
+		  (puts "FAILED:" '?test "EXPECT RAISE" '?exeption "BUT NOT" )
+		  (inc! *minitest-failed*)))
+	))
 
 (define (minitest-finish)
   (newline)

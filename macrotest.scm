@@ -164,6 +164,23 @@
             (error "bad let syntax" expr)))
       (if (identifier? (cadr expr)) (car (cddr expr)) (cadr expr))))))
 
+(define-syntax let*
+  (er-macro-transformer
+   (lambda (expr rename compare)
+     (if (null? (cdr expr)) (error "empty let*" expr))
+     (if (null? (cddr expr)) (error "no let* body" expr))
+     (if (null? (cadr expr))
+         `(,(rename 'let) () ,@(cddr expr))
+         (if (if (list? (cadr expr))
+                 (every
+                  (lambda (x)
+                    (if (pair? x) (if (pair? (cdr x)) (null? (cddr x)) #f) #f))
+                  (cadr expr))
+                 #f)
+             `(,(rename 'let) (,(caar (cdr expr)))
+               (,(rename 'let*) ,(cdar (cdr expr)) ,@(cddr expr)))
+             (error "bad let* syntax"))))))
+
 (define (map proc ls . lol)
   (define (map1 proc ls res)
     (if (pair? ls)
@@ -224,6 +241,16 @@
       (list (rename 'quote) (cadr expr)))))
 
 (define strip-syntactic-closures identity)
+
+(define (assoc obj ls . o)
+  (let ((eq (if (pair? o) (car o) equal?)))
+    (let assoc ((ls ls))
+      (cond ((null? ls) #f)
+            ((eq obj (caar ls)) (car ls))
+            (else (assoc (cdr ls)))))))
+
+(define (assq obj ls) (assoc obj ls eq?))
+(define (assv obj ls) (assoc obj ls eqv?))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; syntax-rules
