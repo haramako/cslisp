@@ -58,6 +58,10 @@
   (syntax-rules ()
 	((_ cnd body ...) (if cnd #f (begin body ...)))))
 
+(define-syntax when 
+  (syntax-rules ()
+	  ((_ ?cnd ?body ...) (if ?cnd (begin ?body ...)))))
+
 ;; (puts obj1 ...)
 (define (puts . x)
   (if (not (pair? x))
@@ -101,6 +105,34 @@
 #;(define-syntax when 
   (syntax-rules ()
 	  ((_ ?cnd ?body ...) (if ?cnd (begin ?body ...)))))
+
+;; values
+
+(define (values . x)
+  (if (null? (cdr x)) (car x) (cons 'VALUES x)))
+
+(define (call-with-values v f)
+  (let ((v (apply v)))
+	(if (and (pair? v) (eq? 'VALUES (car v)))
+		(apply f (cdr v))
+		(f v))))
+
+(define-syntax receive
+  (syntax-rules ()
+	((_ ?formals ?expression ?body ...)
+	 (call-with-values (lambda () ?expression)
+	   (lambda ?formals ?body ...)))))
+
+(define-syntax let-values
+  (syntax-rules ()
+	((_ (((?args ...) ?val)) ?body ...)
+	 (call-with-values (lambda () ?val)
+	   (lambda (?args ...) ?body ...)))
+	((_ (((?args ...) ?val) ?rest ...) ?body ...)
+	 (call-with-values (lambda () ?val)
+	   (lambda (?args ...)
+	  	 (let-values (?rest ...) ?body ...))))
+	))
 
 ;; number
 

@@ -24,5 +24,11 @@ namespace Lisp.Stdlib
 		{
 			return new Value(v.AsInt.ToString());
 		}
+
+		[LispApi]
+		public static Value make_string(Context ctx, Value len, Value c)
+		{
+			return new Value(new string((char)c.AsInt, len.AsInt));
+		}
 	}
 }

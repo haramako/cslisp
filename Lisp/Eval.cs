@@ -327,18 +327,25 @@ namespace Lisp
 								else
 								{
 									var tmpLen = c.Val.AsInt - 1 - 1; // applicant と tail
-									var tail = Value.ListToArray(s.Pop());
-									var tmpArgs = popMulti(s, tmpLen);
+									if (tmpLen >= 0)
+									{
+										var tail = Value.ListToArray(s.Pop());
+										var tmpArgs = popMulti(s, tmpLen);
 
-									args = new Value[tmpLen + tail.Length];
-									len = args.Length;
-									for (int i = 0; i < tmpLen; i++)
-									{
-										args[i] = tmpArgs[i];
+										args = new Value[tmpLen + tail.Length];
+										len = args.Length;
+										for (int i = 0; i < tmpLen; i++)
+										{
+											args[i] = tmpArgs[i];
+										}
+										for (int i = 0; i < tail.Length; i++)
+										{
+											args[tmpLen + i] = tail[i];
+										}
 									}
-									for (int i = 0; i < tail.Length; i++)
+									else
 									{
-										args[tmpLen + i] = tail[i];
+										args = new Value[0];
 									}
 								}
 								var applicant = s.Pop();
