@@ -1,5 +1,6 @@
 (%load "macrotest.scm")
 (%load "lib/prelude.scm")
+(%load "lib/dynamic-wind.scm")
 (%load "minitest.scm")
 
 ;; test define
