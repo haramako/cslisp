@@ -50,6 +50,11 @@ namespace Lisp
 			Lambda = lambda;
 			Env = env;
 		}
+
+		public override string ToString()
+		{
+			return Lambda.ToString();
+		}
 	}
 
 	public class Context
@@ -149,6 +154,7 @@ namespace Lisp
 			RootEnv.Define(Symbol.Intern("unquote"), C.Nil);
 			RootEnv.Define(Symbol.Intern("unquote-splicing"), C.Nil);
 			RootEnv.Define(Symbol.Intern("apply"), C.Nil);
+			RootEnv.Define(Symbol.Intern("%make-current-continuation"), C.Nil);
 
 			compiler_ = new Compiler(this);
 			eval_ = new Eval(this);

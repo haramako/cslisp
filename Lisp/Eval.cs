@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Lisp
 {
@@ -77,18 +78,20 @@ namespace Lisp
 		public Closure Closure;
 		public int Pc;
 		public Env Env;
+		public int StackSize; // For debug
 
-		public Dump(Closure closure, int pc, Env env)
+		public Dump(Closure closure, int pc, Env env, int stackSize)
 		{
 			Closure = closure;
 			Pc = pc;
 			Env = env;
+			StackSize = stackSize;
 		}
 	}
 
 	public class EvalStatistics
 	{
-		public int[] ExecCount = new int[Code.OperatorMax];
+		public int[] ExecCount = new int[(int)Operator.Max];
 		public int MaxStack;
 		public int MaxDump;
 		public int ApLispCount;
@@ -109,6 +112,8 @@ namespace Lisp
 		Stack<Dump> dump_ = new Stack<Dump>(); // SECDマシンの"D"
 
 		EvalStatistics statistics_ = new EvalStatistics();
+
+		public bool Trace = false;
 
 		public EvalStatistics Statistics => statistics_;
 
@@ -170,6 +175,7 @@ namespace Lisp
 			closure_ = closure;
 			code_ = closure.Lambda.Code;
 			env_ = closure.Env;
+			pc_ = 0;
 			return Execute();
 		}
 
@@ -208,6 +214,11 @@ namespace Lisp
 						l = closure.Lambda.DefinedLocation;
 					}
 					//Console.WriteLine("{0} {3} at {1}:{2}", c, l.Filename, l.Line, s.Count);
+					if (Trace)
+					{
+						var stackStr = string.Join(", ", s.ToArray().Select(x => x.ToString()));
+						Console.WriteLine($"{pc}: {c} {d.Count} [{stackStr}]");
+					}
 
 					switch (c.Op)
 					{
@@ -273,9 +284,16 @@ namespace Lisp
 									pc = restored.Pc;
 									e = restored.Env;
 									code = closure.Lambda.Code;
+									#if DEBUG
+									if (restored.StackSize != s.Count - 1)
+									{
+										Console.WriteLine($"Invalid stack size {restored.StackSize} {s.Count - 1}");
+									}
+									#endif
 								}
 								else
 								{
+									saveRegisters(pc, code, closure, s, e, d);
 									return s.Pop();
 								}
 							}
@@ -287,6 +305,13 @@ namespace Lisp
 								{
 									pc = c.Val.AsInt;
 								}
+							}
+							break;
+						case Operator.Ccc:
+							{
+								var cc = makeContinuation(ref pc, ref code, ref closure, ref s, ref e, ref d);
+								var f = s.Pop();
+								applyClosure(f.AsClosure, new Value[] { cc }, ref pc, ref code, ref closure, ref s, ref e, ref d);
 							}
 							break;
 						case Operator.Ap:
@@ -321,7 +346,7 @@ namespace Lisp
 								if (vt == ValueType.Closure)
 								{
 									stat.ApLispCount++;
-									d.Push(new Dump(closure, pc, e));
+									d.Push(new Dump(closure, pc, e, s.Count));
 									var cl = applicant.AsClosure;
 									var lmd = cl.Lambda;
 									e = new Env(cl.Env);
@@ -364,6 +389,10 @@ namespace Lisp
 											break;
 									}
 									s.Push(result);
+								}
+								else if (vt == ValueType.Continuation)
+								{
+									applyContinuation(applicant.AsContinuation, args, ref pc, ref code, ref closure, ref s, ref e, ref d);
 								}
 								else
 								{
@@ -430,9 +459,35 @@ namespace Lisp
 			dump = dump_;
 		}
 
+		Value makeContinuation(ref int pc, ref Code[] code, ref Closure closure, ref Stack<Value> stack, ref Env env, ref Stack<Dump> dump)
+		{
+			var cc = new Continuation
+			{
+				Pc = pc,
+				Code = code,
+				Closure = closure,
+				Stack = new Stack<Value>(stack.ToArray().Reverse().ToArray()),
+				Env = env,
+				Dump = new Stack<Dump>(dump.ToArray().Reverse().ToArray()),
+			};
+			return new Value(cc);
+		}
+
+		void applyContinuation(Continuation cont, Value[] args, ref int pc, ref Code[] code, ref Closure closure, ref Stack<Value> stack, ref Env env, ref Stack<Dump> dump)
+		{
+			pc = cont.Pc;
+			code = cont.Code;
+			closure = cont.Closure;
+			stack = cont.Stack;
+			env = cont.Env;
+			dump = cont.Dump;
+			stack.Pop(); // f をなくす
+			stack.Push(args[0]);
+		}
+
 		void applyClosure(Closure newClosure, Value[] args, ref int pc, ref Code[] code, ref Closure closure, ref Stack<Value> stack, ref Env env, ref Stack<Dump> dump)
 		{
-			dump.Push(new Dump(closure, pc, env));
+			dump.Push(new Dump(closure, pc, env, stack.Count));
 
 			statistics_.ApLispCount++;
 			pc = 0;

@@ -1,7 +1,10 @@
 ;; macro-expand-all, quasi-quote に必要な物は早めに
 (define integer? number?)
 (define quotient /)
-#;(define call-with-current-continuation call/cc)
+
+(define (call-with-current-continuation f)
+  (%call-with-current-continuation f))
+(define call/cc call-with-current-continuation)
 
 (define (caar x) (car (car x)))
 (define (cadr x) (car (cdr x)))

@@ -274,19 +274,16 @@
 (assert 0 (length '() ))
 (assert 2 (length '(1 2)))
 
-#|
 (begin
-  (assert 1
-		  (call/cc
-		   (lambda (cont)
-			 (cont 1)
-			 (assert eqv? #t #f))))
-  '(assert (values 1 2)
-		  (call/cc
-		   (lambda (cont)
-			 (cont 1 2)
-			 (assert eqv? #t #f)))))
+  (assert 
+    1
+		(call/cc
+		  (lambda (cont)
+		    (cont 1)
+        (error #t))))
+  )
 
+#|
 ;; test let, let*
 '(let ((a 1))
   (let ((a (+ a 1))

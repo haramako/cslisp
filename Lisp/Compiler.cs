@@ -19,12 +19,12 @@ namespace Lisp
 		Ret,
 		Ap,
 		Ap1,
+		Ccc,
+		Max,
 	}
 
 	public struct Code
 	{
-		public const int OperatorMax = (int)Operator.Ap1 + 1;
-
 		public Operator Op;
 		public Value Val;
 
@@ -258,6 +258,15 @@ namespace Lisp
 								compile(ctx, cur.Car);
 							}
 							ctx.Emit(Operator.Ap1, new Value(len));
+						}
+						break;
+					case "%call-with-current-continuation":
+						{
+							for (var cur = code.Cdr; !cur.IsNil; cur = cur.Cdr)
+							{
+								compile(ctx, cur.Car);
+							}
+							ctx.Emit(Operator.Ccc);
 						}
 						break;
 

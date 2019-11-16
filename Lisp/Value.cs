@@ -20,6 +20,7 @@ namespace Lisp
 
 		Closure,
 		LispApi,
+		Continuation,
 	}
 
 	public partial struct Value : IEquatable<Value>
@@ -42,6 +43,7 @@ namespace Lisp
 		const ulong TableMark = ReferenceMark | (ulong)ValueType.Table;
 		const ulong ClosureMark = ReferenceMark | (ulong)ValueType.Closure;
 		const ulong LispApiMark = ReferenceMark | (ulong)ValueType.LispApi;
+		const ulong ContinuationMark = ReferenceMark | (ulong)ValueType.Continuation;
 		const ulong ObjectMark = ReferenceMark | (ulong)ValueType.Object;
 
 		// type用の16bit(bit63..48)の情報
@@ -168,6 +170,21 @@ namespace Lisp
 			else
 			{
 				val_ = LispApiMark;
+				obj_ = v;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(Continuation v)
+		{
+			if (v == null)
+			{
+				val_ = NilMark;
+				obj_ = null;
+			}
+			else
+			{
+				val_ = ContinuationMark;
 				obj_ = v;
 			}
 		}
@@ -326,6 +343,15 @@ namespace Lisp
 			get
 			{
 				return ValueType == ValueType.LispApi;
+			}
+		}
+
+		public bool IsContinuation
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.Continuation;
 			}
 		}
 
@@ -513,19 +539,15 @@ namespace Lisp
 				checkType(ValueType.LispApi);
 				return (LispApi)obj_;
 			}
+		}
+
+		public Continuation AsContinuation
+		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set
+			get
 			{
-				if (value == null)
-				{
-					val_ = NilMark;
-					obj_ = null;
-				}
-				else
-				{
-					val_ = LispApiMark;
-					obj_ = value;
-				}
+				checkType(ValueType.Continuation);
+				return (Continuation)obj_;
 			}
 		}
 

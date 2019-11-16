@@ -42,5 +42,12 @@ namespace Lisp.Stdlib
 			return new Value(ctx.Env);
 		}
 
+		[LispApi]
+		public static Value begin_trace(Context ctx)
+		{
+			ctx.Vm.Eval.Trace = true;
+			return C.Nil;
+		}
+
 	}
 }

@@ -54,6 +54,14 @@ class Program
 			{
 				vm.PrintStatistics();
 			}
+			if (dumpWriter != null)
+			{
+				foreach (var lmd in vm.Compiler.Lambdas)
+				{
+					new CodePrinter().PrintLambda(dumpWriter, lmd);
+				}
+				dumpWriter.Dispose();
+			}
 			waitKey();
 			Environment.Exit(ex.Code);
 		}

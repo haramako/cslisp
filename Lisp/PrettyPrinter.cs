@@ -50,9 +50,7 @@ namespace Lisp
 					break;
 				case ValueType.Closure:
 					// TODO: 未実装
-					sb_.Append("#<");
-					sb_.Append(v.AsClosure.Lambda.Name);
-					sb_.Append(">");
+					sb_.Append(v.AsClosure.ToString());
 					break;
 				case ValueType.LispApi:
 					{
