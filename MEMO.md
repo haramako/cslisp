@@ -11,15 +11,16 @@
 - eval
 - call/cc
 - values
+- stasticsに関数ごとのコールを追加
 
 * require/module が動くようにする
 * 衛生的マクロがちゃんとうごくように rename を実装する
-* stasticsに関数ごとのコールを追加
 * Func0~ などは、ctxをとらないようにする(restoreRegistersをしなくていいように)
 * `(lambda (x) )`がスタック間違いを起こす( `ret` だけで pushがないため)
 * 末尾再帰の最適化
 * テストスイートを選定して持ってくる(chibi? gauche? chicken?)
 * ifの構文チェックを normalize のほうにもってくる
+* charを型に加える
 
 * 継続的ベンチマーク
 * VMのコードを uint32 にする

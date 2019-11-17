@@ -189,7 +189,7 @@
                  (lambda (k v)
                    (when v (set! qlist (cons (int2q n k) qlist))))
                  key value))
-	(plot n qlist)
+	;(plot n qlist)
     ;; (qplot n qlist)   ;; plotting the distinct solutions
     (length qlist)))
 

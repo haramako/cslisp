@@ -78,12 +78,14 @@ namespace Lisp
 		public delegate Value Func4(Context ctx, Value v1, Value v2, Value v3, Value v4);
 		public delegate Value Func5(Context ctx, Value v1, Value v2, Value v3, Value v4, Value v5);
 
-		public Delegate Func;
-		public int Arity;
+		public readonly Delegate Func;
+		public readonly int Arity;
+		public readonly Symbol Name;
 
-		public LispApi(Delegate func)
+		public LispApi(Delegate func, Symbol name)
 		{
 			Func = func;
+			Name = name;
 
 			if( func is FuncVararg)
 			{
@@ -254,8 +256,9 @@ namespace Lisp
 						default:
 							throw new LispException("Invalid parameter size");
 					}
-					var func = new LispApi(del);
-					rootEnv_.Define(Symbol.Intern(name), new Value(func));
+					var nameSymbol = Symbol.Intern(name);
+					var func = new LispApi(del, nameSymbol);
+					rootEnv_.Define(nameSymbol, new Value(func));
 				}
 			}
 		}
@@ -277,6 +280,12 @@ namespace Lisp
 			for (int i = 0; i < s.ExecCount.Length; i++)
 			{
 				Console.WriteLine("{0,-6}: {1,8} ({2:00.0}%)", (Operator)i, s.ExecCount[i], 100f * s.ExecCount[i] / opCount);
+			}
+
+			Console.WriteLine("== Call ==");
+			foreach (var kv in s.ApplyCount.OrderBy(kv => kv.Value).Reverse().Take(30))
+			{
+				Console.WriteLine("{0,-20}: {1,8} ({2:00.0}%)", kv.Key, kv.Value, 100f * kv.Value / (s.ApLispCount + s.ApNativeCount));
 			}
 		}
 

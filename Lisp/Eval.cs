@@ -96,6 +96,7 @@ namespace Lisp
 		public int MaxDump;
 		public int ApLispCount;
 		public int ApNativeCount;
+		public Dictionary<Symbol, int> ApplyCount = new Dictionary<Symbol, int>();
 	}
 
 
@@ -356,6 +357,10 @@ namespace Lisp
 									d.Push(new Dump(closure, pc, e, s.Count));
 									var cl = applicant.AsClosure;
 									var lmd = cl.Lambda;
+									if (lmd.Name != null)
+									{
+										stat.ApplyCount[lmd.Name] = stat.ApplyCount.GetValueOrDefault(lmd.Name, 0) + 1;
+									}
 									e = new Env(cl.Env);
 									code = cl.Lambda.Code;
 									closure = cl;
@@ -368,6 +373,10 @@ namespace Lisp
 								{
 									stat.ApNativeCount++;
 									var func = applicant.AsLispApi;
+									if (func.Name != null)
+									{
+										stat.ApplyCount[func.Name] = stat.ApplyCount.GetValueOrDefault(func.Name, 0) + 1;
+									}
 									ctx.Env = e;
 
 									if(func.Arity >= 0)
