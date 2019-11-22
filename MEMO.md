@@ -13,6 +13,7 @@
 - values
 - stasticsに関数ごとのコールを追加
 
+* import/define-libraryがうごくようにする
 * require/module が動くようにする
 * 衛生的マクロがちゃんとうごくように rename を実装する
 * Func0~ などは、ctxをとらないようにする(restoreRegistersをしなくていいように)
