@@ -25,6 +25,7 @@ namespace Lisp
 		public static readonly Value SpBegin = Value.Intern("%begin");
 		public static readonly Value SpSet = Value.Intern("%set!");
 		public static readonly Value SpQuote = Value.Intern("%quote");
+		public static readonly Value SpDefineLibrary = Value.Intern("define-library");
 	}
 
 }

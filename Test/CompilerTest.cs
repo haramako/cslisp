@@ -134,5 +134,13 @@ namespace Tests
 				Console.WriteLine(result);
 			});
 		}
+
+		[TestCase("(define-library (t1) (export x) (begin (define x 1))) x")]
+		public void DefineModuleTest(string src)
+		{
+			var vm = new Vm();
+			var result = vm.Run(src);
+			Console.WriteLine(result);
+		}
 	}
 }

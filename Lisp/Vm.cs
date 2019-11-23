@@ -157,6 +157,8 @@ namespace Lisp
 			RootEnv.Define(Symbol.Intern("unquote-splicing"), C.Nil);
 			RootEnv.Define(Symbol.Intern("apply"), C.Nil);
 			RootEnv.Define(Symbol.Intern("%make-current-continuation"), C.Nil);
+			RootEnv.Define(Symbol.Intern("define-library"), C.Nil);
+			RootEnv.Define(Symbol.Intern("import"), C.Nil);
 
 			compiler_ = new Compiler(this);
 			eval_ = new Eval(this);
@@ -182,6 +184,16 @@ namespace Lisp
 		{
 			var s = new MemoryStream(Encoding.UTF8.GetBytes(src));
 			return Run(new Port(s, filename));
+		}
+
+		public Value Run(Value src)
+		{
+			var lmd = compiler_.Compile(src);
+
+			var closure = new Closure(lmd, rootEnv_);
+			var result = Run(closure);
+
+			return result;
 		}
 
 		public Value Run(Port port)

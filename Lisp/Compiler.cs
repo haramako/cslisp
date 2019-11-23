@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Lisp
@@ -260,6 +261,12 @@ namespace Lisp
 							ctx.Emit(Operator.Ap1, new Value(len));
 						}
 						break;
+					case "define-library":
+						{
+							processDefineLibrary(ctx, code);
+							ctx.Emit(Operator.Ldc, C.Undef);
+						}
+						break;
 					case "%call-with-current-continuation":
 						{
 							for (var cur = code.Cdr; !cur.IsNil; cur = cur.Cdr)
@@ -376,6 +383,10 @@ namespace Lisp
 			{
 				return Value.ConsSrc(s, C.SpQuote, rest);
 			}
+			else if (sym == "define-library")
+			{
+				return s;
+			}
 			else
 			{
 				s = normalizeSyntax(ctx, s);
@@ -424,6 +435,45 @@ namespace Lisp
 			{
 				return s;
 			}
+		}
+
+		//===================================================================
+		// define-library
+		//===================================================================
+		Value processDefineLibrary(CompileContext ctx, Value s)
+		{
+			Value _, moduleNameList, rest;
+			Value.Bind2Rest(s, out _, out moduleNameList, out rest);
+			string moduleName = string.Join('.', Value.ListToArray(moduleNameList).Select(x => x.AsSymbol.ToString()));
+
+			var module = new Module(moduleName);
+
+			for (Value codeCons = rest; !codeCons.IsNil; codeCons = codeCons.Cdr)
+			{
+				var code = codeCons.Car;
+				switch( code.Car.AsSymbol.ToString())
+				{
+					case "import":
+						break;
+					case "export":
+						{
+							for (Value sym = code.Cdr; !sym.IsNil; sym = sym.Cdr)
+							{
+								module.Export(sym.Car.AsSymbol);
+							}
+						}
+						break;
+					case "include":
+						break;
+					case "begin":
+						vm_.Run(code);
+						break;
+					default:
+						throw new LispException($"Invalid define-library command {code}");
+				}
+			}
+
+			return C.Undef;
 		}
 	}
 }

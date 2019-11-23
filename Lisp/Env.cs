@@ -11,7 +11,7 @@ namespace Lisp
 		Dictionary<Symbol, Value> dict_ = new Dictionary<Symbol, Value>();
 		Env up_;
 
-		public Env(Env up, string moduleName)
+		public Env(Env up, string moduleName = null)
 		{
 			up_ = up;
 			ModuleName = moduleName;
