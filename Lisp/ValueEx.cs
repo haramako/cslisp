@@ -57,6 +57,13 @@ namespace Lisp
 			return Value.Cons(v1, Value.Cons(v2, Value.Cons(v3, Value.Cons(v4, v5))));
 		}
 
+		public static void Bind1Rest(Value src, out Value a, out Value rest)
+		{
+			var cur = src;
+			a = cur.Car;
+			rest = cur.Cdr;
+		}
+
 		public static void Bind2(Value src, out Value a, out Value b)
 		{
 			var cur = src;

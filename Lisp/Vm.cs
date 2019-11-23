@@ -128,11 +128,13 @@ namespace Lisp
 		Parser parser_ = new Parser();
 		Eval eval_;
 		Env rootEnv_ = new Env(null);
+		Dictionary<string, Module> modules_ = new Dictionary<string, Module>();
 
 		public Compiler Compiler => compiler_;
 		public Parser Parser => parser_;
 		public Eval Eval => eval_;
 		public Env RootEnv => rootEnv_;
+		public Dictionary<string, Module> Modules => modules_;
 
 		public Vm()
 		{
@@ -184,16 +186,6 @@ namespace Lisp
 		{
 			var s = new MemoryStream(Encoding.UTF8.GetBytes(src));
 			return Run(new Port(s, filename));
-		}
-
-		public Value Run(Value src)
-		{
-			var lmd = compiler_.Compile(src);
-
-			var closure = new Closure(lmd, rootEnv_);
-			var result = Run(closure);
-
-			return result;
 		}
 
 		public Value Run(Port port)

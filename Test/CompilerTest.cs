@@ -135,12 +135,16 @@ namespace Tests
 			});
 		}
 
-		[TestCase("(define-library (t1) (export x) (begin (define x 1))) x")]
-		public void DefineModuleTest(string src)
+		[TestCase("(define-library (t1) (export x) (begin (define x 1))) (import (t1)) x", "1")]
+		[TestCase("(define-library (t1) (export x) (begin (define x 1))) (import (only (t1) x)) x", "1")]
+		[TestCase("(define-library (t1) (export x y) (begin (define x 1) (define y 2))) (import (t1)) y", "2")]
+		[TestCase("(define-library (t1) (export x y) (begin (define x 1) (define y 2))) (import (only (t1) y)) y", "2")]
+		public void DefineModuleTest(string src, string expectSrc)
 		{
 			var vm = new Vm();
 			var result = vm.Run(src);
-			Console.WriteLine(result);
+			var expect = parse(expectSrc);
+			Assert.AreEqual(expect, result);
 		}
 	}
 }

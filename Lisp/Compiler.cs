@@ -267,6 +267,12 @@ namespace Lisp
 							ctx.Emit(Operator.Ldc, C.Undef);
 						}
 						break;
+					case "import":
+						{
+							processImport(ctx, code);
+							ctx.Emit(Operator.Ldc, C.Undef);
+						}
+						break;
 					case "%call-with-current-continuation":
 						{
 							for (var cur = code.Cdr; !cur.IsNil; cur = cur.Cdr)
@@ -387,6 +393,10 @@ namespace Lisp
 			{
 				return s;
 			}
+			else if (sym == "import")
+			{
+				return s;
+			}
 			else
 			{
 				s = normalizeSyntax(ctx, s);
@@ -440,13 +450,14 @@ namespace Lisp
 		//===================================================================
 		// define-library
 		//===================================================================
-		Value processDefineLibrary(CompileContext ctx, Value s)
+		void processDefineLibrary(CompileContext ctx, Value s)
 		{
 			Value _, moduleNameList, rest;
 			Value.Bind2Rest(s, out _, out moduleNameList, out rest);
-			string moduleName = string.Join('.', Value.ListToArray(moduleNameList).Select(x => x.AsSymbol.ToString()));
+			string moduleName = Module.GetModuleName(moduleNameList);
 
 			var module = new Module(moduleName);
+			var env = new Env(null);
 
 			for (Value codeCons = rest; !codeCons.IsNil; codeCons = codeCons.Cdr)
 			{
@@ -466,14 +477,78 @@ namespace Lisp
 					case "include":
 						break;
 					case "begin":
-						vm_.Run(code);
+						{
+							var lmd = vm_.Compiler.Compile(code);
+
+							var closure = new Closure(lmd, env);
+							var result = vm_.Eval.Run(closure);
+						}
 						break;
 					default:
 						throw new LispException($"Invalid define-library command {code}");
 				}
 			}
 
-			return C.Undef;
+			module.ExportFromEnv(env);
+
+			vm_.Modules[moduleName] = module;
+		}
+
+		void processImport(CompileContext ctx, Value s)
+		{
+			for (Value codeCons = s.Cdr; !codeCons.IsNil; codeCons = codeCons.Cdr)
+			{
+				var code = codeCons.Car;
+				var importSet = parseImportSet(code);
+				importSet.Module.ImportToEnv(vm_.RootEnv, importSet);
+			}
+		}
+
+		ImportSet parseImportSet(Value s)
+		{
+			switch (s.Car.AsSymbol.ToString())
+			{
+				case "only":
+					{
+						Value module, symbols;
+						Value.Bind1Rest(s.Cdr, out module, out symbols);
+						var importSet = parseImportSet(module);
+						importSet.Only(Value.ListToArray(symbols).Select(v => v.AsSymbol));
+						return importSet;
+					}
+				case "except":
+					throw new NotImplementedException();
+				case "rename":
+					throw new NotImplementedException();
+				case "prefix":
+					throw new NotImplementedException();
+				default:
+					{
+						string moduleName = Module.GetModuleName(s);
+						var module = vm_.Modules[moduleName];
+						return new ImportSet(module);
+					}
+			}
+		}
+
+	}
+
+	public class ImportSet
+	{
+		public readonly Module Module;
+		public Dictionary<Symbol, Symbol> Imports;
+
+		public ImportSet(Module module)
+		{
+			Module = module;
+			Imports = module.Exports.ToDictionary(s => s, s => s);
+		}
+
+		public void Only(IEnumerable<Symbol> symbols)
+		{
+			var symbolsArray = symbols.ToArray();
+			Imports = symbols.ToDictionary(s => s, s => s);
 		}
 	}
+
 }
