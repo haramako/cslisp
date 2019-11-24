@@ -6,18 +6,15 @@ namespace Lisp
 {
 	public class Env
 	{
-		public readonly string ModuleName;
-
 		Dictionary<Symbol, Value> dict_ = new Dictionary<Symbol, Value>();
 		Env up_;
 
 
 		public Dictionary<Symbol, Value> RawDict => dict_;
 
-		public Env(Env up, string moduleName = null)
+		public Env(Env up)
 		{
 			up_ = up;
-			ModuleName = moduleName;
 		}
 
 		public Env Up => up_;

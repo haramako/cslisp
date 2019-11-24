@@ -138,13 +138,21 @@ namespace Lisp
 		public Dictionary<string, Module> Modules => modules_;
 		public List<Lambda> Lambdas = new List<Lambda>();
 
-		public Vm()
+		public Vm(bool noPrelude = false)
 		{
 			eval_ = new Eval(this);
-			provideBaseModules();
+			provideEmbedModules();
+			if (noPrelude)
+			{
+				Modules["%embeded"].ImportToEnv(defaultEnv_);
+			}
+			else
+			{
+				provideBaseModules();
+			}
 		}
 
-		public void provideBaseModules()
+		public void provideEmbedModules()
 		{
 			Env e = new Env(null);
 
@@ -180,11 +188,13 @@ namespace Lisp
 			}
 			embedModule.ExportFromEnv(e);
 			Modules[embedModule.Name] = embedModule;
+		}
 
-			Env preludeEnv = new Env(null);
-			Run(File.ReadAllText("C:/Work/cslisp/lib/prelude.scm"), "prelude.scm", preludeEnv);
 
-			embedModule.ImportToEnv(defaultEnv_, new ImportSet(embedModule));
+		public void provideBaseModules()
+		{
+			Env env = new Env(null);
+			Run(File.ReadAllText("lib/prelude.scm"), "prelude.scm", env);
 		}
 
 		public Value Run(string src, string filename = null, Env env = null)

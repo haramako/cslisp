@@ -15,8 +15,11 @@
 - require/module が動くようにする
 
 * import/define-libraryがうごくようにする
-  * prelude.scmの中身を(scheme base)にする
+  - prelude.scmの中身を(scheme base)にする
   * include を動くようにする
+  * importでの自動ファイル検索を追加
+  * デフォルトのインポートを実装(import するまで有効とか？)
+  * デフォルトのロードパスを設定
 * 衛生的マクロがちゃんとうごくように rename を実装する
 * Func0~ などは、ctxをとらないようにする(restoreRegistersをしなくていいように)
 * `(lambda (x) )`がスタック間違いを起こす( `ret` だけで pushがないため)

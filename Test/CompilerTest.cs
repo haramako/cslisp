@@ -16,7 +16,7 @@ namespace Tests
 		{
 			if (vm_ == null)
 			{
-				vm_ = new Vm();
+				vm_ = new Vm(noPrelude: true);
 			}
 		}
 

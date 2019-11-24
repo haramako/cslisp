@@ -8,7 +8,7 @@ namespace Lisp
 	public class Module
 	{
 		public readonly string Name;
-		public readonly Dictionary<Symbol, Value> Bind = new Dictionary<Symbol, Value>();
+		public readonly Dictionary<Symbol, Value> Bindings = new Dictionary<Symbol, Value>();
 		public HashSet<Symbol> Exports = new HashSet<Symbol>();
 
 		public Module(string name)
@@ -28,7 +28,7 @@ namespace Lisp
 				Value val;
 				if (env.TryGet(symbol, out val))
 				{
-					Bind[symbol] = val;
+					Bindings[symbol] = val;
 				}
 				else
 				{
@@ -37,11 +37,19 @@ namespace Lisp
 			}
 		}
 
+		public void ImportToEnv(Env env)
+		{
+			foreach (var key in Exports)
+			{
+				env.Define(key, Bindings[key]);
+			}
+		}
+
 		public void ImportToEnv(Env env, ImportSet importSet)
 		{
 			foreach( var kv in importSet.Imports)
 			{
-				env.Define(kv.Value, Bind[kv.Key]);
+				env.Define(kv.Value, Bindings[kv.Key]);
 			}
 		}
 

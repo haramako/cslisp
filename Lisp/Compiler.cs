@@ -73,9 +73,6 @@ namespace Lisp
 
 		Vm vm_;
 		Env rootEnv_;
-		List<Lambda> lambdas_ = new List<Lambda>();
-
-		public List<Lambda> Lambdas => lambdas_;
 
 		public Compiler(Vm vm, Env rootEnv)
 		{
@@ -101,7 +98,7 @@ namespace Lisp
 			lmd.OriginalSource = code;
 			lmd.ExpandedSource = expandedCode;
 
-			lambdas_.Add(lmd);
+			vm_.Lambdas.Add(lmd);
 
 			return lmd;
 		}
@@ -140,7 +137,7 @@ namespace Lisp
 			lmd.DefinedLocation = code.AsCons.Location;
 			lmd.ExpandedSource = body;
 
-			lambdas_.Add(lmd);
+			vm_.Lambdas.Add(lmd);
 			return lmd;
 		}
 
