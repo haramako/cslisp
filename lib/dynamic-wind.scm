@@ -1,3 +1,5 @@
+(import (scheme base))
+
 ;;************************************************************
 ;; dynamic-wind from tiny-scheme
 ;; URL: http://tinyscheme.sourceforge.net/

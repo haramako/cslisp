@@ -11,6 +11,9 @@ namespace Lisp
 		Dictionary<Symbol, Value> dict_ = new Dictionary<Symbol, Value>();
 		Env up_;
 
+
+		public Dictionary<Symbol, Value> RawDict => dict_;
+
 		public Env(Env up, string moduleName = null)
 		{
 			up_ = up;

@@ -31,7 +31,8 @@ namespace Lisp.Stdlib
 		[LispApi("%eval-compile")]
 		public static Value eval_compile(Context ctx, Value code, Value env)
 		{
-			var lmd = ctx.Vm.Compiler.Compile(code);
+			var compiler = new Compiler(ctx.Vm, ctx.Env);
+			var lmd = compiler.Compile(code);
 			var closure = new Closure(lmd, new Env(env.As<Env>()));
 			return new Value(closure);
 		}

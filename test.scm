@@ -1,5 +1,5 @@
-(%load "macrotest.scm")
-(%load "lib/prelude.scm")
+(import (scheme base))
+
 (%load "lib/dynamic-wind.scm")
 (%load "minitest.scm")
 

@@ -72,13 +72,15 @@ namespace Lisp
 		}
 
 		Vm vm_;
+		Env rootEnv_;
 		List<Lambda> lambdas_ = new List<Lambda>();
 
 		public List<Lambda> Lambdas => lambdas_;
 
-		public Compiler(Vm vm)
+		public Compiler(Vm vm, Env rootEnv)
 		{
 			vm_ = vm;
+			rootEnv_ = rootEnv;
 		}
 
 		public Lambda Compile(Value code)
@@ -427,7 +429,7 @@ namespace Lisp
 			if (!s.Car.IsSymbol) return s;
 
 			Value v;
-			if (vm_.RootEnv.TryGet(s.Car.AsSymbol, out v))
+			if (rootEnv_.TryGet(s.Car.AsSymbol, out v))
 			{
 				if (!v.IsClosure) return s;
 
@@ -475,13 +477,18 @@ namespace Lisp
 						}
 						break;
 					case "include":
+					case "include-ci":
 						break;
 					case "begin":
 						{
-							var lmd = vm_.Compiler.Compile(code);
+							var compiler = new Compiler(vm_, env);
 
-							var closure = new Closure(lmd, env);
-							var result = vm_.Eval.Run(closure);
+							for (Value c = code.Cdr; !c.IsNil; c = c.Cdr)
+							{
+								var lmd = compiler.Compile(c.Car);
+								var closure = new Closure(lmd, env);
+								var result = vm_.Eval.Run(closure);
+							}
 						}
 						break;
 					default:
@@ -500,7 +507,7 @@ namespace Lisp
 			{
 				var code = codeCons.Car;
 				var importSet = parseImportSet(code);
-				importSet.Module.ImportToEnv(vm_.RootEnv, importSet);
+				importSet.Module.ImportToEnv(rootEnv_, importSet);
 			}
 		}
 

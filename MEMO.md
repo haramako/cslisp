@@ -12,9 +12,11 @@
 - call/cc
 - values
 - stasticsに関数ごとのコールを追加
+- require/module が動くようにする
 
 * import/define-libraryがうごくようにする
-* require/module が動くようにする
+  * prelude.scmの中身を(scheme base)にする
+  * include を動くようにする
 * 衛生的マクロがちゃんとうごくように rename を実装する
 * Func0~ などは、ctxをとらないようにする(restoreRegistersをしなくていいように)
 * `(lambda (x) )`がスタック間違いを起こす( `ret` だけで pushがないため)

@@ -56,7 +56,7 @@ class Program
 			}
 			if (dumpWriter != null)
 			{
-				foreach (var lmd in vm.Compiler.Lambdas)
+				foreach (var lmd in vm.Lambdas)
 				{
 					new CodePrinter().PrintLambda(dumpWriter, lmd);
 				}
@@ -69,7 +69,7 @@ class Program
 		{
 			if (dumpWriter != null)
 			{
-				foreach (var lmd in vm.Compiler.Lambdas)
+				foreach (var lmd in vm.Lambdas)
 				{
 					new CodePrinter().PrintLambda(dumpWriter, lmd);
 				}

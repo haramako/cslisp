@@ -124,72 +124,81 @@ namespace Lisp
 
 	public class Vm
 	{
-		Compiler compiler_;
+		//Compiler compiler_;
 		Parser parser_ = new Parser();
 		Eval eval_;
-		Env rootEnv_ = new Env(null);
+		Env defaultEnv_ = new Env(null);
+		//Env rootEnv_ = new Env(null);
 		Dictionary<string, Module> modules_ = new Dictionary<string, Module>();
 
-		public Compiler Compiler => compiler_;
+		//public Compiler Compiler => compiler_;
 		public Parser Parser => parser_;
 		public Eval Eval => eval_;
-		public Env RootEnv => rootEnv_;
+		//public Env RootEnv => rootEnv_;
 		public Dictionary<string, Module> Modules => modules_;
+		public List<Lambda> Lambdas = new List<Lambda>();
 
 		public Vm()
 		{
-			ImportApi(typeof(Stdlib.Core));
-			ImportApi(typeof(Stdlib.List));
-			ImportApi(typeof(Stdlib.Number));
-			ImportApi(typeof(Stdlib.Symbol));
-			ImportApi(typeof(Stdlib.StringLib));
-			ImportApi(typeof(Stdlib.Misc));
-
-			RootEnv.Define(Symbol.Intern("%if"), C.Nil);
-			RootEnv.Define(Symbol.Intern("%define-syntax"), C.Nil);
-			RootEnv.Define(Symbol.Intern("%define"), C.Nil);
-			RootEnv.Define(Symbol.Intern("%lambda"), C.Nil);
-			RootEnv.Define(Symbol.Intern("%quote"), C.Nil);
-			RootEnv.Define(Symbol.Intern("%set!"), C.Nil);
-			RootEnv.Define(Symbol.Intern("%begin"), C.Nil);
-			RootEnv.Define(Symbol.Intern("begin"), C.Nil);
-			RootEnv.Define(Symbol.Intern("quasiquote"), C.Nil);
-			RootEnv.Define(Symbol.Intern("quote"), C.Nil);
-			RootEnv.Define(Symbol.Intern("unquote"), C.Nil);
-			RootEnv.Define(Symbol.Intern("unquote-splicing"), C.Nil);
-			RootEnv.Define(Symbol.Intern("apply"), C.Nil);
-			RootEnv.Define(Symbol.Intern("%make-current-continuation"), C.Nil);
-			RootEnv.Define(Symbol.Intern("define-library"), C.Nil);
-			RootEnv.Define(Symbol.Intern("import"), C.Nil);
-
-			compiler_ = new Compiler(this);
 			eval_ = new Eval(this);
-
+			provideBaseModules();
 		}
 
-		#if false
-		public Closure Compile(string src, string filename = null)
+		public void provideBaseModules()
 		{
+			Env e = new Env(null);
+
+			ImportApi(typeof(Stdlib.Core), e);
+			ImportApi(typeof(Stdlib.List), e);
+			ImportApi(typeof(Stdlib.Number), e);
+			ImportApi(typeof(Stdlib.Symbol), e);
+			ImportApi(typeof(Stdlib.StringLib), e);
+			ImportApi(typeof(Stdlib.Misc), e);
+
+			e.Define(Symbol.Intern("%if"), C.Nil);
+			e.Define(Symbol.Intern("%define-syntax"), C.Nil);
+			e.Define(Symbol.Intern("%define"), C.Nil);
+			e.Define(Symbol.Intern("%lambda"), C.Nil);
+			e.Define(Symbol.Intern("%quote"), C.Nil);
+			e.Define(Symbol.Intern("%set!"), C.Nil);
+			e.Define(Symbol.Intern("%begin"), C.Nil);
+			e.Define(Symbol.Intern("begin"), C.Nil);
+			e.Define(Symbol.Intern("quasiquote"), C.Nil);
+			e.Define(Symbol.Intern("quote"), C.Nil);
+			e.Define(Symbol.Intern("unquote"), C.Nil);
+			e.Define(Symbol.Intern("unquote-splicing"), C.Nil);
+			e.Define(Symbol.Intern("apply"), C.Nil);
+			e.Define(Symbol.Intern("%make-current-continuation"), C.Nil);
+			e.Define(Symbol.Intern("define-library"), C.Nil);
+			e.Define(Symbol.Intern("import"), C.Nil);
+
+			var embedModule = new Module("%embeded");
+
+			foreach (var sym in e.RawDict.Keys)
+			{
+				embedModule.Export(sym);
+			}
+			embedModule.ExportFromEnv(e);
+			Modules[embedModule.Name] = embedModule;
+
+			Env preludeEnv = new Env(null);
+			Run(File.ReadAllText("C:/Work/cslisp/lib/prelude.scm"), "prelude.scm", preludeEnv);
+
+			embedModule.ImportToEnv(defaultEnv_, new ImportSet(embedModule));
+		}
+
+		public Value Run(string src, string filename = null, Env env = null)
+		{
+			env = env ?? defaultEnv_;
 			var s = new MemoryStream(Encoding.UTF8.GetBytes(src));
-			return Compile(new Port(s, filename));
+			return Run(new Port(s, filename), env);
 		}
 
-		public Closure Compile(Port port)
+		public Value Run(Port port, Env env = null)
 		{
-			var list = parser_.Parse(port);
-			var lmd = compiler_.Compile(list);
-			return new Closure(lmd, rootEnv_);
-		}
-		#endif
+			env = env ?? defaultEnv_;
 
-		public Value Run(string src, string filename = null)
-		{
-			var s = new MemoryStream(Encoding.UTF8.GetBytes(src));
-			return Run(new Port(s, filename));
-		}
-
-		public Value Run(Port port)
-		{
+			var compiler = new Compiler(this, env);
 			Value result = C.Nil;
 			while (true)
 			{
@@ -198,9 +207,9 @@ namespace Lisp
 				{
 					return result;
 				}
-				var lmd = compiler_.Compile(list);
+				var lmd = compiler.Compile(list);
 
-				var closure = new Closure(lmd, rootEnv_);
+				var closure = new Closure(lmd, env);
 				result = Run(closure);
 			}
 		}
@@ -215,7 +224,7 @@ namespace Lisp
 			return eval_.Apply(closure, args);
 		}
 
-		public void ImportApi(Type module)
+		public void ImportApi(Type module, Env env)
 		{
 			foreach (var method in module.GetMethods())
 			{
@@ -262,7 +271,7 @@ namespace Lisp
 					}
 					var nameSymbol = Symbol.Intern(name);
 					var func = new LispApi(del, nameSymbol);
-					rootEnv_.Define(nameSymbol, new Value(func));
+					env.Define(nameSymbol, new Value(func));
 				}
 			}
 		}
