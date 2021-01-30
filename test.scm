@@ -1,4 +1,4 @@
-(import (scheme base) (%embeded))
+(import (scheme base) (scheme write) (%embeded))
 
 (%load "lib/dynamic-wind.scm")
 (%load "minitest.scm")

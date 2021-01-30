@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -56,6 +57,26 @@ namespace Lisp
 		public static string GetModuleName(Value symbolList)
 		{
 			return string.Join('.', Value.ListToArray(symbolList).Select(x => x.AsSymbol.ToString()));
+		}
+
+		static string[] LibPaths = new string[] { "lib", "chibi-lib"};
+		static string[] SchemeExtensions = new string[] { ".sld", ".scm" };
+
+		public static string GetModulePath(Value symbolList)
+		{
+			var path = string.Join('/', Value.ListToArray(symbolList).Select(x => x.AsSymbol.ToString()));
+			foreach (var root in LibPaths)
+			{
+				foreach (var ext in SchemeExtensions)
+				{
+					var fullPath = root + "/" + path + ext;
+					if (File.Exists(fullPath))
+					{
+						return fullPath;
+					}
+				}
+			}
+			throw new Exception($"File {path} not found");
 		}
 	}
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -529,7 +530,14 @@ namespace Lisp
 				default:
 					{
 						string moduleName = Module.GetModuleName(s);
-						var module = vm_.Modules[moduleName];
+						Module module;
+						if (!vm_.Modules.TryGetValue(moduleName, out module))
+						{
+							string path = Module.GetModulePath(s);
+							var port = new Port(new MemoryStream(File.ReadAllBytes(path)), path);
+							vm_.Run(port);
+							vm_.Modules.TryGetValue(moduleName, out module);
+						}
 						return new ImportSet(module);
 					}
 			}

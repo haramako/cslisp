@@ -5,3 +5,7 @@ bin
 obj
 dump.txt
 [#]*
+*.csproj.user
+.vscode
+lib-chibi
+

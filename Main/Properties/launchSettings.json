@@ -2,7 +2,7 @@
   "profiles": {
     "Main": {
       "commandName": "Project",
-      "commandLineArgs": "test.scm",
+      "commandLineArgs": "--dump dump.txt test.scm",
       "workingDirectory": "C:\\Work\\cslisp"
     }
   }
