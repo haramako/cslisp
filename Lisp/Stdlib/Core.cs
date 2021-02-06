@@ -106,6 +106,12 @@ namespace Lisp.Stdlib
 			return new Value(v == Value.F);
 		}
 
+		[LispApi("boolean?")]
+		public static Value boolean_p(Context ctx, Value v)
+		{
+			return new Value(v.IsBool);
+		}
+
 		[LispApi("number?")]
 		public static Value number_p(Context ctx, Value v)
 		{
@@ -115,10 +121,7 @@ namespace Lisp.Stdlib
 		[LispApi("char?")]
 		public static Value char_p(Context ctx, Value v)
 		{
-			return Value.F;
-			#if false
 			return new Value(v.IsChar);
-			#endif
 		}
 
 		[LispApi("symbol?")]
@@ -149,6 +152,12 @@ namespace Lisp.Stdlib
 		public static Value _string_p(Context ctx, Value v)
 		{
 			return new Value(v.IsString);
+		}
+
+		[LispApi("bytevector?")]
+		public static Value bytevector_p(Context ctx, Value v)
+		{
+			return new Value(v.IsVector);
 		}
 
 		[LispApi("procedure?")]

@@ -15,6 +15,14 @@ namespace Lisp.Stdlib
 			return ctx.Vm.Run(port);
 		}
 
+		[LispApi("%include")]
+		public static Value include(Context ctx, Value v)
+		{
+			var src = File.ReadAllBytes(v.AsString);
+			var port = new Port(new MemoryStream(src), v.AsString);
+			return ctx.Vm.Run(port, ctx.Env);
+		}
+
 		[LispApi("%exit")]
 		public static Value exit(Context ctx, Value v)
 		{
@@ -37,6 +45,12 @@ namespace Lisp.Stdlib
 			return new Value(closure);
 		}
 
+		[LispApi("%current-filename")]
+		public static Value current_filename(Context ctx)
+		{
+			return new Value(ctx.Vm.CurrentPort.Filename);
+		}
+
 		[LispApi]
 		public static Value current_environment(Context ctx)
 		{
@@ -48,6 +62,12 @@ namespace Lisp.Stdlib
 		{
 			ctx.Vm.Eval.Trace = true;
 			return C.Nil;
+		}
+
+		[LispApi("%dir-name")]
+		public static Value dir_name(Context ctx, Value path)
+		{
+			return new Value(Path.GetDirectoryName(path.AsString));
 		}
 
 	}

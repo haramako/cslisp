@@ -8,4 +8,5 @@ dump.txt
 *.csproj.user
 .vscode
 lib-chibi
+tests-chibi
 

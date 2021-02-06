@@ -30,5 +30,17 @@ namespace Lisp.Stdlib
 		{
 			return new Value(new string((char)c.AsInt, len.AsInt));
 		}
+
+		[LispApi]
+		public static Value string_ref(Context ctx, Value s, Value idx)
+		{
+			return new Value(s.AsString[s.AsInt]);
+		}
+
+		[LispApi]
+		public static Value string_length(Context ctx, Value s, Value idx)
+		{
+			return new Value(s.AsString.Length);
+		}
 	}
 }

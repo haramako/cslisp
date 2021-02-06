@@ -3,6 +3,8 @@
 (%load "lib/dynamic-wind.scm")
 (%load "minitest.scm")
 
+;(include "fuga.scm")
+
 ;; test define
 (let ((var 'hoge))
   (assert 'hoge var)
@@ -308,5 +310,22 @@
   (assert 2 hoge)
   (nil! hoge)
   (assert '() hoge))
+
+;; test boolean
+(assert #t (boolean? #t))
+(assert #t (boolean? #f))
+(assert #f (boolean? 1))
+
+;; test char
+(assert #f (char? 1))
+(assert #t (char? #\a))
+(assert 65 (char->integer #\A))
+(assert #t (char<? #\a #\b))
+(assert #t (char<=? #\a #\a))
+(assert #f (char>? #\a #\b))
+(assert #t (char>=? #\a #\a))
+
+;; test byte-vector
+(assert #t (byte-vector ))
 	
 (minitest-finish)

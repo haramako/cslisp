@@ -63,6 +63,9 @@
   :optional
 
   eval
+
+  ; 
+  include
   )
 
 (begin
@@ -126,6 +129,11 @@
 
 (define identifier? symbol?)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; include
+
+(define (include filename)
+    (%include (string-append (%dir-name (%current-filename)) "\\" filename)))
 
 (define-syntax cond
   (er-macro-transformer
@@ -837,5 +845,38 @@
 (define (eval code env)
   ((%eval-compile code env)))
 
-))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SRFI-0
 
+(define *features* '())
+
+(define-syntax cond-expand
+  (er-macro-transformer
+   (lambda (expr rename compare)
+     (define (check x)
+       (if (pair? x)
+           (case (car x)
+             ((and) (every check (cdr x)))
+             ((or) (any check (cdr x)))
+             ((not) (not (check (cadr x))))
+             ((library) (eval `(find-module ',(cadr x)) (%meta-env)))
+             (else (error "cond-expand: bad feature" x)))
+           (memq (identifier->symbol x) *features*)))
+     (let expand ((ls (cdr expr)))
+       (cond
+        ((null? ls))  ; (error "cond-expand: no expansions" expr)
+        ((not (pair? (car ls))) (error "cond-expand: bad clause" (car ls)))
+        ((eq? 'else (identifier->symbol (caar ls)))
+         (if (pair? (cdr ls))
+             (error "cond-expand: else in non-final position")
+             `(,(rename 'begin) ,@(cdar ls))))
+        ((check (caar ls)) `(,(rename 'begin) ,@(cdar ls)))
+        (else (expand (cdr ls))))))))
+
+(define (identifier->symbol x) x)
+
+(cond-expand 
+  (threads 2)
+  (else 1))
+
+))

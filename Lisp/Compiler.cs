@@ -269,7 +269,7 @@ namespace Lisp
 						break;
 					case "import":
 						{
-							processImport(ctx, code);
+							processImport(ctx, code, rootEnv_);
 							ctx.Emit(Operator.Ldc, C.Undef);
 						}
 						break;
@@ -465,6 +465,9 @@ namespace Lisp
 				switch( code.Car.AsSymbol.ToString())
 				{
 					case "import":
+						{
+							processImport(ctx, code, env);
+						}
 						break;
 					case "export":
 						{
@@ -499,13 +502,13 @@ namespace Lisp
 			vm_.Modules[moduleName] = module;
 		}
 
-		void processImport(CompileContext ctx, Value s)
+		void processImport(CompileContext ctx, Value s, Env env)
 		{
 			for (Value codeCons = s.Cdr; !codeCons.IsNil; codeCons = codeCons.Cdr)
 			{
 				var code = codeCons.Car;
 				var importSet = parseImportSet(code);
-				importSet.Module.ImportToEnv(rootEnv_, importSet);
+				importSet.Module.ImportToEnv(env, importSet);
 			}
 		}
 

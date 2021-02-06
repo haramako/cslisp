@@ -130,5 +130,11 @@ namespace Lisp.Stdlib
 			}
 			return Value.T;
 		}
+
+		[LispApi]
+		public static Value abs(Context ctx, Value v)
+		{
+			return new Value(Math.Abs(v.AsInt));
+		}
 	}
 }

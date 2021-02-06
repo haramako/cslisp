@@ -10,11 +10,13 @@ namespace Lisp
 		Integer,
 		Float,
 		Bool,
+		Char,
 		Symbol,
 		Reference,
 
 		Cons,
 		String,
+		Vector,
 		Table,
 		Object,
 
@@ -38,8 +40,10 @@ namespace Lisp
 		const ulong BoolMark = (((ulong)ValueType.Bool) << 48) | NonFloatBits;
 		const ulong ReferenceMark = (((ulong)ValueType.Reference) << 48) | NonFloatBits;
 		const ulong SymbolMark = ReferenceMark | (ulong)ValueType.Symbol;
+		const ulong CharMark = (((ulong)ValueType.Char) << 48) | NonFloatBits;
 		const ulong ConsMark = ReferenceMark | (ulong)ValueType.Cons;
 		const ulong StringMark = ReferenceMark | (ulong)ValueType.String;
+		const ulong VectorMark = ReferenceMark | (ulong)ValueType.Vector;
 		const ulong TableMark = ReferenceMark | (ulong)ValueType.Table;
 		const ulong ClosureMark = ReferenceMark | (ulong)ValueType.Closure;
 		const ulong LispApiMark = ReferenceMark | (ulong)ValueType.LispApi;
@@ -93,6 +97,14 @@ namespace Lisp
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(char v)
+		{
+			val_ = 0;
+			obj_ = null;
+			AsChar = v;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Value(Cons v)
 		{
 			if (v == null)
@@ -118,6 +130,21 @@ namespace Lisp
 			else
 			{
 				val_ = StringMark;
+				obj_ = v;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(byte[] v)
+		{
+			if (v == null)
+			{
+				val_ = NilMark;
+				obj_ = null;
+			}
+			else
+			{
+				val_ = VectorMark;
 				obj_ = v;
 			}
 		}
@@ -301,12 +328,30 @@ namespace Lisp
 			}
 		}
 
+		public bool IsChar
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.Char;
+			}
+		}
+
 		public bool IsString
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
 				return ValueType == ValueType.String;
+			}
+		}
+
+		public bool IsVector
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.Vector;
 			}
 		}
 
@@ -423,6 +468,29 @@ namespace Lisp
 			}
 		}
 
+		public char AsChar
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				checkType(ValueType.Char);
+				ulong result = val_ & ValueMask;
+				if ((result & SignMask) != 0)
+				{
+					return (char)(result | MinusBits);
+				}
+				else
+				{
+					return (char)result;
+				}
+			}
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
+				val_ = ((ulong)value & ValueMask) | CharMark;
+			}
+		}
+
 		public Cons AsCons
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -467,6 +535,22 @@ namespace Lisp
 			set
 			{
 				val_ = StringMark;
+				obj_ = value;
+			}
+		}
+
+		public byte[] AsByteVector
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				checkType(ValueType.Vector);
+				return (byte[])obj_;
+			}
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
+				val_ = VectorMark;
 				obj_ = value;
 			}
 		}
@@ -706,6 +790,8 @@ namespace Lisp
 			{
 				case ValueType.String:
 					return AsString.Length;
+				case ValueType.Vector:
+					return AsByteVector.Length;
 				case ValueType.Table:
 					return AsTable.ArraySize;
 				default:
@@ -792,6 +878,7 @@ namespace Lisp
 					case ValueType.Object:
 					case ValueType.Symbol:
 					case ValueType.Cons:
+					case ValueType.Vector:
 						return this.obj_ == x.obj_;
 					default:
 						return true;

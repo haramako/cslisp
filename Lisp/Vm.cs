@@ -126,6 +126,7 @@ namespace Lisp
 	{
 		//Compiler compiler_;
 		Parser parser_ = new Parser();
+		Port currentPort_;
 		Eval eval_;
 		Env defaultEnv_ = new Env(null);
 		//Env rootEnv_ = new Env(null);
@@ -152,6 +153,8 @@ namespace Lisp
 			}
 		}
 
+		public Port CurrentPort => currentPort_;
+
 		public void provideEmbedModules()
 		{
 			Env e = new Env(null);
@@ -162,6 +165,8 @@ namespace Lisp
 			ImportApi(typeof(Stdlib.Symbol), e);
 			ImportApi(typeof(Stdlib.StringLib), e);
 			ImportApi(typeof(Stdlib.Misc), e);
+			ImportApi(typeof(Stdlib.BooleanLib), e);
+			ImportApi(typeof(Stdlib.CharLib), e);
 
 			e.Define(Symbol.Intern("%if"), C.Nil);
 			e.Define(Symbol.Intern("%define-syntax"), C.Nil);
@@ -194,7 +199,8 @@ namespace Lisp
 		public void provideBaseModules()
 		{
 			Env env = new Env(null);
-			Run(File.ReadAllText("lib/prelude.scm"), "prelude.scm", env);
+			var filename = Path.GetFullPath("lib/prelude.scm");
+			Run(File.ReadAllText("lib/prelude.scm"), filename, env);
 		}
 
 		public Value Run(string src, string filename = null, Env env = null)
@@ -207,6 +213,8 @@ namespace Lisp
 		public Value Run(Port port, Env env = null)
 		{
 			env = env ?? defaultEnv_;
+			var oldPort = currentPort_;
+			currentPort_ = port;
 
 			var compiler = new Compiler(this, env);
 			Value result = C.Nil;
@@ -215,6 +223,7 @@ namespace Lisp
 				var list = parser_.Parse(port);
 				if( list.IsNil)
 				{
+					currentPort_ = oldPort;
 					return result;
 				}
 				var lmd = compiler.Compile(list);
