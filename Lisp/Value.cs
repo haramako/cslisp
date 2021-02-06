@@ -16,7 +16,7 @@ namespace Lisp
 
 		Cons,
 		String,
-		Vector,
+		ByteVector,
 		Table,
 		Object,
 
@@ -43,7 +43,7 @@ namespace Lisp
 		const ulong CharMark = (((ulong)ValueType.Char) << 48) | NonFloatBits;
 		const ulong ConsMark = ReferenceMark | (ulong)ValueType.Cons;
 		const ulong StringMark = ReferenceMark | (ulong)ValueType.String;
-		const ulong VectorMark = ReferenceMark | (ulong)ValueType.Vector;
+		const ulong ByteVectorMark = ReferenceMark | (ulong)ValueType.ByteVector;
 		const ulong TableMark = ReferenceMark | (ulong)ValueType.Table;
 		const ulong ClosureMark = ReferenceMark | (ulong)ValueType.Closure;
 		const ulong LispApiMark = ReferenceMark | (ulong)ValueType.LispApi;
@@ -144,7 +144,7 @@ namespace Lisp
 			}
 			else
 			{
-				val_ = VectorMark;
+				val_ = ByteVectorMark;
 				obj_ = v;
 			}
 		}
@@ -346,12 +346,12 @@ namespace Lisp
 			}
 		}
 
-		public bool IsVector
+		public bool IsByteVector
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
-				return ValueType == ValueType.Vector;
+				return ValueType == ValueType.ByteVector;
 			}
 		}
 
@@ -544,13 +544,13 @@ namespace Lisp
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
-				checkType(ValueType.Vector);
+				checkType(ValueType.ByteVector);
 				return (byte[])obj_;
 			}
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set
 			{
-				val_ = VectorMark;
+				val_ = ByteVectorMark;
 				obj_ = value;
 			}
 		}
@@ -790,7 +790,7 @@ namespace Lisp
 			{
 				case ValueType.String:
 					return AsString.Length;
-				case ValueType.Vector:
+				case ValueType.ByteVector:
 					return AsByteVector.Length;
 				case ValueType.Table:
 					return AsTable.ArraySize;
@@ -878,7 +878,7 @@ namespace Lisp
 					case ValueType.Object:
 					case ValueType.Symbol:
 					case ValueType.Cons:
-					case ValueType.Vector:
+					case ValueType.ByteVector:
 						return this.obj_ == x.obj_;
 					default:
 						return true;

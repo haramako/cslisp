@@ -39,8 +39,15 @@ namespace Lisp
 				case ValueType.Integer:
 					sb_.Append(v.AsInt);
 					break;
+				case ValueType.Float:
+					sb_.Append(v.AsFloat);
+					break;
 				case ValueType.Symbol:
 					sb_.Append(v.AsSymbol.ToString());
+					break;
+				case ValueType.Char:
+					sb_.Append("#\\");
+					sb_.Append(v.AsChar);
 					break;
 				case ValueType.String:
 					// TODO: escape をしていない
@@ -88,11 +95,26 @@ namespace Lisp
 					}
 					sb_.Append(")");
 					break;
+				case ValueType.ByteVector:
+					{
+						var bytes = v.AsByteVector;
+						sb_.Append("(bytevector ");
+						for (int i = 0; i < bytes.Length; i++ )
+						{
+							sb_.Append(bytes[i]);
+							if (i != bytes.Length - 1)
+							{
+								sb_.Append(" ");
+							}
+						}
+						sb_.Append(")");
+					}
+					break;
 				case ValueType.Object:
 					sb_.Append(v.AsObject);
 					break;
 				default:
-					break;
+					throw new NotImplementedException($"Print for {v.ValueType} not implemented.");
 			}
 		}
 

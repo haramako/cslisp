@@ -157,6 +157,19 @@ namespace Lisp
 			return tail;
 		}
 
+		public static Value ArrayToList(Value[] list)
+		{
+			if (list.Length <= 0) return C.Nil;
+
+			var head = C.Nil;
+			for (int i = list.Length - 1; i >= 0; i--)
+			{
+				head = Value.Cons(list[i], head);
+			}
+
+			return head;
+		}
+
 		public static Value Append(Value[] list)
 		{
 			if (list.Length <= 0) return C.Nil;
@@ -276,6 +289,29 @@ namespace Lisp
 							else
 							{
 								return deepEqualSub(a.Car, b.Car) && deepEqualSub(a.Cdr, b.Cdr);
+							}
+						case ValueType.ByteVector:
+							if (a.obj_ == b.obj_)
+							{
+								return true;
+							}
+							else
+							{
+								var va = a.AsByteVector;
+								var vb = b.AsByteVector;
+								if( va.Length != va.Length)
+								{
+									return false;
+								}
+
+								for (int i = 0; i < va.Length; i++)
+								{
+									if( va[i] != vb[i])
+									{
+										return false;
+									}
+								}
+								return true;
 							}
 						default:
 							return false;

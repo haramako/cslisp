@@ -332,5 +332,11 @@
 (assert 3 (max 1 3 2))
 (assert 1 (min 1 3 2))
 
+;; string
+(assert 1 (string->number "1"))
+(assert '(49 50 51) (string-map char->integer "123"))
+(assert (bytevector 49 50 51) (string->utf8 "123"))
+(assert "123" (list->string '(#\1 #\2 #\3)))
+(assert "123" (string #\1 #\2 #\3))
 	
 (minitest-finish)

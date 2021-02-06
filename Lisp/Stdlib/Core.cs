@@ -157,7 +157,7 @@ namespace Lisp.Stdlib
 		[LispApi("bytevector?")]
 		public static Value bytevector_p(Context ctx, Value v)
 		{
-			return new Value(v.IsVector);
+			return new Value(v.IsByteVector);
 		}
 
 		[LispApi("procedure?")]

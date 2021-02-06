@@ -69,6 +69,20 @@
   round
   truncate
 
+  string
+  list->string
+  string-copy
+  substring
+  string=?
+  string<=?
+  string<?
+  string>?
+  string>=?
+  string-map
+  string-for-each
+  string->number
+  string->utf8
+
   list-tail
   length
   trace
@@ -782,6 +796,13 @@
           (loop memo (cdr rest))
           (loop cur (cdr rest)))))))
 
+;; string
+(define (string-map f . args)
+  (apply map (cons f (map string->list args))))
+
+(define (string-for-each f. args)
+  (apply map (cons f (map string->list args))))
+
 ;;************************************************************
 ;; for srfi-1.scm
 ;; SEE: http://srfi.schemers.org/srfi-1/srfi-1-reference.scm
@@ -879,6 +900,9 @@
 
 (define (eval code env)
   ((%eval-compile code env)))
+
+(define (string . args)
+  (list->string args))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SRFI-0

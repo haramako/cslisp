@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Lisp.Stdlib
 {
-	class VectorLib
+	class ByteVectorLib
 	{
 		[LispApi]
 		public static Value bytevector(Context ctx, Value[] args)
