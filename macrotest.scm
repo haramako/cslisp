@@ -1,5 +1,4 @@
-(define integer? number?)
-(define quotient /)
+(define quotient truncate-quotient /)
 ;(define call-with-current-continuation call/cc)
 
 (define (caar x) (car (car x)))

@@ -52,11 +52,23 @@
   receive
   let-values
 
+  max
+  min
   zero?
   negative?
   positive?
   even?
   odd?
+  truncate-quotient
+  truncate-reminder
+  quotient
+  reminder
+  modulo
+  floor
+  ceiling
+  round
+  truncate
+
   list-tail
   length
   trace
@@ -73,7 +85,9 @@
 (import (%embeded))
 
 (define integer? number?)
-(define quotient /)
+(define quotient truncate-quotient)
+(define reminder truncate-reminder)
+(define modulo floor-remainder)
 ;(define call-with-current-continuation call/cc)
 
 (define (caar x) (car (car x)))
@@ -746,6 +760,27 @@
 
 (define (trace)
   (runtime-value-set! 'trace 1))
+
+;; numbers
+
+;; TODO: 非正確さの伝搬が実装されていない
+(define (max . args)
+  (let loop ((memo (car args)) (rest (cdr args)))
+    (if (null? rest)
+      memo
+      (let ((cur (car rest)))
+        (if (> memo cur)
+          (loop memo (cdr rest))
+          (loop cur (cdr rest)))))))
+
+(define (min . args)
+  (let loop ((memo (car args)) (rest (cdr args)))
+    (if (null? rest)
+      memo
+      (let ((cur (car rest)))
+        (if (> memo cur)
+          (loop memo (cdr rest))
+          (loop cur (cdr rest)))))))
 
 ;;************************************************************
 ;; for srfi-1.scm

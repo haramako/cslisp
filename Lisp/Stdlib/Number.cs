@@ -50,16 +50,46 @@ namespace Lisp.Stdlib
 			return new Value(r);
 		}
 
-		//[LispApi("%")]
 		[LispApi]
-		public static Value modulo(Context ctx, Value[] args)
+		public static Value truncate_quotient(Context ctx, Value v1, Value v2)
 		{
-			int r = args[0].AsInt;
-			for (int i = 1; i < args.Length; i++)
-			{
-				r %= args[i].AsInt;
-			}
-			return new Value(r);
+			return new Value(v1.AsInt / v2.AsInt);
+		}
+
+		[LispApi]
+		public static Value truncate_reminder(Context ctx, Value v1, Value v2)
+		{
+			return new Value(v1.AsInt % v2.AsInt);
+		}
+
+		[LispApi]
+		public static Value floor_remainder(Context ctx, Value v1, Value v2)
+		{
+			return new Value(v1.AsInt % v2.AsInt);
+		}
+
+		[LispApi]
+		public static Value floor(Context ctx, Value v)
+		{
+			return new Value(Math.Floor(v.ConvertToFloat()));
+		}
+
+		[LispApi]
+		public static Value ceiling(Context ctx, Value v)
+		{
+			return new Value(Math.Ceiling(v.ConvertToFloat()));
+		}
+
+		[LispApi]
+		public static Value round(Context ctx, Value v)
+		{
+			return new Value(Math.Round(v.ConvertToFloat()));
+		}
+
+		[LispApi]
+		public static Value truncate(Context ctx, Value v)
+		{
+			return new Value(Math.Truncate(v.ConvertToFloat()));
 		}
 
 		[LispApi("=")]
@@ -135,6 +165,48 @@ namespace Lisp.Stdlib
 		public static Value abs(Context ctx, Value v)
 		{
 			return new Value(Math.Abs(v.AsInt));
+		}
+
+		[LispApi]
+		public static Value exact(Context ctx, Value v)
+		{
+			return new Value(Math.Abs(v.ConvertToInt()));
+		}
+
+		[LispApi]
+		public static Value inexact(Context ctx, Value v)
+		{
+			return new Value(Math.Abs(v.ConvertToFloat()));
+		}
+
+		[LispApi("exact?")]
+		public static Value exact_p(Context ctx, Value v)
+		{
+			return new Value(v.IsInteger);
+		}
+
+		[LispApi("exact-integer?")]
+		public static Value exact_integer_p(Context ctx, Value v)
+		{
+			return new Value(v.IsInteger);
+		}
+
+		[LispApi("inexact?")]
+		public static Value inexact_p(Context ctx, Value v)
+		{
+			return new Value(v.IsFloat);
+		}
+
+		[LispApi]
+		public static Value exact_integer_sqrt(Context ctx, Value v)
+		{
+			return new Value((int)Math.Sqrt(v.AsInt));
+		}
+
+		[LispApi("real?")]
+		public static Value real_p(Context ctx, Value v)
+		{
+			return new Value(v.IsFloat);
 		}
 	}
 }

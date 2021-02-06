@@ -117,8 +117,8 @@
 (assert -4 (- 1 2 3))
 (assert 6 (* 1 2 3))
 (assert 4 (/ 24 2 3))
-(assert 4 (quotient 24 2 3))
-(assert 24 (modulo 100 51 25))
+(assert 4 (quotient 24 6))
+(assert 49 (modulo 100 51))
 (assert-exception #t (+ 1 #t))
 (assert-exception #t (- 1 #t))
 (assert-exception #t (* 1 #t))
@@ -326,6 +326,11 @@
 (assert #t (char>=? #\a #\a))
 
 ;; test byte-vector
-(assert #t (byte-vector ))
+(assert #t (bytevector? (bytevector 1 2)))
+
+;; test numbers
+(assert 3 (max 1 3 2))
+(assert 1 (min 1 3 2))
+
 	
 (minitest-finish)

@@ -7,6 +7,18 @@ namespace Lisp.Stdlib
 	class VectorLib
 	{
 		[LispApi]
+		public static Value bytevector(Context ctx, Value[] args)
+		{
+			// TODO: 引数が３個以上ならエラー
+			var bytes = new byte[args.Length];
+			for( int i = 0; i < bytes.Length; i++)
+			{
+				bytes[i] = (byte)args[i].ConvertToInt();
+			}
+			return new Value(bytes);
+		}
+
+		[LispApi]
 		public static Value make_bytevector(Context ctx, Value[] args)
 		{
 			// TODO: 引数が３個以上ならエラー

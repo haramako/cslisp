@@ -14,6 +14,7 @@
 - stasticsに関数ごとのコールを追加
 - require/module が動くようにする
 
+* ネイティブ関数の引数が違うときにエラーにならない
 * import/define-libraryがうごくようにする
   - prelude.scmの中身を(scheme base)にする
   * include を動くようにする
