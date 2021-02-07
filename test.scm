@@ -247,7 +247,6 @@
 (assert 'other (cond-test 3))
 (assert #f (cond-test #f))
 
-#|
 ;; test do
 (assert 55
 		(do ((sum 0 (+ sum i))
@@ -262,7 +261,6 @@
 ;; test call-with-values
 (assert 3 (call-with-values (lambda () (values 1 2)) +))
 (assert 1 (call-with-values (lambda () 1) identity))
-|#
 
 ;; test list-tail
 (assert '(1 2) (list-tail '(1 2) 0))
@@ -334,9 +332,17 @@
 
 ;; string
 (assert 1 (string->number "1"))
-(assert '(49 50 51) (string-map char->integer "123"))
+(assert "123" (string-map identity "123"))
 (assert (bytevector 49 50 51) (string->utf8 "123"))
 (assert "123" (list->string '(#\1 #\2 #\3)))
 (assert "123" (string #\1 #\2 #\3))
+
+;; vector
+(assert 3 (vector-length (make-vector 3)))
+(assert "aaa" (vector->string (make-vector 3 #\a)))
+(assert '(#\1 #\2 #\3) (vector->list (vector #\1 #\2 #\3)))
+(let ((v (make-vector 3)))
+  (vector-fill! v #\1)
+  (assert (vector #\1 #\1 #\1) v))
 	
 (minitest-finish)

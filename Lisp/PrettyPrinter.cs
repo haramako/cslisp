@@ -110,6 +110,21 @@ namespace Lisp
 						sb_.Append(")");
 					}
 					break;
+				case ValueType.Vector:
+					{
+						var vec = v.AsVector;
+						sb_.Append("(vector ");
+						for (int i = 0; i < vec.Length; i++)
+						{
+							generate(vec[i]);
+							if (i != vec.Length - 1)
+							{
+								sb_.Append(" ");
+							}
+						}
+						sb_.Append(")");
+					}
+					break;
 				case ValueType.Object:
 					sb_.Append(v.AsObject);
 					break;

@@ -47,7 +47,7 @@ namespace Lisp.Stdlib
 			return new Value((int)v.AsByteVector[idx.AsInt]);
 		}
 
-		[LispApi("bytevector-u8-set")]
+		[LispApi("bytevector-u8-set!")]
 		public static Value bytevector_u8_set(Context ctx, Value v, Value idx, Value val)
 		{
 			v.AsByteVector[idx.AsInt] = (byte)val.AsInt;

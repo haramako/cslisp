@@ -16,6 +16,10 @@
   define-syntax
   er-macro-transformer
   identifier?
+  syntax-error
+
+  cond-expand
+  features
 
   cond
   or
@@ -24,6 +28,8 @@
   letrec
   let
   let*
+  case
+  do
   map
   any
   every
@@ -68,6 +74,10 @@
   ceiling
   round
   truncate
+  ; floor-quotient
+  ; floor-reminder
+  ; floor/
+  ; truncate/
 
   string
   list->string
@@ -82,6 +92,22 @@
   string-for-each
   string->number
   string->utf8
+
+  list->vector
+  make-vector
+  string->vector
+  vector
+  vector-length
+  vector->list
+  vector->string
+  vector-copy
+  vector-copy!
+  vector-fill!
+  vector-for-each
+  vector-map
+  vector-ref
+  vector-set!
+  vector?
 
   list-tail
   length
@@ -156,6 +182,7 @@
 (define (vector? x) #f)
 
 (define identifier? symbol?)
+(define (cons-source kar kdr) (cons kar kdr))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; include
@@ -324,9 +351,62 @@
       (if (pair? ls) (every1 pred ls) #t)
       (not (apply any (lambda xs (not (apply pred xs))) ls lol))))
 
+(define-syntax case
+  (er-macro-transformer
+   (lambda (expr rename compare)
+     (define (body exprs)
+       (cond
+        ((null? exprs)
+         (rename 'tmp))
+        ((compare (rename '=>) (car exprs))
+         `(,(cadr exprs) ,(rename 'tmp)))
+        (else
+         `(,(rename 'begin) ,@exprs))))
+     (define (clause ls)
+       (cond
+        ((null? ls) #f)
+        ((compare (rename 'else) (caar ls))
+         (body (cdar ls)))
+        ((and (pair? (car (car ls))) (null? (cdr (car (car ls)))))
+         `(,(rename 'if) (,(rename 'eqv?) ,(rename 'tmp)
+                          (,(rename 'quote) ,(car (caar ls))))
+           ,(body (cdar ls))
+           ,(clause (cdr ls))))
+        (else
+         `(,(rename 'if) (,(rename 'memv) ,(rename 'tmp)
+                          (,(rename 'quote) ,(caar ls)))
+           ,(body (cdar ls))
+           ,(clause (cdr ls))))))
+     `(let ((,(rename 'tmp) ,(cadr expr)))
+        ,(clause (cddr expr))))))
 
-(define (vector? ls) #f)
-(define (cons-source kar kdr) (cons kar kdr))
+(define-syntax do
+  (er-macro-transformer
+   (lambda (expr rename compare)
+     (let* ((body
+             `(,(rename 'begin)
+               ,@(cdr (cddr expr))
+               (,(rename 'lp)
+                ,@(map (lambda (x)
+                         (if (pair? (cddr x))
+                             (if (pair? (cdr (cddr x)))
+                                 (error "too many forms in do iterator" x)
+                                 (car (cddr x)))
+                             (car x)))
+                       (cadr expr)))))
+            (check (car (cddr expr)))
+            (wrap
+             (if (null? (cdr check))
+                 `(,(rename 'let) ((,(rename 'tmp) ,(car check)))
+                   (,(rename 'if) ,(rename 'tmp)
+                    ,(rename 'tmp)
+                    ,body))
+                 `(,(rename 'if) ,(car check)
+                   (,(rename 'begin) ,@(cdr check))
+                   ,body))))
+       `(,(rename 'let) ,(rename 'lp)
+         ,(map (lambda (x) (list (car x) (cadr x))) (cadr expr))
+         ,wrap)))))
 
 (define (memq obj lis)
   (if (null? lis) 
@@ -361,6 +441,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; syntax-rules
+
+(define syntax-error error)
 
 (define (syntax-rules-transformer expr rename compare)
   (let ((ellipsis-specified? (identifier? (cadr expr)))
@@ -798,10 +880,29 @@
 
 ;; string
 (define (string-map f . args)
-  (apply map (cons f (map string->list args))))
+  (list->string (apply map (cons f (map string->list args)))))
 
 (define (string-for-each f. args)
   (apply map (cons f (map string->list args))))
+
+;; vector
+(define (vector->string v)
+  (list->string (vector->list v)))
+
+(define (vector-map f . args)
+  (list->vector (apply map (cons f (map vector->list args)))))
+
+(define (vector-for-each f . args)
+  (apply map (cons f (map vector->list args))))
+
+(define (string->vector v)
+  (list->vector (string->list v)))
+
+(define (vector-fill! vec ch . o)
+  (let ((start (if (pair? o) (car o) 0))
+        (end (if (and (pair? o) (pair? (cdr o))) (cadr o) (vector-length vec))))
+    (let lp ((i (- end 1)))
+      (if (>= i start) (begin (vector-set! vec i ch) (lp (- i 1)))))))
 
 ;;************************************************************
 ;; for srfi-1.scm
@@ -907,7 +1008,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SRFI-0
 
-(define *features* '())
+(define features '())
 
 (define-syntax cond-expand
   (er-macro-transformer
@@ -920,7 +1021,7 @@
              ((not) (not (check (cadr x))))
              ((library) (eval `(find-module ',(cadr x)) (%meta-env)))
              (else (error "cond-expand: bad feature" x)))
-           (memq (identifier->symbol x) *features*)))
+           (memq (identifier->symbol x) features)))
      (let expand ((ls (cdr expr)))
        (cond
         ((null? ls))  ; (error "cond-expand: no expansions" expr)

@@ -313,6 +313,29 @@ namespace Lisp
 								}
 								return true;
 							}
+						case ValueType.Vector:
+							if (a.obj_ == b.obj_)
+							{
+								return true;
+							}
+							else
+							{
+								var va = a.AsVector;
+								var vb = b.AsVector;
+								if (va.Length != va.Length)
+								{
+									return false;
+								}
+
+								for (int i = 0; i < va.Length; i++)
+								{
+									if (!deepEqualSub(va[i], vb[i]))
+									{
+										return false;
+									}
+								}
+								return true;
+							}
 						default:
 							return false;
 					}

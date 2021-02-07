@@ -17,6 +17,7 @@ namespace Lisp
 		Cons,
 		String,
 		ByteVector,
+		Vector,
 		Table,
 		Object,
 
@@ -44,6 +45,7 @@ namespace Lisp
 		const ulong ConsMark = ReferenceMark | (ulong)ValueType.Cons;
 		const ulong StringMark = ReferenceMark | (ulong)ValueType.String;
 		const ulong ByteVectorMark = ReferenceMark | (ulong)ValueType.ByteVector;
+		const ulong VectorMark = ReferenceMark | (ulong)ValueType.Vector;
 		const ulong TableMark = ReferenceMark | (ulong)ValueType.Table;
 		const ulong ClosureMark = ReferenceMark | (ulong)ValueType.Closure;
 		const ulong LispApiMark = ReferenceMark | (ulong)ValueType.LispApi;
@@ -145,6 +147,21 @@ namespace Lisp
 			else
 			{
 				val_ = ByteVectorMark;
+				obj_ = v;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(Value[] v)
+		{
+			if (v == null)
+			{
+				val_ = NilMark;
+				obj_ = null;
+			}
+			else
+			{
+				val_ = VectorMark;
 				obj_ = v;
 			}
 		}
@@ -355,6 +372,15 @@ namespace Lisp
 			}
 		}
 
+		public bool IsVector
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.Vector;
+			}
+		}
+
 		public bool IsCons
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -551,6 +577,22 @@ namespace Lisp
 			set
 			{
 				val_ = ByteVectorMark;
+				obj_ = value;
+			}
+		}
+
+		public Value[] AsVector
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				checkType(ValueType.Vector);
+				return (Value[])obj_;
+			}
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set
+			{
+				val_ = VectorMark;
 				obj_ = value;
 			}
 		}
@@ -792,6 +834,8 @@ namespace Lisp
 					return AsString.Length;
 				case ValueType.ByteVector:
 					return AsByteVector.Length;
+				case ValueType.Vector:
+					return AsVector.Length;
 				case ValueType.Table:
 					return AsTable.ArraySize;
 				default:
@@ -879,6 +923,7 @@ namespace Lisp
 					case ValueType.Symbol:
 					case ValueType.Cons:
 					case ValueType.ByteVector:
+					case ValueType.Vector:
 						return this.obj_ == x.obj_;
 					default:
 						return true;
