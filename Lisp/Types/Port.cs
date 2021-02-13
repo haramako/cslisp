@@ -116,6 +116,16 @@ namespace Lisp
 			return parser_.Parse(this);
 		}
 
+		public int Read(byte[] buf, int start, int end)
+		{
+			return s_.Read(buf, start, end - start);
+		}
+
+		public void Write(byte[] buf, int start, int end)
+		{
+			s_.Write(buf, start, end - start);
+		}
+
 		public void WriteChar(char c)
 		{
 			w_.Write(c);
@@ -132,11 +142,11 @@ namespace Lisp
 
 		public void Flush()
 		{
-			s_.Flush();
 			if( w_ != null)
 			{
 				w_.Flush();
 			}
+			s_.Flush();
 		}
 
 		public bool IsOpen => !disposed_;
@@ -144,6 +154,8 @@ namespace Lisp
 		public bool IsInputPort => s_.CanRead;
 		public bool IsOutputPort => s_.CanWrite;
 		public Stream RawStream => s_;
+		public StreamReader RawReader => r_;
+		public StreamWriter RawWriter => w_;
 
 	}
 }

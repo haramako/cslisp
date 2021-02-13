@@ -372,4 +372,35 @@
   (write-char port #\newline)
   (flush-output-port port))
 
+(let ((port (open-input-string "12"))
+      (bv (make-bytevector 1)))
+  (assert (bytevector 49) (read-bytevector 1 port))
+  (assert 1 (read-bytevector! bv port))
+  (assert (bytevector 50) bv)
+  (assert 0 (read-bytevector! bv port))
+  )
+
+(let ((port (open-input-string "12"))
+      (bv (make-bytevector 3)))
+  (assert 2 (read-bytevector! bv port))
+  (assert (bytevector 49 50 0) bv))
+
+(let ((port (open-input-string "12")))
+  (assert "12" (read-string 3 port))
+  (assert #t (eof-object? (read-string 3 port))))
+
+(let ((port (open-input-string "1\n2\n")))
+  (assert "1" (read-line port))
+  (assert "2" (read-line port))
+  (assert #t (eof-object? (read-line port))))
+
+(call-with-port (open-input-string "123")
+  (lambda (port)
+    (assert #\1 (read-char port))))
+
+(let ((port (open-output-bytevector)))
+  (write-string "12" port)
+  (write-string "3" port)
+  (assert "123" (get-output-string port)))
+
 (minitest-finish)

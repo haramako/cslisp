@@ -117,6 +117,7 @@
 
   port?
   binary-port?
+  call-with-port
   char-ready?
   close-input-port
   close-output-port
@@ -137,11 +138,17 @@
   output-port-open?
   peek-char
   peek-u8
+  read-bytevector
+  read-bytevector!
   read-char
+  read-line
+  read-string
   read-u8
   textual-port?
+  write-bytevector
   write-char
   write-u8
+  write-string
 
   eval
 
@@ -214,10 +221,6 @@
 (define (cons-source kar kdr) (cons kar kdr))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; include
-
-(define (include filename)
-    (%include (string-append (%dir-name (%current-filename)) "\\" filename)))
 
 (define-syntax cond
   (er-macro-transformer
@@ -942,6 +945,17 @@
 (define (textual-port?) (error "not supported"))
 (define (open-input-string str) (open-input-bytevector (string->utf8 str)))
 (define (get-output-string port) (utf8->string (get-output-bytevector port)))
+
+; TODO: close if error
+(define (call-with-port port proc)
+  (proc port)
+  (close-port port))
+
+; include
+(define-syntax include
+  (syntax-rules ()
+	  ((_ ?filename)
+      (%include (string-append (%dir-name (%current-filename)) "\\" ?filename)))))
 
 ;;************************************************************
 ;; for srfi-1.scm

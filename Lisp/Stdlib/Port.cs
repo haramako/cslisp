@@ -235,5 +235,104 @@ namespace Lisp.Stdlib
 			return new Value(new Port(Console.OpenStandardError()));
 		}
 
+		[LispApi]
+		public static Value read_bytevector(Context ctx, Value n, Value port)
+		{
+			// TODO: 引数１個の場合
+			// TODO: eofの扱い
+			var buf = new byte[n.AsInt];
+			var len = port.As<Port>().Read(buf, 0, buf.Length);
+			if( len != buf.Length)
+			{
+				var newBuf = new byte[len];
+				buf.CopyTo(newBuf, len);
+				buf = newBuf;
+			}
+			return new Value(buf);
+		}
+
+		[LispApi("read-bytevector!")]
+		public static Value read_bytevector_e(Context ctx, Value[] args)
+		{
+			// TODO: 引数１個の場合
+			// TODO: eofの扱い
+			var bv = args[0].AsByteVector;
+			var port = args[1].As<Port>();
+			var start = (args.Length > 2) ? args[2].AsInt : 0;
+			var end = (args.Length > 2) ? args[2].AsInt : bv.Length;
+
+			return new Value(port.Read(bv, start, end));
+		}
+
+		[LispApi]
+		public static Value read_line(Context ctx, Value[] args)
+		{
+			// TODO: 引数１個の場合
+			// TODO: eofの扱い
+			var port = args[0].As<Port>();
+			var line = port.RawReader.ReadLine();
+			if (line == null)
+			{
+				return C.Eof;
+			}
+			else
+			{
+				return new Value(line);
+			}
+		}
+
+		[LispApi]
+		public static Value read_string(Context ctx, Value[] args)
+		{
+			// TODO: 引数１個の場合
+			// TODO: eofの扱い
+			var n = args[0].AsInt;
+			var port = args[1].As<Port>();
+
+			var buf = new char[n];
+
+			var len = port.RawReader.ReadBlock(buf, 0, buf.Length);
+
+			if (len == 0)
+			{
+				return C.Eof;
+			}
+			else
+			{
+				return new Value(new string(buf, 0, len));
+			}
+		}
+
+
+		[LispApi]
+		public static Value write_bytevector(Context ctx, Value[] args)
+		{
+			// TODO: 引数１個の場合
+			// TODO: eofの扱い
+			var bv = args[0].AsByteVector;
+			var port = args[1].As<Port>();
+			var start = (args.Length > 2) ? args[2].AsInt : 0;
+			var end = (args.Length > 2) ? args[2].AsInt : bv.Length;
+
+			port.Write(bv, start, end);
+
+			return C.Nil;
+		}
+
+		[LispApi]
+		public static Value write_string(Context ctx, Value[] args)
+		{
+			// TODO: 引数１個の場合
+			// TODO: eofの扱い
+			var str = args[0].AsString;
+			var port = args[1].As<Port>();
+			var start = (args.Length > 2) ? args[2].AsInt : 0;
+			var end = (args.Length > 2) ? args[2].AsInt : str.Length;
+
+			port.RawWriter.Write(str.Substring(start, end - start));
+
+			return C.Nil;
+		}
+
 	}
 }
