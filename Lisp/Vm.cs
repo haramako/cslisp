@@ -169,6 +169,7 @@ namespace Lisp
 			ImportApi(typeof(Stdlib.CharLib), e);
 			ImportApi(typeof(Stdlib.ByteVectorLib), e);
 			ImportApi(typeof(Stdlib.VectorLib), e);
+			ImportApi(typeof(Stdlib.PortLib), e);
 
 			e.Define(Symbol.Intern("%if"), C.Nil);
 			e.Define(Symbol.Intern("%define-syntax"), C.Nil);

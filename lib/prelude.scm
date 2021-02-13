@@ -92,6 +92,7 @@
   string-for-each
   string->number
   string->utf8
+  utf8->string
 
   list->vector
   make-vector
@@ -113,6 +114,31 @@
   length
   trace
   :optional
+
+  port?
+  binary-port?
+  char-ready?
+  close-input-port
+  close-output-port
+  close-port
+  eof-object
+  eof-object?
+  get-output-bytevector
+  get-output-string
+  flush-output-port
+  input-port-open?
+  open-input-bytevector
+  open-input-string
+  open-output-bytevector
+  ; open-output-string
+  output-port-open?
+  peek-char
+  peek-u8
+  read-char
+  read-u8
+  textual-port?
+  write-char
+  write-u8
 
   eval
 
@@ -903,6 +929,16 @@
         (end (if (and (pair? o) (pair? (cdr o))) (cadr o) (vector-length vec))))
     (let lp ((i (- end 1)))
       (if (>= i start) (begin (vector-set! vec i ch) (lp (- i 1)))))))
+
+;; port
+(define (close-port port) (%close port))
+(define (close-input-port port) (%close port))
+(define (close-output-port port) (%close port))
+(define (input-port-open? port) (%open? port))
+(define (output-port-open? port) (%open? port))
+(define (textual-port?) (error "not supported"))
+(define (open-input-string str) (open-input-bytevector (string->utf8 str)))
+(define (get-output-string port) (utf8->string (get-output-bytevector port)))
 
 ;;************************************************************
 ;; for srfi-1.scm

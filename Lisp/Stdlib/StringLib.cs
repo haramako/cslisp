@@ -36,6 +36,12 @@ namespace Lisp.Stdlib
 			return new Value(v.AsInt.ToString());
 		}
 
+		[LispApi("utf8->string")]
+		public static Value utf8_to_string(Context ctx, Value v)
+		{
+			return new Value(Encoding.UTF8.GetString(v.AsByteVector));
+		}
+
 		[LispApi]
 		public static Value make_string(Context ctx, Value len, Value c)
 		{

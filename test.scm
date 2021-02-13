@@ -1,4 +1,4 @@
-(import (scheme base) (scheme write) (%embeded))
+(import (scheme base) (scheme write) (scheme file) (%embeded))
 
 (%load "lib/dynamic-wind.scm")
 (%load "minitest.scm")
@@ -344,5 +344,27 @@
 (let ((v (make-vector 3)))
   (vector-fill! v #\1)
   (assert (vector #\1 #\1 #\1) v))
-	
+
+(assert #t (port? (open-input-file "test.scm")))
+(let ((f (open-input-file "test.scm")))
+  (assert #f (binary-port? f))
+  (assert #t (char? (peek-char f)))
+  (assert #t (integer? (peek-u8 f)))
+  )
+
+(let ((port (open-input-string "123")))
+  (assert #t (port? port))
+  (assert #\1 (read-char port))
+  (assert 50 (read-u8 port))
+  (assert 51 (read-u8 port))
+  (assert #t (eof-object? (read-u8 port)))
+  )
+
+(let ((port (open-output-bytevector)))
+  (write-u8 port 49)
+  (assert (bytevector 49) (get-output-bytevector port))
+  (write-char port #\2)
+  (assert (bytevector 49 50) (get-output-bytevector port))
+  (assert "12" (get-output-string port)))
+
 (minitest-finish)
