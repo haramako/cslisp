@@ -1,15 +1,45 @@
 (define-library (scheme base)
 (export 
   integer?
-  quotient
+  pair?
+  null?
+  list?
+  symbol?
+  number?
+  char?
+  procedure?
+  boolean?
+  
+  car
   caar
   cadr
+  cons
+  cdr
   cdar
   cddr
+  char->integer
+  char<?
+  char<=?
+  char=?
+  char>?
+  char>=?
   end-of-line
-  exit
+  eq?
+  eqv?
+  equal?
+  identity
   newline
+  not
+  set-car!
+  set-cdr!
+  symbol->string
+
+  ; not r7rs
+  puts
+  exit
   error
+  define?
+  current-environment
 
   close-syntax
   make-transformer
@@ -47,6 +77,9 @@
   call-with-current-continuation
   call/cc
 
+  dynamic-wind
+  try ; not r7rs
+
   nth
   nthcdr
   for-each
@@ -58,6 +91,15 @@
   receive
   let-values
 
+  +
+  -
+  *
+  /
+  <=
+  <
+  >
+  >=
+  =
   max
   min
   zero?
@@ -79,20 +121,25 @@
   ; floor/
   ; truncate/
 
-  string
   list->string
-  string-copy
   substring
   string=?
   string<=?
   string<?
   string>?
   string>=?
-  string-map
+  string
+  string-append
+  string-copy
   string-for-each
+  string-map
   string->number
   string->utf8
   utf8->string
+
+  append
+  list
+  list*
 
   list->vector
   make-vector
@@ -109,6 +156,10 @@
   vector-ref
   vector-set!
   vector?
+
+  bytevector?
+  bytevector
+  make-bytevector
 
   list-tail
   length
@@ -154,6 +205,11 @@
 
   ; 
   include
+
+  ; renameが未実装のため必要なもの
+  %dir-name
+  %current-filename
+  %include
   )
 
 (begin
@@ -1091,5 +1147,7 @@
 (cond-expand 
   (threads 2)
   (else 1))
+
+(include "dynamic-wind.scm")
 
 ))

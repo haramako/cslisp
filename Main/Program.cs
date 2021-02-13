@@ -41,7 +41,7 @@ class Program
 						break;
 					default:
 						{
-							var port = new Port(new MemoryStream(File.ReadAllBytes(arg)), arg);
+							var port = new Port(new MemoryStream(File.ReadAllBytes(arg)), Path.GetFullPath(arg));
 							run(port);
 						}
 						break;

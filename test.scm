@@ -1,7 +1,6 @@
-(import (scheme base) (scheme write) (scheme file) (%embeded))
+(import (scheme base) (scheme write) (scheme file))
 
-(%load "lib/dynamic-wind.scm")
-(%load "minitest.scm")
+(include "minitest.scm")
 
 ;(include "fuga.scm")
 
