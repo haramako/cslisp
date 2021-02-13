@@ -46,8 +46,19 @@ namespace Lisp
 					sb_.Append(v.AsSymbol.ToString());
 					break;
 				case ValueType.Char:
-					sb_.Append("#\\");
-					sb_.Append(v.AsChar);
+					{
+						sb_.Append("#\\");
+						var c = v.AsChar;
+						if (Char.IsControl(c))
+						{
+							sb_.Append("x");
+							sb_.Append(Convert.ToString((int)c, 16));
+						}
+						else
+						{
+							sb_.Append(c);
+						}
+					}
 					break;
 				case ValueType.String:
 					// TODO: escape をしていない

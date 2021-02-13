@@ -121,6 +121,9 @@
   close-input-port
   close-output-port
   close-port
+  current-input-port
+  current-output-port
+  current-error-port
   eof-object
   eof-object?
   get-output-bytevector

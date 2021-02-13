@@ -2,7 +2,7 @@
   "profiles": {
     "Main": {
       "commandName": "Project",
-      "commandLineArgs": "--dump dump.txt .\\tests-chibi\\r7rs-tests.scm",
+      "commandLineArgs": "--dump dump.txt .tests.scm",
       "workingDirectory": "C:\\Work\\cslisp"
     }
   }

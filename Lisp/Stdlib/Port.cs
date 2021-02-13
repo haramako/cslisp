@@ -144,6 +144,7 @@ namespace Lisp.Stdlib
 		[LispApi]
 		public static Value peek_u8(Context ctx, Value v)
 		{
+			// TODO: charを使ってる
 			var port = v.As<Port>();
 			var c = port.PeekChar();
 			if (c == -1)
@@ -215,5 +216,24 @@ namespace Lisp.Stdlib
 			var stream = new MemoryStream();
 			return new Value(new Port(stream));
 		}
+
+		[LispApi]
+		public static Value current_input_port(Context ctx)
+		{
+			return new Value(new Port(Console.OpenStandardInput()));
+		}
+
+		[LispApi]
+		public static Value current_output_port(Context ctx)
+		{
+			return new Value(new Port(Console.OpenStandardOutput()));
+		}
+
+		[LispApi]
+		public static Value current_error_port(Context ctx)
+		{
+			return new Value(new Port(Console.OpenStandardError()));
+		}
+
 	}
 }

@@ -184,8 +184,8 @@
 (assert #f (symbol? 0))
 (assert #t (number? 0))
 (assert #f (number? 'a))
-#;(assert #t (char? #\a))
-#;(assert #t (char? #\space))
+(assert #t (char? #\a))
+(assert #t (char? #\space))
 (assert #f (char? 0))
 (assert #f (pair? 'a))
 (assert #t (null? '()))
@@ -204,7 +204,7 @@
 (assert 6 (apply + 1 '(2 3)))
 
 ;; test syntax-expand1
-#;(define-syntax test-syntax
+(define-syntax test-syntax
   (syntax-rules ()
 	  ((_ x) (1 x 2))))
 #;(assert '(1 0 2) (syntax-expand11 '(test-syntax 0)))
@@ -366,5 +366,10 @@
   (write-char port #\2)
   (assert (bytevector 49 50) (get-output-bytevector port))
   (assert "12" (get-output-string port)))
+
+#;(let ((port (current-output-port)))
+  (write-char port #\X)
+  (write-char port #\newline)
+  (flush-output-port port))
 
 (minitest-finish)

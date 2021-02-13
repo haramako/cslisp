@@ -308,7 +308,7 @@ namespace Lisp
 								}
 								else if( escapedChar.TryGetValue(buf, out ch))
 								{
-									return new Value(escapedChar);
+									return new Value(ch);
 								}
 								else
 								{
