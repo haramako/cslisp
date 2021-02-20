@@ -149,6 +149,7 @@
 
 ;; test symbol->string
 (assert "symbol" (symbol->string 'symbol))
+(assert #t (symbol=? 'symbol 'symbol))
 (assert-exception #t (symbol->string "hoge"))
 
 ;; test car, cdr

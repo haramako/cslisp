@@ -12,6 +12,12 @@ namespace Lisp.Stdlib
 			return new Value((int)v.AsChar);
 		}
 
+		[LispApi("integer->char")]
+		public static Value integer_to_char(Context ctx, Value v)
+		{
+			return new Value((char)v.AsInt);
+		}
+
 		[LispApi("char=?")]
 		public static Value char_eq(Context ctx, Value[] args)
 		{

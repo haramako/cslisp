@@ -12,6 +12,12 @@ namespace Lisp.Stdlib
 			return new Value(v.AsSymbol.ToString());
 		}
 
+		[LispApi("symbol=?")]
+		public static Value symbol_eq(Context ctx, Value v, Value v2)
+		{
+			return new Value(v.AsSymbol == v2.AsSymbol);
+		}
+
 		[LispApi]
 		public static Value gensym(Context ctx)
 		{

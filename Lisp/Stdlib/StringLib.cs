@@ -30,7 +30,7 @@ namespace Lisp.Stdlib
 			return new Value(string.Join("", args.Select(s => s.AsString)));
 		}
 
-		[LispApi("%number->string")]
+		[LispApi("number->string")]
 		public static Value number_to_string(Context ctx, Value v)
 		{
 			return new Value(v.AsInt.ToString());
