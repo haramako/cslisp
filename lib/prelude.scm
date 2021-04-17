@@ -223,15 +223,11 @@
 (define quotient truncate-quotient)
 (define reminder truncate-reminder)
 (define modulo floor-remainder)
-;(define call-with-current-continuation call/cc)
 
 (define (caar x) (car (car x)))
 (define (cadr x) (car (cdr x)))
 (define (cdar x) (cdr (car x)))
 (define (cddr x) (cdr (cdr x)))
-
-;(if #f 2)
-;(aaa)
 
 (define end-of-line "\n")
 
@@ -247,24 +243,62 @@
   (%backtrace)
   (exit 1))
 
-(define (close-syntax sym mac-env)
-  sym)
+(current-renamer (lambda (x) x))
+
+(define close-syntax
+  (lambda (form env)
+    (make-syntactic-closure env '() form)))
+
+(define make-renamer
+  (lambda (mac-env)
+    (define rename 
+      ((lambda (renames) 
+        (lambda (identifier)
+          ((lambda (cell)
+            (if cell
+              (cdr cell)
+              ((lambda (name) 
+                (set! renames (cons (cons identifier name) renames))
+                  name)
+                ((lambda (id)
+                  (syntactic-closure-set-rename! id rename)
+                  id)
+                (close-syntax identifier mac-env)))))
+          (assq identifier renames))))
+       '()))
+    rename))
 
 (define make-transformer
   (lambda (transformer)
     (lambda (expr use-env mac-env)
-	  (transformer expr))))
+      ((lambda (old-use-env old-mac-env old-renamer)
+        (current-usage-environment use-env)
+        (current-transformer-environment mac-env)
+        (current-renamer (make-renamer mac-env))
+        ((lambda (result)
+            (current-usage-environment old-use-env)
+            (current-transformer-environment old-mac-env)
+            (current-renamer old-renamer)
+            result)
+          (transformer expr)))
+        (current-usage-environment)
+        (current-transformer-environment)
+        (current-renamer)))))
 
 (%define-syntax define-syntax
-				(lambda (expr use-env mac-env)
-				  (list (close-syntax '%define-syntax mac-env)
-						(cadr expr)
-						(list (close-syntax 'make-transformer mac-env)
-							  (car (cddr expr))))))
+  (lambda (expr use-env mac-env)
+    (list (close-syntax '%define-syntax mac-env)
+      (cadr expr)
+      (list (close-syntax 'make-transformer mac-env)
+        (car (cddr expr))))))
 
 (define free-identifier=?
   (lambda (x y)
-	(eq? x y)))
+    ((lambda (use-env cur-env)
+      (identifier=? (if use-env use-env cur-env) x
+		    (if use-env use-env cur-env) y))
+      (current-usage-environment)
+      (current-environment))))
 
 (define (current-renamer . rest)
   (lambda (x) x))

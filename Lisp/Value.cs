@@ -24,6 +24,7 @@ namespace Lisp
 		Closure,
 		LispApi,
 		Continuation,
+		Identifier,
 	}
 
 	public partial struct Value : IEquatable<Value>
@@ -50,6 +51,7 @@ namespace Lisp
 		const ulong ClosureMark = ReferenceMark | (ulong)ValueType.Closure;
 		const ulong LispApiMark = ReferenceMark | (ulong)ValueType.LispApi;
 		const ulong ContinuationMark = ReferenceMark | (ulong)ValueType.Continuation;
+		const ulong IdentifierMark = ReferenceMark | (ulong)ValueType.Identifier;
 		const ulong ObjectMark = ReferenceMark | (ulong)ValueType.Object;
 
 		// type用の16bit(bit63..48)の情報
@@ -229,6 +231,21 @@ namespace Lisp
 			else
 			{
 				val_ = ContinuationMark;
+				obj_ = v;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Value(Identifier v)
+		{
+			if (v == null)
+			{
+				val_ = NilMark;
+				obj_ = null;
+			}
+			else
+			{
+				val_ = IdentifierMark;
 				obj_ = v;
 			}
 		}
@@ -423,6 +440,15 @@ namespace Lisp
 			get
 			{
 				return ValueType == ValueType.Continuation;
+			}
+		}
+
+		public bool IsIdentifer
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.Identifier;
 			}
 		}
 
@@ -677,10 +703,27 @@ namespace Lisp
 			}
 		}
 
+		public Identifier AsIdentifier
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				checkType(ValueType.Identifier);
+				return (Identifier)obj_;
+			}
+		}
+
 		public T As<T>() where T: class
 		{
-			checkType(ValueType.Object);
-			return (T)obj_;
+			if (IsNil)
+			{
+				return null;
+			}
+			else
+			{
+				checkType(ValueType.Object);
+				return (T)obj_;
+			}
 		}
 
 		//====================================================
@@ -979,6 +1022,28 @@ namespace Lisp
 		public static bool operator !=(Value a, Value b)
 		{
 			return !a.Equals(b);
+		}
+
+		public bool IsSymbolOrIdentifier
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get
+			{
+				return ValueType == ValueType.Symbol || ValueType == ValueType.Identifier;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Symbol GetResolvedSymbol()
+		{
+			if (ValueType == ValueType.Symbol)
+			{
+				return AsSymbol;
+			}
+			else
+			{
+				return AsIdentifier.Symbol;
+			}
 		}
 
 	}

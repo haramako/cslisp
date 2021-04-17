@@ -139,6 +139,10 @@ namespace Lisp
 		public Dictionary<string, Module> Modules => modules_;
 		public List<Lambda> Lambdas = new List<Lambda>();
 
+		public Env UsageEnvironment;
+		public Env TransformerEnvironment;
+		public Value CurrentRenamer;
+
 		public Vm(bool noPrelude = false)
 		{
 			eval_ = new Eval(this);
@@ -170,6 +174,7 @@ namespace Lisp
 			ImportApi(typeof(Stdlib.ByteVectorLib), e);
 			ImportApi(typeof(Stdlib.VectorLib), e);
 			ImportApi(typeof(Stdlib.PortLib), e);
+			ImportApi(typeof(Stdlib.IdentifierLib), e);
 
 			e.Define(Symbol.Intern("%if"), C.Nil);
 			e.Define(Symbol.Intern("%define-syntax"), C.Nil);

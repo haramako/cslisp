@@ -136,6 +136,10 @@ namespace Lisp
 						sb_.Append(")");
 					}
 					break;
+				case ValueType.Identifier:
+					sb_.Append("#identifier#");
+					sb_.Append(v.AsIdentifier.Symbol.ToString());
+					break;
 				case ValueType.Object:
 					sb_.Append(v.AsObject);
 					break;

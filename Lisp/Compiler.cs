@@ -311,7 +311,7 @@ namespace Lisp
 			{
 				compileForm(ctx, code);
 			}
-			else if( code.IsSymbol)
+			else if( code.IsSymbol || code.IsIdentifer)
 			{
 				ctx.Emit(Operator.Ld, code);
 			}
@@ -330,9 +330,9 @@ namespace Lisp
 			// printf( "s:%s\n", v2s_limit(s,30) );
 			if (!s.IsCons) return s;
 			if (s.Car.IsCons) return normalizeList(ctx, s);
-			if (!s.Car.IsSymbol) return s;
+			if (!s.Car.IsSymbolOrIdentifier) return s;
 
-			string sym = s.Car.AsSymbol.ToString();
+			string sym = s.Car.GetResolvedSymbol().ToString();
 			Value rest = s.Cdr;
 			if (sym == "define")
 			{

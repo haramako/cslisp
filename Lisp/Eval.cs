@@ -160,9 +160,18 @@ namespace Lisp
 							break;
 						case Operator.Ld:
 							{
-								var sym = c.Val.AsSymbol;
-								var val = e.Get(sym);
-								s.Push(val);
+								if (c.Val.IsSymbol)
+								{
+									var sym = c.Val.AsSymbol;
+									var val = e.Get(sym);
+									s.Push(val);
+								}
+								else
+								{
+									var id = c.Val.AsIdentifier;
+									var val = e.Get(id.Symbol);
+									s.Push(val);
+								}
 							}
 							break;
 						case Operator.Pop:
@@ -365,6 +374,7 @@ namespace Lisp
 			{
 				throw;
 			}
+			#if !DONT_CATCH_ERROR
 			catch (LispException ex)
 			{
 				// Convert exception to scheme error.
@@ -393,6 +403,7 @@ namespace Lisp
 					throw;
 				}
 			}
+			#endif
 		}
 
 		void saveRegisters(int pc, Code[] code, Closure closure, Stack<Value> stack, Env env, Stack<Dump> dump)
