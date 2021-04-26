@@ -147,6 +147,10 @@ namespace Lisp
 		{
 			eval_ = new Eval(this);
 			provideEmbedModules();
+		}
+
+		public void Init(bool noPrelude = false)
+		{
 			if (noPrelude)
 			{
 				Modules["%embeded"].ImportToEnv(defaultEnv_);

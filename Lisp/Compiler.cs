@@ -150,7 +150,7 @@ namespace Lisp
 			ctx.CurrentLocation = code.AsCons.Location;
 			//trace("{0} {1}", ctx.CurrentLocation.Line, PrettyPrinter.Instance.Print(code, 30));
 			bool normalForm = false;
-			if (car.IsSymbol)
+			if (car.IsSymbolOrIdentifier)
 			{
 				switch (car.AsSymbol.ToString())
 				{
@@ -182,12 +182,14 @@ namespace Lisp
 						break;
 
 					case "%quote":
+					case "quote":
 						{
 							ctx.Emit(Operator.Ldc, cdr.Car);
 						}
 						break;
 
 					case "%lambda":
+					case "lambda":
 						{
 							var lmd = compileLambda(ctx, code);
 							ctx.Emit(Operator.Ldf, new Value(lmd));
@@ -195,6 +197,7 @@ namespace Lisp
 						break;
 
 					case "%begin":
+					case "begin":
 						{
 							for (var cur = cdr; !cur.IsNil; cur = cur.Cdr)
 							{
@@ -207,6 +210,7 @@ namespace Lisp
 						}
 						break;
 					case "%if":
+					case "if":
 						{
 							Value cond, thenBody, elseAndRest;
 							Value.Bind2Rest(code.Cdr, out cond, out thenBody, out elseAndRest);
@@ -387,6 +391,7 @@ namespace Lisp
 			}
 			else if (sym == "quote")
 			{
+				System.Console.WriteLine($"compile quote {rest}");
 				return Value.ConsSrc(s, C.SpQuote, rest);
 			}
 			else if (sym == "define-library")
@@ -424,7 +429,7 @@ namespace Lisp
 
 		Value normalizeSyntax(CompileContext ctx, Value s)
 		{
-			if (!s.Car.IsSymbol) return s;
+			if (!s.Car.IsSymbolOrIdentifier) return s;
 
 			Value v;
 			if (rootEnv_.TryGet(s.Car.AsSymbol, out v))
@@ -437,7 +442,7 @@ namespace Lisp
 					return s;
 				}
 
-				var expanded = vm_.Apply(closure, s, C.Nil, C.Nil);
+				var expanded = vm_.Apply(closure, s, new Value(vm_.UsageEnvironment), new Value(vm_.TransformerEnvironment));
 
 				return normalizeSexp(ctx, expanded);
 			}

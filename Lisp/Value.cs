@@ -564,6 +564,11 @@ namespace Lisp
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
+				if( ValueType == ValueType.Identifier)
+				{
+					return AsIdentifier.Symbol;
+				}
+
 				checkType(ValueType.Symbol);
 				return (Symbol)obj_;
 			}

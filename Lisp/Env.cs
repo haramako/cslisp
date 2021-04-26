@@ -19,6 +19,38 @@ namespace Lisp
 
 		public Env Up => up_;
 
+		public bool TryGetSlot(Symbol symbol, out Env val)
+		{
+			Value found;
+			if (dict_.TryGetValue(symbol, out found))
+			{
+				val = this;
+				return true;
+			}
+			else if (up_ != null)
+			{
+				return up_.TryGetSlot(symbol, out val);
+			}
+			else
+			{
+				val = null;
+				return false;
+			}
+		}
+
+		public Env GetSlot(Symbol symbol)
+		{
+			Env found;
+			if (TryGetSlot(symbol, out found))
+			{
+				return found;
+			}
+			else
+			{
+				return null;
+			}
+		}
+
 		public bool TryGet(Symbol symbol, out Value val)
 		{
 			Value found;

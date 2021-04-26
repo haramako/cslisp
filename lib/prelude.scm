@@ -260,10 +260,11 @@
               ((lambda (name) 
                 (set! renames (cons (cons identifier name) renames))
                   name)
+                (display "mac-env" mac-env end-of-line)
                 ((lambda (id)
-                  (syntactic-closure-set-rename! id rename)
-                  id)
-                (close-syntax identifier mac-env)))))
+                    (syntactic-closure-set-rename! id rename)
+                    id)
+                  (close-syntax identifier mac-env)))))
           (assq identifier renames))))
        '()))
     rename))
@@ -295,13 +296,16 @@
 (define free-identifier=?
   (lambda (x y)
     ((lambda (use-env cur-env)
+      (display 'free-identifier=? 
+        (identifier=? (if use-env use-env cur-env) x (if use-env use-env cur-env) y) 
+        x y end-of-line)
       (identifier=? (if use-env use-env cur-env) x
 		    (if use-env use-env cur-env) y))
       (current-usage-environment)
       (current-environment))))
 
-(define (current-renamer . rest)
-  (lambda (x) x))
+;(define (current-renamer . rest)
+;  (lambda (x) x))
 
 (define er-macro-transformer
   (lambda (f)
@@ -310,7 +314,6 @@
 
 (define (vector? x) #f)
 
-(define identifier? symbol?)
 (define (cons-source kar kdr) (cons kar kdr))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -13,18 +13,34 @@ namespace Lisp.Stdlib
 			{
 				var a = a_.AsIdentifier;
 				var b = b_.AsIdentifier;
-				return new Value(a.Symbol == b.Symbol);
-				//return new Value(a.Env == b.Env && a.Symbol == b.Symbol);
+				//return new Value(a.Symbol == b.Symbol);
+				return new Value(a.Env == b.Env && a.Symbol == b.Symbol);
+			}
+			else if( a_.IsIdentifer && b_.IsSymbol)
+			{
+				var a = a_.AsIdentifier;
+				var b = b_.AsSymbol;
+				var slot = envb_.As<Env>().GetSlot(b);
+				//return new Value(a.Symbol == b);
+				return new Value((slot == null || slot == a.Env) && a.Symbol == b);
+			}
+			else if (b_.IsIdentifer && a_.IsSymbol)
+			{
+				var a = a_.AsSymbol;
+				var b = b_.AsIdentifier;
+				var slot = enva_.As<Env>().GetSlot(a);
+				//return new Value(b.Symbol == a);
+				return new Value((slot == null || slot == b.Env) && b.Symbol == a);
 			}
 			else
 			{
 				if( a_.IsIdentifer && b_.IsSymbol)
 				{
-					return new Value(a_.AsIdentifier.Symbol == b_.AsSymbol);
+					//return new Value(a_.AsIdentifier.Symbol == b_.AsSymbol);
 				}
 				if (b_.IsIdentifer && a_.IsSymbol)
 				{
-					return new Value(b_.AsIdentifier.Symbol == a_.AsSymbol);
+					//return new Value(b_.AsIdentifier.Symbol == a_.AsSymbol);
 				}
 				return new Value(a_ == b_);
 			}
@@ -38,11 +54,21 @@ namespace Lisp.Stdlib
 		}
 
 		[LispApi]
-		public static Value make_syntactic_closure(Context ctx, Value env, Value freevar, Value form)
+		public static Value make_syntactic_closure(Context ctx, Value env_, Value freevar, Value form)
 		{
 			var id = new Identifier();
-			id.Env = env.As<Env>();
-			id.Symbol = form.AsSymbol;
+			var symbol = form.AsSymbol;
+			id.Symbol = symbol;
+
+			var env = env_.As<Env>();
+			if (env != null )
+			{
+				id.Env = env.GetSlot(symbol);
+			}
+			else
+			{
+				id.Env = env;
+			}
 			return new Value(id);
 		}
 

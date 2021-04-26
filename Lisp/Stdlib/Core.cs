@@ -172,5 +172,11 @@ namespace Lisp.Stdlib
 			return new Value(v.IsClosure && v.AsClosure.IsSyntax);
 		}
 
+		[LispApi("identifier?")]
+		public static Value identifier_p(Context ctx, Value v)
+		{
+			return new Value(v.IsSymbolOrIdentifier);
+		}
+
 	}
 }

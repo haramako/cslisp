@@ -70,5 +70,28 @@ namespace Lisp.Stdlib
 			return new Value(Path.GetDirectoryName(path.AsString));
 		}
 
+		[LispApi("assq")]
+		public static Value assq(Context ctx, Value key, Value assoc)
+		{
+			while(!assoc.IsNil)
+			{
+				if (!assoc.IsCons)
+				{
+					return C.Nil;
+				}
+				var cons = assoc.AsCons;
+				if(cons.Car.IsCons)
+				{
+					var kv = cons.Car.AsCons;
+					if( kv.Car == key)
+					{
+						return cons.Car;
+					}
+				}
+				assoc = cons.Cdr;
+			}
+			return C.Nil;
+		}
+
 	}
 }

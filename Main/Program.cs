@@ -13,7 +13,7 @@ class Program
 
 	static void Main(string[] args)
 	{
-		vm = new Vm();
+		//vm = new Vm();
 
 		try
 		{
@@ -29,6 +29,8 @@ class Program
 						{
 							dumpWriter = new StreamWriter(File.OpenWrite(args[i + 1]));
 							i++;
+							vm = new Vm();
+							vm.Init();
 						}
 						break;
 					case "-e": // execute string
@@ -61,9 +63,22 @@ class Program
 					new CodePrinter().PrintLambda(dumpWriter, lmd);
 				}
 				dumpWriter.Dispose();
+				dumpWriter = null;
 			}
 			waitKey();
 			Environment.Exit(ex.Code);
+		}
+		catch(Exception ex)
+		{
+			if (dumpWriter != null)
+			{
+				foreach (var lmd in vm.Lambdas)
+				{
+					new CodePrinter().PrintLambda(dumpWriter, lmd);
+				}
+				dumpWriter.Dispose();
+				dumpWriter = null;
+			}
 		}
 		finally
 		{
@@ -74,6 +89,7 @@ class Program
 					new CodePrinter().PrintLambda(dumpWriter, lmd);
 				}
 				dumpWriter.Dispose();
+				dumpWriter = null;
 			}
 		}
 		waitKey();
@@ -96,6 +112,9 @@ class Program
 	/// </summary>
 	static void waitKey()
 	{
+
+		return;
+
 		if (Debugger.IsAttached)
 		{
 			Console.ReadKey();

@@ -137,8 +137,18 @@ namespace Lisp
 					}
 					break;
 				case ValueType.Identifier:
-					sb_.Append("#identifier#");
+					sb_.Append("#identifier<");
 					sb_.Append(v.AsIdentifier.Symbol.ToString());
+					sb_.Append(':');
+					if (v.AsIdentifier.Env == null)
+					{
+						sb_.Append("free");
+					}
+					else
+					{
+						sb_.Append(v.AsIdentifier.Id);
+					}
+					sb_.Append('>');
 					break;
 				case ValueType.Object:
 					sb_.Append(v.AsObject);

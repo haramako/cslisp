@@ -403,4 +403,11 @@
   (write-string "3" port)
   (assert "123" (get-output-string port)))
 
+(define-syntax rename-test
+  (syntax-rules ()
+	((_ body ...) (let ((a 2) (b 3)) body ...))))
+
+(let ((a 1))
+  (rename-test (display a b)))
+
 (minitest-finish)

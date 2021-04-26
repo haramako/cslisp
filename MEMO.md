@@ -17,10 +17,10 @@
 * ネイティブ関数の引数が違うときにエラーにならない
 * import/define-libraryがうごくようにする
   - prelude.scmの中身を(scheme base)にする
-  * include を動くようにする
-  * importでの自動ファイル検索を追加
+  - include を動くようにする
+  - importでの自動ファイル検索を追加
   * デフォルトのインポートを実装(import するまで有効とか？)
-  * デフォルトのロードパスを設定
+  - デフォルトのロードパスを設定
 * テストスイートを選定して持ってくる(chibi? gauche? chicken?)
 * ifの構文チェックを normalize のほうにもってくる
 * vmの初期化でエラーが起きるとdumpができない
@@ -29,7 +29,7 @@ R7RS準拠
 * 衛生的マクロがちゃんとうごくように rename を実装する
 * `(lambda (x) )`がスタック間違いを起こす( `ret` だけで pushがないため)
 - charを型に加える
-* importした束縛の変更のために、ValueReference的なものを作る
+* importした束縛の変更のために、ValueReference(Slot?)的なものを作る
 * let-syntax などがいまはできないのではないか？
 * 行番号が全部はいるようにする
 * ちゃんとした多値を実装する
@@ -196,12 +196,12 @@ rsc-macro-transformer
   (let ((renames '()))
     (lambda (identifier)
       (let ((cell (assq identifier renames))))
-	(if cell
-	  (cdr cell) ; renamesに存在するならそれを返す
-	  (let ((id (close-syntax identifier mac-env))) ; 存在しないなら
-	    (syntactic-closure-set-rename! id rename) ; id.synclo.renameを設定する
-	    (set! renames (cons (cons identifier id) renames) ; renamesに (identifier . id) を追加する
-	    id))))))
+        (if cell
+          (cdr cell) ; renamesに存在するならそれを返す
+          (let ((id (close-syntax identifier mac-env))) ; 存在しないなら
+            (syntactic-closure-set-rename! id rename) ; id.synclo.renameを設定する
+            (set! renames (cons (cons identifier id) renames) ; renamesに (identifier . id) を追加する
+            id))))))
 
 ;; synclo.rename を設定する
 (syntactic-closure-set-rename! id rename) = 組み込み
