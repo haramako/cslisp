@@ -272,7 +272,7 @@ namespace Lisp
 		{
 			if( ValueType != t)
 			{
-				throw new LispException($"Type error expect {t}, but {ValueType}");
+				throw new LispException($"Type error. Expect {t}, but {ValueType}");
 			}
 		}
 

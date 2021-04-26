@@ -340,7 +340,7 @@ namespace Lisp
 			Value rest = s.Cdr;
 			if (sym == "define")
 			{
-				if (rest.Car.IsSymbol)
+				if (rest.Car.IsSymbolOrIdentifier)
 				{
 					// (define sym val) の形
 					return Value.ConsSrc(s, C.SpDefine, normalizeList(ctx, rest));
@@ -389,9 +389,9 @@ namespace Lisp
 				Value.Bind2(rest, out sym_, out val);
 				return Value.ConsSrc(s, C.SpSet, Value.Cons(sym_, normalizeSexp(ctx, val), C.Nil));
 			}
-			else if (sym == "quote")
+			else if (sym == "quote" || sym == "%quote")
 			{
-				System.Console.WriteLine($"compile quote {rest}");
+				//System.Console.WriteLine($"compile quote {rest}");
 				return Value.ConsSrc(s, C.SpQuote, rest);
 			}
 			else if (sym == "define-library")

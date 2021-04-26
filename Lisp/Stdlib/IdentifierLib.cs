@@ -9,6 +9,15 @@ namespace Lisp.Stdlib
 		[LispApi("identifier=?")]
 		public static Value identifier_eq(Context ctx, Value enva_, Value a_, Value envb_, Value b_)
 		{
+			if( a_.IsSymbolOrIdentifier && b_.IsSymbolOrIdentifier)
+			{
+				var sym = a_.AsSymbol;
+				if( sym.ToString() == "unquote" || sym.ToString() == "unquote-splicing")
+				{
+					return new Value(b_.AsSymbol == a_.AsSymbol);
+				}
+			}
+
 			if( a_.IsIdentifer && b_.IsIdentifer)
 			{
 				var a = a_.AsIdentifier;

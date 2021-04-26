@@ -249,24 +249,26 @@
   (lambda (form env)
     (make-syntactic-closure env '() form)))
 
+(define tap (lambda (x) (display "tap" x end-of-line) x))
+
 (define make-renamer
   (lambda (mac-env)
     (define rename 
       ((lambda (renames) 
-        (lambda (identifier)
-          ((lambda (cell)
-            (if cell
-              (cdr cell)
-              ((lambda (name) 
-                (set! renames (cons (cons identifier name) renames))
-                  name)
-                (display "mac-env" mac-env end-of-line)
-                ((lambda (id)
-                    (syntactic-closure-set-rename! id rename)
-                    id)
-                  (close-syntax identifier mac-env)))))
-          (assq identifier renames))))
-       '()))
+          (lambda (identifier)
+            ;(display "rename" identifier end-of-line)
+            ((lambda (cell)
+                (if cell
+                  (cdr cell)
+                  ((lambda (name) 
+                    (set! renames (cons (cons identifier name) renames))
+                      name)
+                    ((lambda (id)
+                        (syntactic-closure-set-rename! id rename)
+                        id)
+                      (close-syntax identifier mac-env)))))
+              (assq identifier renames))))
+        '()))
     rename))
 
 (define make-transformer
@@ -296,7 +298,7 @@
 (define free-identifier=?
   (lambda (x y)
     ((lambda (use-env cur-env)
-      (display 'free-identifier=? 
+      #;(display 'free-identifier=? 
         (identifier=? (if use-env use-env cur-env) x (if use-env use-env cur-env) y) 
         x y end-of-line)
       (identifier=? (if use-env use-env cur-env) x
@@ -320,8 +322,9 @@
 
 (define-syntax cond
   (er-macro-transformer
-   (lambda (expr rename compare)
-     (if (null? (cdr expr))
+    (lambda (expr rename compare)
+      ;(display "***" compare rename (rename 'else) end-of-line )
+      (if (null? (cdr expr))
          (if #f #f)
          ((lambda (cl)
             (if (compare (rename 'else) (car cl))
@@ -564,7 +567,7 @@
             ((eq obj (caar ls)) (car ls))
             (else (assoc (cdr ls)))))))
 
-(define (assq obj ls) (assoc obj ls eq?))
+;(define (assq obj ls) (assoc obj ls eq?))
 (define (assv obj ls) (assoc obj ls eqv?))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -858,7 +861,6 @@
 (define (nthcdr n lis)
   (if (eqv? 0 n) lis (nth (- n 1) (cdr lis))))
 
-
 #;(define (map f li)
   (let recur ((f f) (li li))
 	(if (pair? li)
@@ -867,13 +869,13 @@
 
 (define (for-each f l)
   (let recur ((f f) (l l))
-	(if (not (pair? l)) #f
-		(begin (f (car l))
-		  (recur f (cdr l))))))
+    (if (not (pair? l)) #f
+      (begin (f (car l))
+        (recur f (cdr l))))))
 
 (define-syntax unless
   (syntax-rules ()
-	((_ cnd body ...) (if cnd #f (begin body ...)))))
+	  ((_ cnd body ...) (if cnd #f (begin body ...)))))
 
 (define-syntax when 
   (syntax-rules ()
